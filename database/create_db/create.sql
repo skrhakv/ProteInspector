@@ -4,6 +4,7 @@ CREATE TYPE PROTEIN_ID AS (pdb_code VARCHAR (4), chain_id VARCHAR (2));
 
 CREATE TABLE proteins (
     protein_id PROTEIN_ID PRIMARY KEY,
+    is_holo BOOLEAN NOT NULL,
     uniprot_id TEXT NOT NULL,
     FOREIGN KEY (uniprot_id) REFERENCES sequences (uniprot_id)
 );
@@ -38,18 +39,15 @@ CREATE TYPE PAIR_OF_DOMAIN_PAIRS AS (
 
 CREATE TABLE protein_pairs (
     pair PROTEIN_PAIR PRIMARY KEY,
-    FOREIGN KEY (pair) REFERENCES proteins(protein_id),
     FOREIGN KEY (pair) REFERENCES proteins(protein_id)
 );
 
 CREATE TABLE domain_pairs (
     pair DOMAIN_PAIR PRIMARY KEY,
-    FOREIGN KEY (pair) REFERENCES domains(domain_id),
     FOREIGN KEY (pair) REFERENCES domains(domain_id)
 );
 
 CREATE TABLE pairs_of_domain_pairs (
     pair PAIR_OF_DOMAIN_PAIRS PRIMARY KEY,
-    FOREIGN KEY (pair) REFERENCES domain_pairs(pair),
     FOREIGN KEY (pair) REFERENCES domain_pairs(pair)
 );
