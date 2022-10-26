@@ -1,0 +1,21 @@
+DROP TABLE pairs_of_domain_pairs;
+
+DROP TABLE domain_pairs;
+
+DROP TABLE protein_pairs;
+
+DROP TABLE domains;
+
+DROP TABLE proteins;
+
+DROP TABLE sequences;
+
+DROP TYPE SPAN;
+
+DROP TYPE PROTEIN_PAIR;
+
+DROP TYPE PAIR_OF_DOMAIN_PAIRS;
+
+DROP TYPE DOMAIN_PAIR;
+DROP TYPE DOMAIN_ID;
+DROP TYPE PROTEIN_ID;

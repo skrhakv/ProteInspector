@@ -14,6 +14,7 @@ psql -d apo_holo_db
 ```
 
 # Create tables
+Script deletes all old tables in the database and creates new empty tables:
 ```
 psql -U apo_holo_db -h 127.0.0.1 -d apo_holo_db -a -f database/create_db/create.sql
 ```
