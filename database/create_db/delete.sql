@@ -1,6 +1,10 @@
+DROP TABLE lcs_info;
+
 DROP TABLE pairs_of_domain_pairs;
 
-DROP TABLE domain_pairs;
+DROP TABLE heterogenous_domain_pairs;
+
+DROP TABLE homogenous_domain_pairs;
 
 DROP TABLE protein_pairs;
 
@@ -12,10 +16,16 @@ DROP TABLE sequences;
 
 DROP TYPE SPAN;
 
-DROP TYPE PROTEIN_PAIR;
+DROP SEQUENCE sequences_sequence;
 
-DROP TYPE PAIR_OF_DOMAIN_PAIRS;
+DROP SEQUENCE proteins_sequence;
 
-DROP TYPE DOMAIN_PAIR;
-DROP TYPE DOMAIN_ID;
-DROP TYPE PROTEIN_ID;
+DROP SEQUENCE domains_sequence;
+
+DROP SEQUENCE protein_pairs_sequence;
+
+DROP SEQUENCE heterogenous_domain_pairs_sequence;
+
+DROP SEQUENCE homogenous_domain_pairs_sequence;
+
+DROP SEQUENCE pairs_of_domain_pairs_sequence;
