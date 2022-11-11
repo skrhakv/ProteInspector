@@ -1,3 +1,4 @@
 # data
 /data
 /database/insert_data/.env
+/database/insert_data/__pycache__
