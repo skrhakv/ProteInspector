@@ -21,6 +21,12 @@ def check_pdb_code_and_chain_id(pdb_code, chain_id):
     return True
 
 
+def check_pdb_code_and_chain_id_and_cath_id(pdb_code, chain_id, cath_id):
+    if len(pdb_code) > 4 or len(chain_id) > 4 or len(cath_id) > 8:
+        return False
+    return True
+
+
 def check_mismatches(mismatches1, mismatches2, mismatches3):
     if mismatches1 > 0 or mismatches2 > 0 or mismatches3 > 0:
         return False

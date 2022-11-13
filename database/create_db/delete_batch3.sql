@@ -1,6 +1,6 @@
-DROP TABLE pairs_of_domain_pairs;
+DROP TABLE domain_pairs_data;
 
-DROP SEQUENCE pairs_of_domain_pairs_sequence;
+DROP TABLE protein_pairs_data;
 
 DROP TABLE domain_pairs;
 
