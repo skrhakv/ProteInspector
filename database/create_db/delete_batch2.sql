@@ -1,5 +1,5 @@
-DROP TABLE lcs_info;
+DROP TABLE protein_transformations_data;
 
-DROP TABLE protein_pairs;
+DROP TABLE protein_transformations;
 
-DROP SEQUENCE protein_pairs_sequence;
+DROP SEQUENCE protein_transformations_sequence;

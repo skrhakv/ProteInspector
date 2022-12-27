@@ -1,4 +1,4 @@
-import json
+import ujson
 import os
 import sys
 from base import log_to_db, check_pdb_code_and_chain_id
@@ -16,13 +16,14 @@ if __name__ == "__main__":
     file_endings = list(range(0, lim))
 
     for ending in file_endings:
+
         # Opening JSON file
         f = open(os.path.join(dirname, '../../data/filter/filter_output.json.d/filter_output.json' +
-                 f'{ending:04d}' + '/pairs.json_shard'))
+                 f'{ending:03d}'))
 
         print(ending)
-        data = json.load(f)
-
+        data = ujson.load(f)
+        counter = 0
         for i in data:
             # add data to 'sequences' table
             uniprot_id = i['uniprotkb_id']
@@ -38,7 +39,6 @@ if __name__ == "__main__":
 
                 insert_query = f"INSERT INTO sequences(sequence_id, uniprot_id) VALUES ({sequence_id}, '{uniprot_id}');"
                 cur.execute(insert_query, (uniprot_id))
-                connection.commit()
             else:
                 if DEBUG:
                     print(f"Duplicate! uniprot_id = {uniprot_id}")
@@ -64,10 +64,14 @@ if __name__ == "__main__":
             if not cur.fetchone()[0]:
                 insert_query = f"INSERT INTO proteins(protein_id, pdb_code, chain_id, is_holo, sequence_id) VALUES (nextval('proteins_sequence'),'{pdb_code}', '{chain_id}', {is_holo}, {sequence_id} );"
                 cur.execute(insert_query)
-                connection.commit()
             else:
                 if DEBUG:
                     print(
                         f"Duplicate! pdb_code = '{pdb_code}', chain_id = '{chain_id}")
-
+            counter += 1
+            if counter == 1000:
+                connection.commit()
+                counter = 0
+        
+        connection.commit()
         f.close()

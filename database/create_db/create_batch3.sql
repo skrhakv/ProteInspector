@@ -9,27 +9,30 @@ CREATE TABLE domains (
     FOREIGN KEY (protein_id) REFERENCES proteins (protein_id)
 );
 
-CREATE SEQUENCE domain_pairs_sequence start 1 increment 1;
+CREATE SEQUENCE domain_transformations_sequence start 1 increment 1;
 
-CREATE TABLE domain_pairs (
-    domain_pair_id SERIAL PRIMARY KEY,
-    apo_domain_id INTEGER NOT NULL,
-    holo_domain_id INTEGER NOT NULL,
-    FOREIGN KEY (apo_domain_id) REFERENCES domains(domain_id),
-    FOREIGN KEY (holo_domain_id) REFERENCES domains(domain_id)
+CREATE TABLE domain_transformations (
+    domain_transformation_id SERIAL PRIMARY KEY,
+    before_domain_id INTEGER NOT NULL,
+    after_domain_id INTEGER NOT NULL,
+    before_snapshot INTEGER DEFAULT 1,
+    after_snapshot INTEGER DEFAULT 2,
+    FOREIGN KEY (before_domain_id) REFERENCES domains(domain_id),
+    FOREIGN KEY (after_domain_id) REFERENCES domains(domain_id)
 );
 
-CREATE TABLE domain_pairs_data (
-    domain_pair_id INTEGER PRIMARY KEY,
+CREATE TABLE domain_transformations_data (
+    domain_transformation_id INTEGER PRIMARY KEY,
     domain_span SPAN,
+    spans_auth_seq_id SPAN,
     rmsd DOUBLE PRECISION,
     compare_secondary_structure DOUBLE PRECISION,
-    FOREIGN KEY (domain_pair_id) REFERENCES domain_pairs(domain_pair_id)
+    FOREIGN KEY (domain_transformation_id) REFERENCES domain_transformations(domain_transformation_id)
 );
 
-CREATE TABLE protein_pairs_data (
-    protein_pair_id INTEGER PRIMARY KEY,
+CREATE TABLE protein_transformations_data (
+    protein_transformation_id INTEGER PRIMARY KEY,
     rmsd DOUBLE PRECISION,
     compare_secondary_structure DOUBLE PRECISION,
-    FOREIGN KEY (protein_pair_id) REFERENCES protein_pairs(protein_pair_id)
+    FOREIGN KEY (protein_transformation_id) REFERENCES protein_transformations(protein_transformation_id)
 );
