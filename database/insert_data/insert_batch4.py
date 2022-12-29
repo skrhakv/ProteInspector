@@ -54,15 +54,23 @@ def insert_domain_pair(record):
         before_domain_id1, before_domain_id2 = before_domain_id2, before_domain_id1
     insert_before_domain_pair = f"""
     insert into domain_pairs(domain_pair_id,domain_id1, domain_id2)
-    VALUES (nextval('proteins_sequence'),'{before_domain_id1}', '{before_domain_id2}');"""
+    VALUES (nextval('domain_pairs_sequence'),'{before_domain_id1}', '{before_domain_id2}') returning domain_pair_id;"""
     cur.execute(insert_before_domain_pair)
+    before_domain_pair_id = cur.fetchone()[0]
 
     if after_domain_id1 >= after_domain_id2:
         after_domain_id1, after_domain_id2 = after_domain_id2, after_domain_id1
     insert_after_domain_pair = f"""
     insert into domain_pairs(domain_pair_id,domain_id1, domain_id2)
-    VALUES (nextval('proteins_sequence'),'{after_domain_id1}', '{after_domain_id2}');"""
+    VALUES (nextval('domain_pairs_sequence'),'{after_domain_id1}', '{after_domain_id2}') returning domain_pair_id;"""
     cur.execute(insert_after_domain_pair)
+    after_domain_pair_id = cur.fetchone()[0]
+
+    insert_domain_pair_transformation = f"""
+    insert into domain_pair_transformations(domain_pair_transformation_id,before_domain_pair_id, after_domain_pair_id)
+    VALUES (nextval('domain_pair_transformations_sequence'),'{before_domain_pair_id}', '{after_domain_pair_id}');"""
+    cur.execute(insert_domain_pair_transformation)
+
     counter += 1
     if counter == 100:
         counter = 0
