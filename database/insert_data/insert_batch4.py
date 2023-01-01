@@ -8,7 +8,6 @@ cur = None
 connection = None
 counter = 0
 
-
 def insert_domain_pair(record):
     global counter
 
@@ -25,6 +24,7 @@ def insert_domain_pair(record):
     after_pdb_code2 = record['args'][1][1][0]
     after_chain_id2 = record['args'][1][1][1]
     after_cath_id2 = record['args'][1][1][2]
+
     get_before_query1 = f"""select domains.domain_id from proteins left join domains on 
     proteins.protein_id = domains.protein_id where proteins.pdb_code='{before_pdb_code1}' 
     and proteins.chain_id='{before_chain_id1}' 
@@ -54,17 +54,37 @@ def insert_domain_pair(record):
         before_domain_id1, before_domain_id2 = before_domain_id2, before_domain_id1
     insert_before_domain_pair = f"""
     insert into domain_pairs(domain_pair_id,domain_id1, domain_id2)
-    VALUES (nextval('domain_pairs_sequence'),'{before_domain_id1}', '{before_domain_id2}') returning domain_pair_id;"""
+    select nextval('domain_pairs_sequence'), '{before_domain_id1}', {before_domain_id2} WHERE NOT EXISTS (
+    SELECT 1 FROM domain_pairs WHERE domain_id1='{before_domain_id1}' and domain_id2 = {before_domain_id2})
+    returning domain_pair_id"""
     cur.execute(insert_before_domain_pair)
-    before_domain_pair_id = cur.fetchone()[0]
+    before_domain_pair_id = cur.fetchone()
+
+    # if the domain already existed in the table
+    if before_domain_pair_id == None:
+        cur.execute(f"""select domain_pair_id from domain_pairs
+        where domain_id1='{before_domain_id1}' and domain_id2='{before_domain_id2}'""")
+        before_domain_pair_id = cur.fetchone()
+    before_domain_pair_id = before_domain_pair_id[0]
+
 
     if after_domain_id1 >= after_domain_id2:
         after_domain_id1, after_domain_id2 = after_domain_id2, after_domain_id1
     insert_after_domain_pair = f"""
     insert into domain_pairs(domain_pair_id,domain_id1, domain_id2)
-    VALUES (nextval('domain_pairs_sequence'),'{after_domain_id1}', '{after_domain_id2}') returning domain_pair_id;"""
+    select nextval('domain_pairs_sequence'), '{after_domain_id1}', {after_domain_id2} WHERE NOT EXISTS (
+    SELECT 1 FROM domain_pairs WHERE domain_id1='{after_domain_id1}' and domain_id2 = {after_domain_id2})
+    returning domain_pair_id"""
     cur.execute(insert_after_domain_pair)
-    after_domain_pair_id = cur.fetchone()[0]
+    after_domain_pair_id = cur.fetchone()
+
+    # if the domain already existed in the table
+    if after_domain_pair_id == None:
+        cur.execute(f"""select domain_pair_id from domain_pairs
+        where domain_id1='{after_domain_id1}' and domain_id2='{after_domain_id2}'""")
+        after_domain_pair_id = cur.fetchone()
+    after_domain_pair_id = after_domain_pair_id[0]
+
 
     insert_domain_pair_transformation = f"""
     insert into domain_pair_transformations(domain_pair_transformation_id,before_domain_pair_id, after_domain_pair_id)
