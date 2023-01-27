@@ -5,6 +5,8 @@ CREATE TABLE protein_transformations (
     protein_transformation_id SERIAL PRIMARY KEY,
     before_protein_id INTEGER NOT NULL,
     after_protein_id INTEGER NOT NULL,
+    before_snapshot INTEGER DEFAULT 1,
+    after_snapshot INTEGER DEFAULT 2,
     FOREIGN KEY (before_protein_id) REFERENCES proteins(protein_id),
     FOREIGN KEY (after_protein_id) REFERENCES proteins(protein_id)
 );

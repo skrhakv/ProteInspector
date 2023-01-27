@@ -1,4 +1,4 @@
-CREATE TABLE tranformations (
+CREATE TABLE transformations (
     transformation_id SERIAL PRIMARY KEY,
     transformation_length INTEGER DEFAULT 2
 );
@@ -6,16 +6,16 @@ CREATE TABLE tranformations (
 ALTER TABLE
     protein_transformations
 ADD
-    COLUMN transformation_id INTEGER REFERENCES tranformations(transformation_id);
+    COLUMN transformation_id INTEGER REFERENCES transformations(transformation_id);
 
 ALTER TABLE
     domain_transformations
 ADD
-    COLUMN transformation_id INTEGER REFERENCES tranformations(transformation_id);
+    COLUMN transformation_id INTEGER REFERENCES transformations(transformation_id);
 
 ALTER TABLE
     domain_pair_transformations
 ADD
-    COLUMN transformation_id INTEGER REFERENCES tranformations(transformation_id);
+    COLUMN transformation_id INTEGER REFERENCES transformations(transformation_id);
 
 CREATE SEQUENCE transformations_sequence start 1 increment 1;
