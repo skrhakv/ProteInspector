@@ -4,55 +4,99 @@ CREATE TABLE protein_labels (
     label_id SERIAL PRIMARY KEY,
     label TEXT NOT NULL,
     protein_id INTEGER NOT NULL,
-    structure_definition INTEGER ARRAY NOT NULL,
+    residue_start INTEGER NOT NULL,
+    residue_end INTEGER NOT NULL,
     FOREIGN KEY (protein_id) REFERENCES proteins (protein_id)
 );
 
--- structure_definition works like this:
--- array has an even number of integers, each double represents a start and the end of the certain part of structure
--- for example:
--- ARRAY[1, 2, 5, 7] means, that the label holds for a section <1,2> and <5,7> 
--- ARRAY[4, 4] means, that the label hold only for the section <4,4>
 -- add label on structures
 INSERT INTO
     protein_labels (
         label_id,
         label,
         protein_id,
-        structure_definition
+        residue_start,
+        residue_end
     )
 VALUES
-    (1, 'active', 1, ARRAY [1, 2, 5, 7]);
+    (1, 'active', 1, 1, 2);
 
 INSERT INTO
     protein_labels (
         label_id,
         label,
         protein_id,
-        structure_definition
+        residue_start,
+        residue_end
     )
 VALUES
-    (2, 'inactive', 2, ARRAY [4, 5, 7, 8]);
+    (1, 'active', 1, 5, 7);
 
 INSERT INTO
     protein_labels (
         label_id,
         label,
         protein_id,
-        structure_definition
+        residue_start,
+        residue_end
     )
 VALUES
-    (4, 'active', 4, ARRAY [1, 2, 5, 6]);
+    (2, 'inactive', 2, 4, 5);
 
 INSERT INTO
     protein_labels (
         label_id,
         label,
         protein_id,
-        structure_definition
+        residue_start,
+        residue_end
     )
 VALUES
-    (5, 'inactive', 5, ARRAY [4, 5, 7, 8]);
+    (2, 'inactive', 2, 7, 8);
+
+INSERT INTO
+    protein_labels (
+        label_id,
+        label,
+        protein_id,
+        residue_start,
+        residue_end
+    )
+VALUES
+    (4, 'active', 4, 1, 2, 5, 6);
+
+INSERT INTO
+    protein_labels (
+        label_id,
+        label,
+        protein_id,
+        residue_start,
+        residue_end
+    )
+VALUES
+    (4, 'active', 4, 5, 6);
+
+INSERT INTO
+    protein_labels (
+        label_id,
+        label,
+        protein_id,
+        residue_start,
+        residue_end
+    )
+VALUES
+    (5, 'inactive', 5, 4, 5);
+
+INSERT INTO
+    protein_labels (
+        label_id,
+        label,
+        protein_id,
+        residue_start,
+        residue_end
+    )
+VALUES
+    (5, 'inactive', 5, 7, 8);
 
 -- add label on a single residuum
 INSERT INTO
@@ -60,21 +104,22 @@ INSERT INTO
         label_id,
         label,
         protein_id,
-        structure_definition
+        residue_start,
+        residue_end
     )
 VALUES
-    (6, 'inactive', 6, ARRAY [4, 4]);
-
+    (6, 'inactive', 6, 4, 4);
 
 INSERT INTO
     protein_labels (
         label_id,
         label,
         protein_id,
-        structure_definition
+        residue_start,
+        residue_end
     )
 VALUES
-    (3, 'active', 3, ARRAY [5, 5]);
+    (3, 'active', 3, 5, 5);
 
 -- add protein simulation of length 4
 -- simulates transformation from protein with protein_id=1 to protein_id=2 to protein_id=3 to protein_id=4
