@@ -1,0 +1,201 @@
+{
+    "tables": {
+        "proteins": {
+            "table": "protein_transformations_data",
+            "joins": "inner join protein_transformations on protein_transformations.protein_transformation_id = protein_transformations_data.protein_transformation_id inner join proteins as before_proteins on before_proteins.protein_id = protein_transformations.before_protein_id inner join proteins as after_proteins on after_proteins.protein_id = protein_transformations.after_protein_id inner join sequences on sequences.sequence_id=before_proteins.sequence_id"
+        },
+        "domains": {
+            "table": "domain_transformations_data",
+            "joins": "inner join domain_transformations on domain_transformations.domain_transformation_id = domain_transformations_data.domain_transformation_id inner join domains as before_domains on before_domains.domain_id = domain_transformations.before_domain_id inner join domains as after_domains on after_domains.domain_id = domain_transformations.after_domain_id inner join proteins as before_proteins on before_proteins.protein_id = before_domains.protein_id inner join proteins as after_proteins on after_proteins.protein_id = after_domains.protein_id inner join sequences on sequences.sequence_id = before_proteins.sequence_id"
+        },
+        "domainpairs": {
+            "table": "domain_pair_transformations_data",
+            "joins": "inner join domain_pair_transformations on domain_pair_transformations_data.domain_pair_transformation_id = domain_pair_transformations.domain_pair_transformation_id inner join domain_pairs as before_domain_pairs on before_domain_pairs.domain_pair_id = domain_pair_transformations.before_domain_pair_id inner join domain_pairs as after_domain_pairs on after_domain_pairs.domain_pair_id = domain_pair_transformations.after_domain_pair_id inner join domains as before_domains1 on before_domains1.domain_id = before_domain_pairs.domain_id1 inner join domains as before_domains2 on before_domains2.domain_id = before_domain_pairs.domain_id2 inner join domains as after_domains1 on after_domains1.domain_id = after_domain_pairs.domain_id1 inner join domains as after_domains2 on after_domains2.domain_id = after_domain_pairs.domain_id2 inner join proteins as before_proteins on before_proteins.protein_id = before_domains1.protein_id inner join proteins as after_proteins on after_proteins.protein_id = after_domains1.protein_id inner join sequences on sequences.sequence_id = before_proteins.sequence_id"
+        },
+        "residues": {
+            "table": "protein_labels",
+            "joins": "inner join proteins on proteins.protein_id = protein_labels.protein_id inner join sequences on sequences.sequence_id = proteins.sequence_id"
+        }
+    },
+    "metrics": {
+        "proteins": {
+            "beforepdbcode": {
+                "databaseDestination": "before_proteins.pdb_code",
+                "type": "string"
+            },
+            "beforechainid": {
+                "databaseDestination": "before_proteins.chain_id",
+                "type": "string"
+            },
+            "uniprotid": {
+                "databaseDestination": "sequences.uniprot_id",
+                "type": "string"
+            },
+            "afterpdbcode": {
+                "databaseDestination": "after_proteins.pdb_code",
+                "type": "string"
+            },
+            "afterchainid": {
+                "databaseDestination": "after_proteins.chain_id",
+                "type": "string"
+            },
+            "rmsd": {
+                "databaseDestination": "protein_transformations_data.rmsd",
+                "type": "float"
+            },
+            "comparesecondarystructure": {
+                "databaseDestination": "protein_transformations_data.compare_secondary_structure",
+                "type": "float"
+            },
+            "testbool": {
+                "databaseDestination": "test_bool_dest",
+                "type": "bool"
+            }
+        },
+        "domains": {
+            "beforepdbcode": {
+                "databaseDestination": "before_proteins.pdb_code",
+                "type": "string"
+            },
+            "beforechainid": {
+                "databaseDestination": "before_proteins.chain_id",
+                "type": "string"
+            },
+            "uniprotid": {
+                "databaseDestination": "sequences.uniprot_id",
+                "type": "string"
+            },
+            "beforedomaincathid": {
+                "databaseDestination": "before_domains.cath_id",
+                "type": "string"
+            },
+            "afterpdbcode": {
+                "databaseDestination": "after_proteins.pdb_code",
+                "type": "string"
+            },
+            "afterchainid": {
+                "databaseDestination": "after_proteins.chain_id",
+                "type": "string"
+            },
+            "afterdomaincathid": {
+                "databaseDestination": "after_domains.cath_id",
+                "type": "string"
+            },
+            "rmsd": {
+                "databaseDestination": "domain_transformations_data.rmsd",
+                "type": "float"
+            },
+            "comparesecondarystructure": {
+                "databaseDestination": "domain_transformations_data.compare_secondary_structure",
+                "type": "float"
+            },
+            "domainspan": "domain_transformations_data.domain_span"
+        },
+        "domainpairs": {
+            "beforepdbcode": {
+                "databaseDestination": "before_proteins.pdb_code",
+                "type": "string"
+            },
+            "beforechainid": {
+                "databaseDestination": "before_proteins.chain_id",
+                "type": "string"
+            },
+            "beforedomaincathid1": {
+                "databaseDestination": [
+                    "before_domains1.cath_id",
+                    "before_domains2.cath_id"
+                ],
+                "type": "string"
+            },
+            "beforedomaincathid2": {
+                "databaseDestination": [
+                    "before_domains1.cath_id",
+                    "before_domains2.cath_id"
+                ],
+                "type": "string"
+            },
+            "uniprotid": {
+                "databaseDestination": "sequences.uniprot_id",
+                "type": "string"
+            },
+            "afterpdbcode": {
+                "databaseDestination": "after_proteins.pdb_code",
+                "type": "string"
+            },
+            "afterchainid": {
+                "databaseDestination": "after_proteins.chain_id",
+                "type": "string"
+            },
+            "afterdomaincathid1": {
+                "databaseDestination": [
+                    "after_domains1.cath_id",
+                    "after_domains2.cath_id"
+                ],
+                "type": "string"
+            },
+            "afterdomaincathid2": {
+                "databaseDestination": [
+                    "after_domains1.cath_id",
+                    "after_domains2.cath_id"
+                ],
+                "type": "string"
+            },
+            "rmsd": {
+                "databaseDestination": "domain_transformations_data.rmsd",
+                "type": "float"
+            },
+            "hingeangle": {
+                "databaseDestination": "domain_transformations_data.hinge_angle",
+                "type": "float"
+            },
+            "hingetranslationinaxis": {
+                "databaseDestination": "domain_transformations_data.hinge_translation_in_axis",
+                "type": "float"
+            },
+            "hingetranslationoverall": {
+                "databaseDestination": "domain_transformations_data.hinge_translation_overall",
+                "type": "float"
+            },
+            "beforeinterfaceburiedarea": {
+                "databaseDestination": "domain_transformations_data.before_interface_buried_area",
+                "type": "float"
+            },
+            "afterinterfaceburiedarea": {
+                "databaseDestination": "domain_transformations_data.after_interface_buried_area",
+                "type": "float"
+            }
+        },
+        "residues": {
+            "pdbcode": {
+                "databaseDestination": "proteins.pdb_code",
+                "type": "string"
+            },
+            "chainid": {
+                "databaseDestination": "proteins.chain_id",
+                "type": "string"
+            },
+            "uniprotid": {
+                "databaseDestination": "proteins.uniprot_id",
+                "type": "string"
+            },
+            "label": {
+                "databaseDestination": "protein_labels.label",
+                "type": "string"
+            },
+            "residuestart": {
+                "databaseDestination": "protein_labels.residue_start",
+                "type": "integer"
+            },
+            "residueend": {
+                "databaseDestination": "protein_labels.residue_end",
+                "type": "integer"
+            }
+        },
+        "proteinprogression": {
+            "proteinprogressionid": {
+                "databaseDestination": "transformations.transformation_id",
+                "type": "integer"
+            }
+        }
+    }
+}
