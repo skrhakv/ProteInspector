@@ -1,4 +1,4 @@
-DROP TABLE protein_labels;
+DROP TABLE residue_labels;
 
 DELETE FROM
     protein_transformations

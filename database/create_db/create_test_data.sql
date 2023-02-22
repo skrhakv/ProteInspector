@@ -1,6 +1,6 @@
 -- these are only mock data for development purposes
 -- these data will be replaced with real data when the real data will be available
-CREATE TABLE protein_labels (
+CREATE TABLE residue_labels (
     label_id SERIAL PRIMARY KEY,
     label TEXT NOT NULL,
     protein_transformation_id INTEGER NOT NULL,
@@ -11,7 +11,7 @@ CREATE TABLE protein_labels (
 
 -- add label on structures
 INSERT INTO
-    protein_labels (
+    residue_labels (
         label_id,
         label,
         protein_transformation_id,
@@ -22,7 +22,7 @@ VALUES
     (1, 'active', 1, 1, 2);
 
 INSERT INTO
-    protein_labels (
+    residue_labels (
         label_id,
         label,
         protein_transformation_id,
@@ -33,7 +33,7 @@ VALUES
     (2, 'active', 1, 5, 7);
 
 INSERT INTO
-    protein_labels (
+    residue_labels (
         label_id,
         label,
         protein_transformation_id,
@@ -44,7 +44,7 @@ VALUES
     (3, 'inactive', 2, 4, 5);
 
 INSERT INTO
-    protein_labels (
+    residue_labels (
         label_id,
         label,
         protein_transformation_id,
@@ -55,7 +55,7 @@ VALUES
     (4, 'inactive', 2, 7, 8);
 
 INSERT INTO
-    protein_labels (
+    residue_labels (
         label_id,
         label,
         protein_transformation_id,
@@ -66,7 +66,7 @@ VALUES
     (5, 'active', 4, 1, 3);
 
 INSERT INTO
-    protein_labels (
+    residue_labels (
         label_id,
         label,
         protein_transformation_id,
@@ -77,7 +77,7 @@ VALUES
     (6, 'active', 4, 5, 6);
 
 INSERT INTO
-    protein_labels (
+    residue_labels (
         label_id,
         label,
         protein_transformation_id,
@@ -88,7 +88,7 @@ VALUES
     (7, 'inactive', 5, 4, 5);
 
 INSERT INTO
-    protein_labels (
+    residue_labels (
         label_id,
         label,
         protein_transformation_id,
@@ -100,7 +100,7 @@ VALUES
 
 -- add label on a single residuum
 INSERT INTO
-    protein_labels (
+    residue_labels (
         label_id,
         label,
         protein_transformation_id,
@@ -111,7 +111,7 @@ VALUES
     (9, 'inactive', 6, 4, 4);
 
 INSERT INTO
-    protein_labels (
+    residue_labels (
         label_id,
         label,
         protein_transformation_id,
