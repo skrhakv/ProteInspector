@@ -182,13 +182,9 @@
                 "databaseDestination": "protein_labels.label",
                 "type": "string"
             },
-            "residuestart": {
-                "databaseDestination": "protein_labels.residue_start",
-                "type": "integer"
-            },
-            "residueend": {
-                "databaseDestination": "protein_labels.residue_end",
-                "type": "integer"
+            "residue": {
+                "databaseDestination": ["protein_labels.residue_start", "protein_labels.residue_end"],
+                "type": "integer-between"
             }
         },
         "proteinprogression": {
