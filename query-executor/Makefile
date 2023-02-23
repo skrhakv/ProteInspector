@@ -1,4 +1,6 @@
 CFLAGS = -std=c++20 -lstdc++ -g -O0 -Wall -I/usr/local/include/hsql -L/usr/local/lib -lsqlparser
+LDFLAGS = -lpqxx -lpq
+
 CXX = g++
 
 # find cpp files in subdirectories
@@ -11,12 +13,8 @@ OUTPUT := example
 
 all: $(OUTPUT)
 
-# The output depends on sources and headers
 $(OUTPUT): $(SOURCES) $(HEADERS)
-	$(CXX) $(CFLAGS) -o $(OUTPUT) $(SOURCES)
+	$(CXX) $(CFLAGS) -o $(OUTPUT) $(SOURCES) $(LDFLAGS)
 
 clean:
 	$(RM) $(OUTPUT)
-
-# all:
-# 	$(CXX) $(CFLAGS) src/example.cpp -o example -lsqlparser

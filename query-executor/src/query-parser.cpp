@@ -1,5 +1,4 @@
 #include <string>
-#include <iostream>
 #include "hsql/SQLParser.h"
 #include "converter.hpp"
 #include "operator-validator.hpp"
@@ -69,7 +68,7 @@ bool QueryParser::parseQuery(const hsql::SelectStatement *selectStatement)
     if (!isValid)
         RETURN_PARSE_ERROR(errorMessage)
 
-    queryResult += "SELECT ";
+    convertedQuery += "SELECT ";
     bool first = true;
     for (hsql::Expr *expr : *selectStatement->selectList)
     {
@@ -79,25 +78,25 @@ bool QueryParser::parseQuery(const hsql::SelectStatement *selectStatement)
         {
             string metrics;
             jsonMetricReaderAndParser.GetAllMetrics(biologicalStructure, metrics);
-            queryResult += metrics;
+            convertedQuery += metrics;
         }
         else if (expr->type == hsql::kExprColumnRef)
         {
             if (!first)
-                queryResult += ",";
+                convertedQuery += ",";
             string metric;
             bool isValid = jsonMetricReaderAndParser.ValidateQueryMetric(expr, biologicalStructure, metric);
             if (!isValid)
                 RETURN_PARSE_ERROR(jsonMetricReaderAndParser.errorMessage)
-            queryResult += metric;
+            convertedQuery += metric;
             first = false;
         }
     }
 
-    queryResult += " FROM ";
+    convertedQuery += " FROM ";
     string fromClauseAndJoins;
     jsonMetricReaderAndParser.GetTableAndLeftJoins(biologicalStructure, fromClauseAndJoins);
-    queryResult += fromClauseAndJoins;
+    convertedQuery += fromClauseAndJoins;
 
     if (selectStatement->whereClause)
     {
@@ -105,7 +104,7 @@ bool QueryParser::parseQuery(const hsql::SelectStatement *selectStatement)
         bool isValid = parseWhere(selectStatement->whereClause, whereClause);
         if (!isValid)
             return isValid;
-        queryResult += "WHERE " + whereClause;
+        convertedQuery += "WHERE " + whereClause;
     }
 
     if (selectStatement->order)
@@ -114,13 +113,11 @@ bool QueryParser::parseQuery(const hsql::SelectStatement *selectStatement)
         bool isValid = parseOrderBy(selectStatement->order, orderByClause);
         if (!isValid)
             return isValid;
-        queryResult += " ORDER BY " + orderByClause;
+        convertedQuery += " ORDER BY " + orderByClause;
     }
 
-    queryResult += ";";
+    convertedQuery += ";";
 
-    cout << "HERE IS THE RESULT:" << endl;
-    cout << queryResult << endl;
     return true;
 }
 
@@ -149,7 +146,7 @@ bool QueryParser::checkForAllowedGrammar(const hsql::SelectStatement *selectStat
     return true;
 }
 
-bool QueryParser::ConvertAndExecuteQuery(string query)
+bool QueryParser::ConvertQuery(const string& query)
 {
     // parse a given query
     hsql::SQLParserResult result;
@@ -176,4 +173,9 @@ bool QueryParser::ConvertAndExecuteQuery(string query)
     }
 
     return true;
+}
+
+string QueryParser::GetConvertedQuery()
+{
+    return convertedQuery;
 }

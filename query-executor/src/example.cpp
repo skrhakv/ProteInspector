@@ -1,13 +1,19 @@
 #include <string>
 #include <iostream>
-#include "query-parser.hpp"
+#include "query-executor.hpp"
 
 using namespace std;
 
 int main(int argc, char *argv[])
 {
     string query = argv[1];
-    QueryParser parser;
-    parser.ConvertAndExecuteQuery(query);
-    cout << parser.errorMessage << endl;
+    QueryExecutor executor;
+    auto [a,b] = executor.ParseAndExecute(query);
+    for (auto const &row : a)
+    {
+        for (auto const &field : row)
+            std::cout << field.c_str() << '\t';
+        std::cout << std::endl;
+    }
+    cout << b << endl;
 }

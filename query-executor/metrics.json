@@ -13,11 +13,11 @@
             "joins": "inner join domain_pair_transformations on domain_pair_transformations_data.domain_pair_transformation_id = domain_pair_transformations.domain_pair_transformation_id inner join domain_pairs as before_domain_pairs on before_domain_pairs.domain_pair_id = domain_pair_transformations.before_domain_pair_id inner join domain_pairs as after_domain_pairs on after_domain_pairs.domain_pair_id = domain_pair_transformations.after_domain_pair_id inner join domains as before_domains1 on before_domains1.domain_id = before_domain_pairs.domain_id1 inner join domains as before_domains2 on before_domains2.domain_id = before_domain_pairs.domain_id2 inner join domains as after_domains1 on after_domains1.domain_id = after_domain_pairs.domain_id1 inner join domains as after_domains2 on after_domains2.domain_id = after_domain_pairs.domain_id2 inner join proteins as before_proteins on before_proteins.protein_id = before_domains1.protein_id inner join proteins as after_proteins on after_proteins.protein_id = after_domains1.protein_id inner join sequences on sequences.sequence_id = before_proteins.sequence_id"
         },
         "residues": {
-            "table": "protein_labels",
-            "joins": "inner join proteins on proteins.protein_id = protein_labels.protein_id inner join sequences on sequences.sequence_id = proteins.sequence_id"
+            "table": "residue_labels",
+            "joins": "inner join protein_transformations on protein_transformations.protein_transformation_id = residue_labels.protein_transformation_id inner join proteins as before_proteins on before_proteins.protein_id = protein_transformations.before_protein_id inner join proteins as after_proteins on after_proteins.protein_id = protein_transformations.after_protein_id inner join sequences on sequences.sequence_id=before_proteins.sequence_id"
         }
     },
-    "metrics": {
+    "forward-metrics-mapping": {
         "proteins": {
             "beforepdbcode": {
                 "databaseDestination": "before_proteins.pdb_code",
@@ -46,10 +46,6 @@
             "comparesecondarystructure": {
                 "databaseDestination": "protein_transformations_data.compare_secondary_structure",
                 "type": "float"
-            },
-            "testbool": {
-                "databaseDestination": "test_bool_dest",
-                "type": "bool"
             }
         },
         "domains": {
@@ -141,49 +137,60 @@
                 "type": "string"
             },
             "rmsd": {
-                "databaseDestination": "domain_transformations_data.rmsd",
+                "databaseDestination": "domain_pair_transformations_data.rmsd",
                 "type": "float"
             },
             "hingeangle": {
-                "databaseDestination": "domain_transformations_data.hinge_angle",
+                "databaseDestination": "domain_pair_transformations_data.hinge_angle",
                 "type": "float"
             },
             "hingetranslationinaxis": {
-                "databaseDestination": "domain_transformations_data.hinge_translation_in_axis",
+                "databaseDestination": "domain_pair_transformations_data.hinge_translation_in_axis",
                 "type": "float"
             },
             "hingetranslationoverall": {
-                "databaseDestination": "domain_transformations_data.hinge_translation_overall",
+                "databaseDestination": "domain_pair_transformations_data.hinge_translation_overall",
                 "type": "float"
             },
             "beforeinterfaceburiedarea": {
-                "databaseDestination": "domain_transformations_data.before_interface_buried_area",
+                "databaseDestination": "domain_pair_transformations_data.before_interface_buried_area",
                 "type": "float"
             },
             "afterinterfaceburiedarea": {
-                "databaseDestination": "domain_transformations_data.after_interface_buried_area",
+                "databaseDestination": "domain_pair_transformations_data.after_interface_buried_area",
                 "type": "float"
             }
         },
         "residues": {
-            "pdbcode": {
-                "databaseDestination": "proteins.pdb_code",
+            "beforepdbcode": {
+                "databaseDestination": "before_proteins.pdb_code",
                 "type": "string"
             },
-            "chainid": {
-                "databaseDestination": "proteins.chain_id",
+            "beforechainid": {
+                "databaseDestination": "before_proteins.chain_id",
                 "type": "string"
             },
             "uniprotid": {
-                "databaseDestination": "proteins.uniprot_id",
+                "databaseDestination": "sequences.uniprot_id",
+                "type": "string"
+            },
+            "afterpdbcode": {
+                "databaseDestination": "after_proteins.pdb_code",
+                "type": "string"
+            },
+            "afterchainid": {
+                "databaseDestination": "after_proteins.chain_id",
                 "type": "string"
             },
             "label": {
-                "databaseDestination": "protein_labels.label",
+                "databaseDestination": "residue_labels.label",
                 "type": "string"
             },
             "residue": {
-                "databaseDestination": ["protein_labels.residue_start", "protein_labels.residue_end"],
+                "databaseDestination": [
+                    "residue_labels.residue_start",
+                    "residue_labels.residue_end"
+                ],
                 "type": "integer-between"
             }
         },
@@ -193,5 +200,33 @@
                 "type": "integer"
             }
         }
+    },
+    "backward-metrics-mapping": {
+        "before_proteins.pdb_code": "BeforePdbCode",
+        "before_proteins.chain_id": "BeforeChainId",
+        "sequences.uniprot_id": "UniprotId",
+        "after_proteins.pdb_code": "AfterPdbCode",
+        "after_proteins.chain_id": "AfterChainId",
+        "protein_transformations_data.rmsd": "Rmsd",
+        "protein_transformations_data.compare_secondary_structure": "CompareSecondaryStructure",
+        "before_domains.cath_id": "BeforeDomainCathId",
+        "after_domains.cath_id": "AfterDomainCathId",
+        "domain_transformations_data.rmsd": "Rmsd",
+        "domain_transformations_data.compare_secondary_structure": "CompareSecondaryStructure",
+        "domain_transformations_data.domain_span": "DomainSpan",
+        "before_domains1.cath_id": "BeforeDomainCathId1",
+        "before_domains2.cath_id": "BeforeDomainCathId2",
+        "after_domains1.cath_id": "AfterDomainCathId1",
+        "after_domains2.cath_id": "AfterDomainCathId2",
+        "domain_pair_transformations_data.rmsd": "Rmsd",
+        "domain_pair_transformations_data.hinge_angle": "HingeAngle",
+        "domain_pair_transformations_data.hinge_translation_in_axis": "HingeTranslationInAxis",
+        "domain_pair_transformations_data.hinge_translation_overall": "HingeTranslationOverall",
+        "domain_pair_transformations_data.before_interface_buried_area": "BeforeInterfaceBuriedArea",
+        "domain_pair_transformations_data.after_interface_buried_area": "AfterInterfaceBuriedArea",
+        "residue_labels.label": "Label",
+        "residue_labels.residue_start": "ResidueStart",
+        "residue_labels.residue_end": "ResidueEnd",
+        "transformations.transformation_id": "ProteinProgressionId"
     }
 }

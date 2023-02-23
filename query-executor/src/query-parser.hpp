@@ -14,7 +14,7 @@ private:
     string biologicalStructure;
     Converter jsonMetricReaderAndParser;
     OperatorValidator operatorValidator;
-    string queryResult = "";
+    string convertedQuery;
 
     bool parseWhere(const hsql::Expr *expression, string &result);
     bool parseOrderBy(const vector<hsql::OrderDescription *> *orderByClause, string &result);
@@ -24,7 +24,8 @@ private:
 public:
     string errorMessage;
 
-    bool ConvertAndExecuteQuery(string query);
+    bool ConvertQuery(const string& query);
+    string GetConvertedQuery();
 };
 
 #endif

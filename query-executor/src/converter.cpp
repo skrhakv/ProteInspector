@@ -1,18 +1,17 @@
 #include "converter.hpp"
 #include "utils.hpp"
-#include <iostream>
-#include "json-metrics-reader.hpp"
+#include "json-reader.hpp"
 
 using namespace std;
 
 Converter::Converter()
 {
-    metricsData = JsonMetricsReader::GetMetricsData("metrics.json");
+    metricsData = JsonReader::GetJsonData("metrics.json");
 }
 
 bool Converter::ValidBiologicalStructure(string biologicalStructure)
 {
-    if (metricsData["metrics"][biologicalStructure].is_null())
+    if (metricsData["forward-metrics-mapping"][biologicalStructure].is_null())
         return false;
     return true;
 }
@@ -23,7 +22,7 @@ bool Converter::ValidateWhereClause(const hsql::Expr *expression, const string b
 
     string metricValue, operatorValue, metricName = expression->expr->name;
     toLower(metricName);
-    auto metric = metricsData["metrics"][biologicalStructure][metricName];
+    auto metric = metricsData["forward-metrics-mapping"][biologicalStructure][metricName];
 
     bool isValid = operatorValidator.parseMathOperator(expression, operatorValue);
     if (!isValid)
@@ -37,7 +36,6 @@ bool Converter::ValidateWhereClause(const hsql::Expr *expression, const string b
 
     if (metric["type"] == "string")
     {
-        cout << (!expression->expr2->type) << endl;
         if (!expression->expr2->isType(hsql::kExprColumnRef))
             RETURN_PARSE_ERROR("Metric " + metricName + " expects a string as a value.")
 
@@ -138,35 +136,49 @@ bool Converter::ValidateQueryMetric(hsql::Expr *expression, const string biologi
 
     string metricName = expression->name;
     toLower(metricName);
-    auto metric = metricsData["metrics"][biologicalStructure][metricName];
-
-    if (metric == nullptr)
+    auto forwardMetric = metricsData["forward-metrics-mapping"][biologicalStructure][metricName];
+    auto backwardMetric = metricsData["backward-metrics-mapping"];
+    if (forwardMetric == nullptr)
         RETURN_PARSE_ERROR("Unrecognized Metrics in the SELECT Clause: " + metricName)
 
-    result = metric["databaseDestination"];
+    string resultMetric = forwardMetric["databaseDestination"];
+    result = resultMetric;
+    result += " AS \"";
+    result += backwardMetric[resultMetric];
+    result += "\"";
+
     return true;
 }
 bool Converter::GetAllMetrics(const string biologicalStructure, string &result)
 {
-    auto metrics = metricsData["metrics"][biologicalStructure];
+    auto forwardMetrics = metricsData["forward-metrics-mapping"][biologicalStructure];
+    auto backwardMetric = metricsData["backward-metrics-mapping"];
 
     bool first = true;
-    for (const auto &metric : metrics.items())
+    for (const auto &forwardMetric : forwardMetrics.items())
     {
-        if (metric.value()["databaseDestination"].is_array())
+        if (forwardMetric.value()["databaseDestination"].is_array())
         {
-            for (auto item : metric.value()["databaseDestination"])
+            for (auto item : forwardMetric.value()["databaseDestination"])
             {
                 if (!first)
                     result += ",";
-                result += item.get<std::string>();
+                string resultMetric = item.get<std::string>();
+                result += resultMetric;
+                result += " AS \"";
+                result += backwardMetric[resultMetric];
+                result += "\"";
             }
         }
         else
         {
             if (!first)
                 result += ",";
-            result += metric.value()["databaseDestination"];
+            string resultMetric = forwardMetric.value()["databaseDestination"];
+            result += resultMetric;
+            result += " AS \"";
+            result += backwardMetric[resultMetric];
+            result += "\"";
         }
         first = false;
     }

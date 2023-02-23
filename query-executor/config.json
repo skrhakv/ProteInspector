@@ -1,8 +1,8 @@
 {
     "database": {
-        "host": "localhost",
-        "user": "user",
-        "password": "password",
-        "db": "db"
+        "host": "127.0.0.1",
+        "user": "apo_holo_db",
+        "password": "apo_holo_db",
+        "dbname": "apo_holo_db"
     }
 }
