@@ -6,6 +6,8 @@ CREATE TABLE domains (
     domain_id SERIAL PRIMARY KEY,
     cath_id VARCHAR (8) NOT NULL,
     protein_id INTEGER NOT NULL,
+    domain_span SPAN,
+    spans_auth_seq_id SPAN,
     FOREIGN KEY (protein_id) REFERENCES proteins (protein_id)
 );
 
@@ -23,8 +25,6 @@ CREATE TABLE domain_transformations (
 
 CREATE TABLE domain_transformations_data (
     domain_transformation_id INTEGER PRIMARY KEY,
-    domain_span SPAN,
-    spans_auth_seq_id SPAN,
     rmsd DOUBLE PRECISION,
     compare_secondary_structure DOUBLE PRECISION,
     FOREIGN KEY (domain_transformation_id) REFERENCES domain_transformations(domain_transformation_id)

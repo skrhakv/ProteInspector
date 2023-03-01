@@ -2,6 +2,7 @@
 /data
 /database/insert_data/.env
 /database/insert_data/__pycache__
+/database/insert_data/apo_holo_framework
 /api/config.json
 /api/metrics.json
 /api/build

@@ -1,5 +1,6 @@
 CREATE TABLE transformations (
     transformation_id SERIAL PRIMARY KEY,
+    dataset_id INTEGER DEFAULT 1,
     transformation_length INTEGER DEFAULT 2
 );
 
