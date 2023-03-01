@@ -2,3 +2,9 @@
 /data
 /database/insert_data/.env
 /database/insert_data/__pycache__
+/api/config.json
+/api/metrics.json
+/api/build
+/api/node_modules
+/api/dist
+/query-executor/example

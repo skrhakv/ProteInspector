@@ -195,3 +195,9 @@ bool Converter::GetTableAndLeftJoins(const string biologicalStructure, string &r
 
     return true;
 }
+
+void Converter::Clear()
+{
+    errorMessage = "";
+    operatorValidator.Clear();
+}

@@ -12,17 +12,19 @@ class Converter
 {
     nlohmann::json metricsData;
     OperatorValidator operatorValidator;
+
 public:
     string errorMessage;
 
     Converter();
-    
+
     bool ValidBiologicalStructure(string biologicalStructure);
 
     bool ValidateWhereClause(const hsql::Expr *expression, const string biologicalStructure, string &result);
     bool ValidateQueryMetric(hsql::Expr *expression, const string biologicalStructure, string &result);
     bool GetAllMetrics(const string biologicalStructure, string &result);
     bool GetTableAndLeftJoins(const string biologicalStructure, string &result);
+    void Clear();
 };
 
 #endif

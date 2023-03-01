@@ -11,7 +11,8 @@ class QueryExecutor
     DbClient dbClient;
 
 public:
-    std::pair<pqxx::result, std::string> ParseAndExecute(const std::string& query, int page);
+    std::pair<pqxx::result, std::string> ParseAndExecute(const std::string &query, int page);
+    std::pair<pqxx::result, std::string> GetNumberOfPages(const std::string &query);
 };
 
 #endif

@@ -9,7 +9,8 @@ Napi::Object QueryExecutorNapi::Init(Napi::Env env, Napi::Object exports)
     Napi::Function func =
         DefineClass(
             env, "QueryExecutorNapi",
-            {InstanceMethod("ParseAndExecute", &QueryExecutorNapi::ParseAndExecute)});
+            {InstanceMethod("ParseAndExecute", &QueryExecutorNapi::ParseAndExecute),
+             InstanceMethod("GetNumberOfPages", &QueryExecutorNapi::GetNumberOfPages)});
 
     constructor = Napi::Persistent(func);
     constructor.SuppressDestruct();
@@ -33,6 +34,36 @@ QueryExecutorNapi::QueryExecutorNapi(const Napi::CallbackInfo &info) : Napi::Obj
     }
 }
 
+Napi::Value QueryExecutorNapi::GetNumberOfPages(const Napi::CallbackInfo &info)
+{
+    Napi::Env env = info.Env();
+    Napi::HandleScope scope(env);
+
+    if (info.Length() != 1)
+    {
+        Napi::TypeError::New(env, "Wrong number of parameters: expected parameter is (string query)").ThrowAsJavaScriptException();
+    }
+    std::string query{info[0].As<Napi::String>().Utf8Value()}, error;
+
+    pqxx::result result;
+    try
+    {
+        auto [r, error] = qExecutor->GetNumberOfPages(query);
+        result = r;
+    }
+    catch (const std::exception &e)
+    {
+        Napi::Error::New(env, e.what()).ThrowAsJavaScriptException();
+    }
+    if (error.empty())
+    {
+        size_t rowCount = result[0][0].as<size_t>();
+        size_t numberOfPages = rowCount / PAGE_SIZE + (rowCount % PAGE_SIZE != 0);
+        return Napi::Number::New(env, numberOfPages);
+    }
+    return Napi::String::New(env, error);
+}
+
 Napi::Value QueryExecutorNapi::ParseAndExecute(const Napi::CallbackInfo &info)
 {
     Napi::Env env = info.Env();
@@ -40,7 +71,7 @@ Napi::Value QueryExecutorNapi::ParseAndExecute(const Napi::CallbackInfo &info)
 
     if (info.Length() != 2)
     {
-        Napi::TypeError::New(env, "Wrong number of parameters: expected string").ThrowAsJavaScriptException();
+        Napi::TypeError::New(env, "Wrong number of parameters: expected parameter is (string query, int pageNumber)").ThrowAsJavaScriptException();
     }
 
     std::string query{info[0].As<Napi::String>().Utf8Value()}, error;
@@ -86,6 +117,7 @@ Napi::Value QueryExecutorNapi::ParseAndExecute(const Napi::CallbackInfo &info)
                 &obj);
             napi_set_element(env, columnNamesArr, colnum, obj);
         }
+        napi_set_property(env, napiResult, columnNamesKey, columnNamesArr);
 
         for (std::size_t rownum = 0u; rownum < numRows; ++rownum)
         {

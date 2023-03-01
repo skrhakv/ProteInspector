@@ -13,6 +13,7 @@ public:
 
     bool parseMathOperator(const hsql::Expr *expression, string &operatorResult);
     bool parseLogicOperator(const hsql::OperatorType op, string &operatorResult);
+    void Clear();
 };
 
 #endif

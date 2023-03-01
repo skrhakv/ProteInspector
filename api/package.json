@@ -5,15 +5,18 @@
   "main": "app.js",
   "scripts": {
     "build": "node-gyp rebuild",
-    "clean": "node-gyp clean"
+    "clean": "node-gyp clean",
+    "start": "npx tsc && node dist/app.js"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/express": "^4.17.1",
     "node-gyp": "^9.3.1",
     "typescript": "^4.9.5"
   },
   "dependencies": {
+    "express": "^4.17.1",
     "node-addon-api": "^6.0.0"
   }
 }

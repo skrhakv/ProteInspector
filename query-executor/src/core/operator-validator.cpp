@@ -34,3 +34,8 @@ bool OperatorValidator::parseLogicOperator(const hsql::OperatorType op, string &
         RETURN_PARSE_ERROR("Unrecognized Operator type: " + op)
     return true;
 }
+
+void OperatorValidator::Clear()
+{
+    errorMessage = "";
+}

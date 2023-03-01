@@ -10,9 +10,9 @@ bool QueryParser::parseWhere(const hsql::Expr *expression, string &result)
     if (expression->expr->type == hsql::kExprColumnRef)
     {
         string validationResult;
-        bool isValid = jsonMetricReaderAndParser.ValidateWhereClause(expression, biologicalStructure, validationResult);
+        bool isValid = converter.ValidateWhereClause(expression, biologicalStructure, validationResult);
         if (!isValid)
-            RETURN_PARSE_ERROR(jsonMetricReaderAndParser.errorMessage)
+            RETURN_PARSE_ERROR(converter.errorMessage)
 
         result += "(" + validationResult + ")";
         return isValid;
@@ -25,7 +25,7 @@ bool QueryParser::parseWhere(const hsql::Expr *expression, string &result)
         string operatorResult;
         bool isValid = operatorValidator.parseLogicOperator(expression->opType, operatorResult);
         if (!isValid)
-            RETURN_PARSE_ERROR(jsonMetricReaderAndParser.errorMessage)
+            RETURN_PARSE_ERROR(converter.errorMessage)
         result += ' ' + operatorResult + ' ';
 
         parseWhere(expression->expr2, result);
@@ -43,9 +43,9 @@ bool QueryParser::parseOrderBy(const vector<hsql::OrderDescription *> *orderByCl
     for (const auto &element : *orderByClause)
     {
         string metric;
-        bool isValid = jsonMetricReaderAndParser.ValidateQueryMetric(element->expr, biologicalStructure, metric);
+        bool isValid = converter.ValidateQueryMetric(element->expr, biologicalStructure, metric);
         if (!isValid)
-            RETURN_PARSE_ERROR(jsonMetricReaderAndParser.errorMessage)
+            RETURN_PARSE_ERROR(converter.errorMessage)
 
         if (first)
         {
@@ -62,40 +62,47 @@ bool QueryParser::parseOrderBy(const vector<hsql::OrderDescription *> *orderByCl
     return true;
 }
 
-bool QueryParser::parseQuery(const hsql::SelectStatement *selectStatement, int page)
+bool QueryParser::parseQuery(const hsql::SelectStatement *selectStatement, bool countOnly, int page)
 {
     bool isValid = checkForAllowedGrammar((const hsql::SelectStatement *)selectStatement);
     if (!isValid)
         RETURN_PARSE_ERROR(errorMessage)
 
     convertedQuery += "SELECT ";
-    bool first = true;
-    for (hsql::Expr *expr : *selectStatement->selectList)
+
+    if (countOnly)
     {
-        if (expr->type == hsql::kExprStar && selectStatement->selectList->size() > 1)
-            RETURN_PARSE_ERROR("Star together with other Metric Ids violates rules of this grammar.")
-        else if (expr->type == hsql::kExprStar)
+        convertedQuery += "COUNT(*)";
+    }
+    else
+    {
+        bool first = true;
+        for (hsql::Expr *expr : *selectStatement->selectList)
         {
-            string metrics;
-            jsonMetricReaderAndParser.GetAllMetrics(biologicalStructure, metrics);
-            convertedQuery += metrics;
-        }
-        else if (expr->type == hsql::kExprColumnRef)
-        {
-            if (!first)
-                convertedQuery += ",";
-            string metric;
-            bool isValid = jsonMetricReaderAndParser.ValidateQueryMetric(expr, biologicalStructure, metric);
-            if (!isValid)
-                RETURN_PARSE_ERROR(jsonMetricReaderAndParser.errorMessage)
-            convertedQuery += metric;
-            first = false;
+            if (expr->type == hsql::kExprStar && selectStatement->selectList->size() > 1)
+                RETURN_PARSE_ERROR("Star together with other Metric Ids violates rules of this grammar.")
+            else if (expr->type == hsql::kExprStar)
+            {
+                string metrics;
+                converter.GetAllMetrics(biologicalStructure, metrics);
+                convertedQuery += metrics;
+            }
+            else if (expr->type == hsql::kExprColumnRef)
+            {
+                if (!first)
+                    convertedQuery += ",";
+                string metric;
+                bool isValid = converter.ValidateQueryMetric(expr, biologicalStructure, metric);
+                if (!isValid)
+                    RETURN_PARSE_ERROR(converter.errorMessage)
+                convertedQuery += metric;
+                first = false;
+            }
         }
     }
-
     convertedQuery += " FROM ";
     string fromClauseAndJoins;
-    jsonMetricReaderAndParser.GetTableAndLeftJoins(biologicalStructure, fromClauseAndJoins);
+    converter.GetTableAndLeftJoins(biologicalStructure, fromClauseAndJoins);
     convertedQuery += fromClauseAndJoins;
 
     if (selectStatement->whereClause)
@@ -116,7 +123,8 @@ bool QueryParser::parseQuery(const hsql::SelectStatement *selectStatement, int p
         convertedQuery += " ORDER BY " + orderByClause;
     }
 
-    addPageLimitWithOffset(page);
+    if(!countOnly)
+        addPageLimitWithOffset(page);
 
     convertedQuery += ";";
 
@@ -148,13 +156,13 @@ bool QueryParser::checkForAllowedGrammar(const hsql::SelectStatement *selectStat
     toLower(biologicalStructure);
 
     // if (biologicalStructure != PROTEINS && biologicalStructure != DOMAINS && biologicalStructure != RESIDUES && biologicalStructure != PROTEIN_PROGRESSION)
-    if (!jsonMetricReaderAndParser.ValidBiologicalStructure(biologicalStructure))
+    if (!converter.ValidBiologicalStructure(biologicalStructure))
         RETURN_PARSE_ERROR("Unknown structure. Valid structures are: Proteins, Domains, Residues, and Protein-Progression")
 
     return true;
 }
 
-bool QueryParser::ConvertQuery(const string &query, int page)
+bool QueryParser::ConvertQuery(const string &query, bool countOnly, int page)
 {
     // parse a given query
     hsql::SQLParserResult result;
@@ -171,7 +179,7 @@ bool QueryParser::ConvertQuery(const string &query, int page)
         if (!(statement->is(hsql::StatementType::kStmtSelect)))
             RETURN_PARSE_ERROR("Only SELECT statements are supported.")
 
-        return parseQuery((const hsql::SelectStatement *)statement, page);
+        return parseQuery((const hsql::SelectStatement *)statement, countOnly, page);
     }
     else
     {
@@ -186,4 +194,13 @@ bool QueryParser::ConvertQuery(const string &query, int page)
 string QueryParser::GetConvertedQuery()
 {
     return convertedQuery;
+}
+
+void QueryParser::Clear() 
+{
+    convertedQuery = "";
+    biologicalStructure = "";
+    errorMessage = "";
+    converter.Clear();
+    operatorValidator.Clear();
 }
