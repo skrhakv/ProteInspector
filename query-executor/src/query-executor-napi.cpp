@@ -1,4 +1,5 @@
 #include "query-executor-napi.hpp"
+#include <vector>
 
 Napi::FunctionReference QueryExecutorNapi::constructor;
 
@@ -22,6 +23,8 @@ napi_value createJsonResultFromPqxxResult(const pqxx::result &result, Napi::Env 
     napi_create_string_utf8(
         env, "columnNames", NAPI_AUTO_LENGTH, &columnNamesKey);
 
+    vector<napi_value> columns;
+
     for (std::size_t colnum = 0u; colnum < numCols; colnum++)
     {
         napi_value obj;
@@ -30,14 +33,15 @@ napi_value createJsonResultFromPqxxResult(const pqxx::result &result, Napi::Env 
             result.column_name(colnum),
             NAPI_AUTO_LENGTH,
             &obj);
+        columns.push_back(obj);
         napi_set_element(env, columnNamesArr, colnum, obj);
     }
     napi_set_property(env, napiResult, columnNamesKey, columnNamesArr);
 
     for (std::size_t rownum = 0u; rownum < numRows; ++rownum)
     {
-        napi_value resultRowArr;
-        napi_create_array(env, &resultRowArr);
+        napi_value resultRowObj;
+        napi_create_object(env, &resultRowObj);
 
         pqxx::row const row = result[rownum];
         for (std::size_t colnum = 0u; colnum < numCols; ++colnum)
@@ -49,9 +53,13 @@ napi_value createJsonResultFromPqxxResult(const pqxx::result &result, Napi::Env 
                 field.c_str(),
                 NAPI_AUTO_LENGTH,
                 &obj);
-            napi_set_element(env, resultRowArr, colnum, obj);
+            napi_set_property(
+                env,
+                resultRowObj,
+                columns[colnum],
+                obj);
         }
-        napi_set_element(env, resultArr, rownum, resultRowArr);
+        napi_set_element(env, resultArr, rownum, resultRowObj);
     }
     napi_set_property(env, napiResult, resultsKey, resultArr);
     return napiResult;

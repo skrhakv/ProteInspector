@@ -2,7 +2,10 @@ import express from 'express';
 import { QueryExecutor } from './query-executor';
 
 const app = express();
+const cors = require('cors');
 const port = 3000;
+
+app.use(cors());
 
 app.get('/datasets-info', (req, res) => {
     let executor: QueryExecutor = new QueryExecutor();
