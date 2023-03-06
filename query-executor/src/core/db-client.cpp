@@ -41,3 +41,20 @@ std::pair<pqxx::result, std::string> DbClient::ExecuteQuery(const std::string &p
     }
     return {res, std::string()};
 }
+
+std::pair<pqxx::result, std::string> DbClient::GetDatasetsInfo()
+{
+    pqxx::result res;
+    pqxx::work tx{*connnection};
+    try
+    {
+        res = tx.exec("SELECT * FROM datasets;");
+    }
+    catch (const exception &e)
+    {
+        tx.abort();
+        string errorMessage = e.what();
+        return {res, errorMessage};
+    }
+    return {res, std::string()};
+}

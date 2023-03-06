@@ -30,3 +30,8 @@ std::pair<pqxx::result, std::string> QueryExecutor::GetNumberOfPages(const std::
     }
     return dbClient.ExecuteQuery(parser.GetConvertedQuery());
 }
+
+std::pair<pqxx::result, std::string> QueryExecutor::GetDatasetsInfo() 
+{
+    return dbClient.GetDatasetsInfo();
+}

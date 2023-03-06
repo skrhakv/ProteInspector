@@ -14,6 +14,7 @@ public:
     DbClient();
     ~DbClient();
     std::pair<pqxx::result, std::string> ExecuteQuery(const std::string& parsedQuery);
+    std::pair<pqxx::result, std::string> GetDatasetsInfo();
 };
 
 #endif

@@ -15,5 +15,6 @@ private:
     QueryExecutor *qExecutor;
     Napi::Value ParseAndExecute(const Napi::CallbackInfo &info);
     Napi::Value GetNumberOfPages(const Napi::CallbackInfo &info);
+    Napi::Value GetDatasetsInfo(const Napi::CallbackInfo &info);
 };
 #endif

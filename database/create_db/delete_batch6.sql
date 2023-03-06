@@ -15,4 +15,6 @@ DROP
 
 DROP TABLE tranformations;
 
+DROP TABLE datasets;
+
 DROP SEQUENCE transformations_sequence;
