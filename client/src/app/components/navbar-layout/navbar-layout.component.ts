@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Dataset } from 'src/app/models/dataset';
-import { DatasetInfoService } from 'src/app/services/dataset-info.service';
+import { DatasetService } from 'src/app/services/dataset.service';
 
 @Component({
 	selector: 'app-navbar-layout',
@@ -8,14 +8,14 @@ import { DatasetInfoService } from 'src/app/services/dataset-info.service';
 	styleUrls: ['./navbar-layout.component.scss']
 })
 export class NavbarLayoutComponent {
-    public datasets: Dataset[] = [];
     
-    constructor(private datasetInfoService: DatasetInfoService)
+    constructor(public datasetService: DatasetService)
     {
-        this.datasetInfoService.getDatasetInfo().subscribe((datasetsResult) => {
-            this.datasets = datasetsResult['results'];
-            console.log(this.datasets);
-            console.log(datasetsResult);
-          });
+
+    }
+
+    selectDataset(dataset: Dataset) 
+    {
+        this.datasetService.selectDataset(dataset);
     }
 }

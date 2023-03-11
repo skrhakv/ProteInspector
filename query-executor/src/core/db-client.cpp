@@ -32,6 +32,7 @@ std::pair<pqxx::result, std::string> DbClient::ExecuteQuery(const std::string &p
     try
     {
         res = tx.exec(parsedQuery);
+        tx.commit();
     }
     catch (const exception &e)
     {
@@ -49,6 +50,7 @@ std::pair<pqxx::result, std::string> DbClient::GetDatasetsInfo()
     try
     {
         res = tx.exec("SELECT * FROM datasets;");
+        tx.commit();
     }
     catch (const exception &e)
     {

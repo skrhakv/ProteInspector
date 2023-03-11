@@ -1,0 +1,59 @@
+<div class="container" *ngIf="showPicture" [@animation]>
+    <div class="row flex-lg-row-reverse g-5 py-5">
+        <div class="col-10 col-sm-8 col-lg-6 d-flex align-self-start sticky-top">
+            <img src="assets/introduction.jpg" class="d-block img-fluid" alt="Bootstrap Themes" loading="lazy"
+                width="700" height="500">
+        </div>
+        <div class="col-lg-6">
+            <h1 class="display-5 fw-bold lh-1 mb-3" style="margin-top:150px">ProteInspector</h1>
+            <div *ngIf="showIntroduction" [@animation]>
+                <p class="lead">Quickly search through the database of changing conformations of proteins.</p>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                    <button type="button" class="btn btn-primary btn-lg px-4" (click)="clickIntroductionButton()">Select
+                        dataset</button>
+                </div>
+            </div>
+            <div *ngIf="showDatasets" [@animation]>
+                <p class="lead">
+                    Please select dataset:
+                </p>
+                <div *ngFor="let dataset of datasetService.datasets">
+                    <div class="card text-center my-2">
+                        <div class="card-body">
+                            <h5 class="card-title">{{dataset.dataset_name}}</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">Description:</h6>
+                            <p class="card-text">{{dataset.dataset_description}} </p>
+                        </div>
+                        <a class="btn btn-primary align-bottom my-2 mx-4" (click)="selectDataset(dataset)">Select this
+                            dataset!</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container" *ngIf="showFilters" [@animation]>
+    <div class="row flex-lg-row-reverse align-items-center g-5 py-5">
+        <div class="col-3"></div>
+        <div class="col-6">
+            <h6>Type the query:</h6>
+            <div class="input-group rounded">
+                <input type="text" class="form-control rounded" placeholder="Type Query" aria-label="Search"
+                    aria-describedby="search-addon" [(ngModel)]="query" />
+                <span class="input-group-text border-0" id="search-addon">
+                    <a class="btn btn-default btn-sm" (click)="sendQuery()">
+                        <i class="fa fa-search"></i>
+                    </a> </span>
+            </div>
+        </div>
+        <div class="col-3"></div>
+    </div>
+    <hr />
+    <div class="row">
+        <div class="col-3"></div>
+        <div class="col-6">
+            Or specify the query using filters:
+        </div>
+        <div class="col-3"></div>
+    </div>
+</div>

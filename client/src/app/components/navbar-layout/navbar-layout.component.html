@@ -1,26 +1,32 @@
-<div class="navbar navbar-expand-lg" style="background-color: #e3f2fd;">
-    <nav class="navbar navbar-expand-lg">
-        <div class="container-fluid">
-            <div class="navbar-header">
-                <a class="navbar-brand" routerLink="/">Navigate</a>
-            </div>
-            <ul class="nav navbar-nav">
-                <li class="nav-item"><a class="nav-link" routerLink="/">Home</a></li>
-                <li class="nav-item dropdown">
-                    <div ngbDropdown>
-                        <a ngbDropdownToggle class="nav-link dropdown-toggle" id="navbarDropdown" role="button"
-                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Datasets
-                        </a>
-                        <div ngbDropdownMenu class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <div *ngFor="let dataset of datasets">
-                            <a ngbDropdownItem class="dropdown-item" routerLink="/" data-bs-toggle="tooltip" title="{{dataset.dataset_description}}">{{dataset.dataset_name}}</a>
-                            </div>
-                        </div>
+<nav class="navbar navbar-expand-lg" style="background-color: #e3f2fd;">
+
+    <div class="navbar-header mx-4">
+        <a class="navbar-brand" routerLink="/">Navigate</a>
+    </div>
+    <ul class="nav navbar-nav">
+        <li class="nav-item"><a class="nav-link" routerLink="/">Home</a></li>
+        <li class="nav-item dropdown">
+            <div ngbDropdown>
+                <a ngbDropdownToggle class="nav-link dropdown-toggle" id="navbarDropdown" role="button"
+                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Datasets
+                </a>
+                <div ngbDropdownMenu class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <div *ngFor="let dataset of datasetService.datasets">
+                        <a (click)="selectDataset(dataset)" ngbDropdownItem class="dropdown-item"
+                            routerLink="/" data-bs-toggle="tooltip"
+                            title="{{dataset.dataset_description}}">{{dataset.dataset_name}}</a>
                     </div>
-                </li>
-                <li class="nav-item"><a class="nav-link" routerLink="/">Documentation</a></li>
-            </ul>
-        </div>
-    </nav>
-</div>
+                </div>
+            </div>
+        </li>
+        <li class="nav-item"><a class="nav-link" routerLink="/">Documentation</a></li>
+    </ul>
+    <div class="ms-auto" *ngIf="datasetService.SelectedDataset !== undefined">
+        <span class="navbar-text mx-4">
+            Selected dataset: {{datasetService.SelectedDataset.dataset_name}}
+        </span>
+    </div>
+</nav>
+
+<router-outlet></router-outlet>
