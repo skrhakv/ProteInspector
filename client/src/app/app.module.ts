@@ -10,12 +10,14 @@ import { HttpClientModule } from '@angular/common/http';
 import { HomeComponent } from './components/home/home.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule } from '@angular/forms';
+import { QueryInterfaceComponent } from './components/query-interface/query-interface.component';
 
 @NgModule({
     declarations: [
         AppComponent,
         NavbarLayoutComponent,
-        HomeComponent
+        HomeComponent,
+        QueryInterfaceComponent
     ],
     imports: [
         BrowserModule,

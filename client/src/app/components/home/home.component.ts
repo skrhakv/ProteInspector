@@ -18,11 +18,10 @@ import { trigger, transition, style, animate, state } from '@angular/animations'
 })
 export class HomeComponent {
 
-    showIntroduction: boolean = true;
-    showDatasets: boolean = false;
-    showFilters: boolean = false;
-    showPicture: boolean = true;
-    query: string = "";
+    public showIntroduction: boolean = true;
+    public showDatasets: boolean = false;
+    public showFilters: boolean = false;
+    public showPicture: boolean = true;
 
     constructor(public datasetService: DatasetService) {
         this.showPicture = false;
@@ -47,9 +46,5 @@ export class HomeComponent {
         setTimeout(() => {
             this.showDatasets = true;
         }, 600);
-    }
-
-    sendQuery() {
-        this.datasetService.sendQuery(this.query);
     }
 }
