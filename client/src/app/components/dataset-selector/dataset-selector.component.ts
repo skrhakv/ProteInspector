@@ -1,14 +1,13 @@
 import { Component } from '@angular/core';
-import { Dataset } from 'src/app/models/dataset';
-import { DatasetService } from 'src/app/services/dataset.service';
 import { trigger, transition, style, animate, state } from '@angular/animations';
+import { DatasetService } from 'src/app/services/dataset.service';
+import { Dataset } from 'src/app/models/dataset';
 import { Router } from '@angular/router';
 
 @Component({
-    selector: 'app-home',
-    templateUrl: './home.component.html',
-    styleUrls: ['./home.component.scss'],
-    animations: [
+    selector: 'app-dataset-selector',
+    templateUrl: './dataset-selector.component.html',
+    styleUrls: ['./dataset-selector.component.scss'], animations: [
         trigger('animation', [
             state('void', style({ opacity: 0, })),
             state('*', style({ opacity: 1, })),
@@ -17,14 +16,14 @@ import { Router } from '@angular/router';
         ])
     ],
 })
-export class HomeComponent {
-
+export class DatasetSelectorComponent {
     constructor(public datasetService: DatasetService, private router: Router) {
     }
-
-    clickIntroductionButton() {
+    selectDataset(dataset: Dataset) {
+        this.datasetService.selectDataset(dataset);
         setTimeout(() => {
             this.router.navigate(["/search"]);
         }, 600);
     }
+
 }

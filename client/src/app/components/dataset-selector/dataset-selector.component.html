@@ -1,0 +1,25 @@
+<div class="container">
+    <div class="row flex-lg-row-reverse g-5 py-5">
+        <div class="col-10 col-sm-8 col-lg-6 d-flex align-self-start sticky-top">
+            <img src="assets/introduction.jpg" class="d-block img-fluid" alt="Bootstrap Themes" loading="lazy"
+                width="700" height="500">
+        </div>
+        <div class="col-lg-6" [@animation]>
+            <h1 class="display-5 fw-bold lh-1 mb-3" style="margin-top:150px">ProteInspector</h1>
+            <p class="lead">
+                Please select dataset:
+            </p>
+            <div *ngFor="let dataset of datasetService.datasets">
+                <div class="card text-center my-2">
+                    <div class="card-body">
+                        <h5 class="card-title">{{dataset.dataset_name}}</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">Description:</h6>
+                        <p class="card-text">{{dataset.dataset_description}} </p>
+                    </div>
+                    <a class="btn btn-primary align-bottom my-2 mx-4" (click)="selectDataset(dataset)">Select this
+                        dataset!</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

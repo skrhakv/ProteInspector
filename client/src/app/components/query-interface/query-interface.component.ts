@@ -1,10 +1,19 @@
 import { Component } from '@angular/core';
 import { DatasetService } from 'src/app/services/dataset.service';
+import { trigger, transition, style, animate, state } from '@angular/animations';
 
 @Component({
     selector: 'app-query-interface',
     templateUrl: './query-interface.component.html',
-    styleUrls: ['./query-interface.component.scss']
+    styleUrls: ['./query-interface.component.scss'],
+    animations: [
+        trigger('animation', [
+            state('void', style({ opacity: 0, })),
+            state('*', style({ opacity: 1, })),
+            transition(':enter', animate(`600ms ease-out`)),
+            transition(':leave', animate(`600ms ease-in`))
+        ])
+    ],
 })
 export class QueryInterfaceComponent {
     public query: string = "";
@@ -39,7 +48,7 @@ export class QueryInterfaceComponent {
     changePage(page: number) {
         if (page >= this.numberOfPages || page < 0)
             return;
-        
+
         this.pageNumber = page;
         this.getDataFromPage(this.pageNumber, this.currentQuery);
     }

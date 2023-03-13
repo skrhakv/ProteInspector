@@ -1,5 +1,6 @@
 #include "query-executor-napi.hpp"
 #include <vector>
+#include <iostream>
 
 Napi::FunctionReference QueryExecutorNapi::constructor;
 
@@ -112,8 +113,7 @@ Napi::Value QueryExecutorNapi::GetDatasetsInfo(const Napi::CallbackInfo &info)
     pqxx::result result;
     try
     {
-        auto [r, error] = qExecutor->GetDatasetsInfo();
-        result = r;
+        tie(result, error) = qExecutor->GetDatasetsInfo();
     }
     catch (const std::exception &e)
     {
@@ -142,8 +142,7 @@ Napi::Value QueryExecutorNapi::GetNumberOfPages(const Napi::CallbackInfo &info)
     pqxx::result result;
     try
     {
-        auto [r, error] = qExecutor->GetNumberOfPages(query);
-        result = r;
+        tie(result, error) = qExecutor->GetNumberOfPages(query);
     }
     catch (const std::exception &e)
     {
@@ -174,8 +173,7 @@ Napi::Value QueryExecutorNapi::ParseAndExecute(const Napi::CallbackInfo &info)
     pqxx::result result;
     try
     {
-        auto [r, error] = qExecutor->ParseAndExecute(query, page);
-        result = r;
+        tie(result, error) = qExecutor->ParseAndExecute(query, page);
     }
     catch (const std::exception &e)
     {

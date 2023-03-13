@@ -10,9 +10,8 @@ app.use(cors());
 app.get('/datasets-info', (req, res) => {
     let executor: QueryExecutor = new QueryExecutor();
     let result = executor.GetDatasetsInfo();
-
     res.setHeader('Content-Type', 'application/json');
-    res.json(result);
+    res.status(200).json(result);
 });
 
 // curl -X GET -H "Content---verbose type: application/json"  "http://localhost:3000/data/?page=0&query=select%20*%20from%20proteins%20where%20afterpdbcode=%221btw%22" | json_pp -json_opt pretty,canonical
@@ -28,9 +27,13 @@ app.get('/data', (req, res) => {
 
     let executor: QueryExecutor = new QueryExecutor();
     let result = executor.ParseAndExecute(query, pageNumber);
-
-    res.setHeader('Content-Type', 'application/json');
-    res.json(result);
+    if (typeof result === 'string') {
+        res.status(400).json(result);
+    }
+    else {
+        res.setHeader('Content-Type', 'application/json');
+        res.status(200).json(result);
+    }
 });
 
 // curl -X GET -H "Content---verbose type: application/json"  "http://localhost:3000/pages/?query=select%20*%20from%20proteins%20where%20afterpdbcode=%221btw%22"
@@ -46,8 +49,13 @@ app.get('/pages', (req, res) => {
     let executor: QueryExecutor = new QueryExecutor();
     let result = executor.GetNumberOfPages(query);
 
-    res.setHeader('Content-Type', 'application/json');
-    res.json(result);
+    if (typeof result === 'string') {
+        res.status(400).json(result);
+    }
+    else {
+        res.setHeader('Content-Type', 'application/json');
+        res.status(200).json(result);
+    }
 });
 
 app.listen(port, () => {

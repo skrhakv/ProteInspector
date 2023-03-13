@@ -11,13 +11,15 @@ import { HomeComponent } from './components/home/home.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule } from '@angular/forms';
 import { QueryInterfaceComponent } from './components/query-interface/query-interface.component';
+import { DatasetSelectorComponent } from './components/dataset-selector/dataset-selector.component';
 
 @NgModule({
     declarations: [
         AppComponent,
         NavbarLayoutComponent,
         HomeComponent,
-        QueryInterfaceComponent
+        QueryInterfaceComponent,
+        DatasetSelectorComponent
     ],
     imports: [
         BrowserModule,

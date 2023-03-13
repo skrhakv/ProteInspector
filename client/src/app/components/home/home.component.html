@@ -1,4 +1,4 @@
-<div class="container" *ngIf="showPicture" [@animation]>
+<div class="container">
     <div class="row flex-lg-row-reverse g-5 py-5">
         <div class="col-10 col-sm-8 col-lg-6 d-flex align-self-start sticky-top">
             <img src="assets/introduction.jpg" class="d-block img-fluid" alt="Bootstrap Themes" loading="lazy"
@@ -6,32 +6,13 @@
         </div>
         <div class="col-lg-6">
             <h1 class="display-5 fw-bold lh-1 mb-3" style="margin-top:150px">ProteInspector</h1>
-            <div *ngIf="showIntroduction" [@animation]>
+            <div [@animation]>
                 <p class="lead">Quickly search through the database of changing conformations of proteins.</p>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-start">
-                    <button type="button" class="btn btn-primary btn-lg px-4" (click)="clickIntroductionButton()">Select
-                        dataset</button>
+                    <button type="button" class="btn btn-primary btn-lg px-4" routerLink="/search">Go!</button>
                 </div>
             </div>
-            <div *ngIf="showDatasets" [@animation]>
-                <p class="lead">
-                    Please select dataset:
-                </p>
-                <div *ngFor="let dataset of datasetService.datasets">
-                    <div class="card text-center my-2">
-                        <div class="card-body">
-                            <h5 class="card-title">{{dataset.dataset_name}}</h5>
-                            <h6 class="card-subtitle mb-2 text-muted">Description:</h6>
-                            <p class="card-text">{{dataset.dataset_description}} </p>
-                        </div>
-                        <a class="btn btn-primary align-bottom my-2 mx-4" (click)="selectDataset(dataset)">Select this
-                            dataset!</a>
-                    </div>
-                </div>
-            </div>
+
         </div>
     </div>
-</div>
-<div class="container" *ngIf="showFilters" [@animation]>
-    <app-query-interface></app-query-interface>
 </div>
