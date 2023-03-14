@@ -14,11 +14,34 @@ app.get('/datasets-info', (req, res) => {
     res.status(200).json(result);
 });
 
-// curl -X GET -H "Content---verbose type: application/json"  "http://localhost:3000/data/?page=0&query=select%20*%20from%20proteins%20where%20afterpdbcode=%221btw%22" | json_pp -json_opt pretty,canonical
+app.get('/data/specific-row', (req, res) => {
+
+    if (req.query === undefined || req.query.row === undefined || req.query.query === undefined) {
+        res.send("Failed! Provide paramaters 'query' and 'row' in the URL.\n");
+        return;
+    }
+
+    let query: string = (req.query.query as any) as string;
+    let row: number = Number(req.query.row as any);
+
+    let executor: QueryExecutor = new QueryExecutor();
+    let result = executor.ParseAndExecuteWithAllMetrics(query, row, 1);
+    if (typeof result === 'string') {
+        res.setHeader('Content-Type', 'application/json');
+        res.status(400).json(result);
+        return;
+    }
+    else {
+        res.setHeader('Content-Type', 'application/json');
+        res.status(200).json(result);
+    }
+});
+
+// curl -X GET -H "Content---verbose type: application/json"  "http://localhost:3000/data/?page=0&query=select%20*%20from%20proteins%20where%20afterpdbcode=%221btw%22&pageSize=100" | json_pp -json_opt pretty,canonical
 app.get('/data', (req, res) => {
 
-    if (req.query === undefined || req.query.page === undefined) {
-        res.send("Failed! Provide paramaters 'query' and 'page' in the URL.\n");
+    if (req.query === undefined || req.query.page === undefined || req.query.query === undefined || req.query.pageSize === undefined) {
+        res.send("Failed! Provide paramaters 'query', 'pageSize' and 'page' in the URL.\n");
         return;
     }
 
@@ -39,11 +62,11 @@ app.get('/data', (req, res) => {
     }
 });
 
-// curl -X GET -H "Content---verbose type: application/json"  "http://localhost:3000/pages/?query=select%20*%20from%20proteins%20where%20afterpdbcode=%221btw%22"
+// curl -X GET -H "Content---verbose type: application/json"  "http://localhost:3000/pages/?query=select%20*%20from%20proteins%20where%20afterpdbcode=%221btw%22&pageSize=100"
 app.get('/pages', (req, res) => {
 
-    if (req.query === undefined) {
-        res.send("Failed! Provide paramater 'query' in the URL.\n");
+    if (req.query === undefined || req.query.query === undefined || req.query.pageSize === undefined) {
+        res.send("Failed! Provide paramaters 'query' and 'pageSize' in the URL.\n");
         return;
     }
 
@@ -64,6 +87,7 @@ app.get('/pages', (req, res) => {
         res.status(200).json(result);
     }
 });
+
 
 app.listen(port, () => {
     return console.log(`Express is listening at http://localhost:${port}`);

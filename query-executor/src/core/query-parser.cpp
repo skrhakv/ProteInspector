@@ -62,7 +62,7 @@ bool QueryParser::parseOrderBy(const vector<hsql::OrderDescription *> *orderByCl
     return true;
 }
 
-bool QueryParser::parseQuery(const hsql::SelectStatement *selectStatement, bool countOnly, int page, int pageSize)
+bool QueryParser::parseQuery(const hsql::SelectStatement *selectStatement, bool countOnly, int page, int pageSize, bool includeAllMetrics)
 {
     bool isValid = checkForAllowedGrammar((const hsql::SelectStatement *)selectStatement);
     if (!isValid)
@@ -73,6 +73,12 @@ bool QueryParser::parseQuery(const hsql::SelectStatement *selectStatement, bool 
     if (countOnly)
     {
         convertedQuery += "COUNT(*)";
+    }
+    else if (includeAllMetrics)
+    {
+        string metrics;
+        converter.GetAllMetrics(biologicalStructure, metrics);
+        convertedQuery += metrics;
     }
     else
     {
@@ -123,7 +129,7 @@ bool QueryParser::parseQuery(const hsql::SelectStatement *selectStatement, bool 
         convertedQuery += " ORDER BY " + orderByClause;
     }
 
-    if(!countOnly)
+    if (!countOnly)
         addPageLimitWithOffset(page, pageSize);
 
     convertedQuery += ";";
@@ -162,7 +168,7 @@ bool QueryParser::checkForAllowedGrammar(const hsql::SelectStatement *selectStat
     return true;
 }
 
-bool QueryParser::ConvertQuery(const string &query, bool countOnly, int page, int pageSize)
+bool QueryParser::ConvertQuery(const string &query, bool countOnly, int page, int pageSize, bool includeAllMetrics)
 {
     // parse a given query
     hsql::SQLParserResult result;
@@ -179,7 +185,7 @@ bool QueryParser::ConvertQuery(const string &query, bool countOnly, int page, in
         if (!(statement->is(hsql::StatementType::kStmtSelect)))
             RETURN_PARSE_ERROR("Only SELECT statements are supported.")
 
-        return parseQuery((const hsql::SelectStatement *)statement, countOnly, page, pageSize);
+        return parseQuery((const hsql::SelectStatement *)statement, countOnly, page, pageSize, includeAllMetrics);
     }
     else
     {
@@ -196,7 +202,7 @@ string QueryParser::GetConvertedQuery()
     return convertedQuery;
 }
 
-void QueryParser::Clear() 
+void QueryParser::Clear()
 {
     convertedQuery = "";
     biologicalStructure = "";

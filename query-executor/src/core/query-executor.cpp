@@ -3,11 +3,11 @@
 
 using namespace std;
 
-std::pair<pqxx::result, std::string> QueryExecutor::ParseAndExecute(const std::string &query, int page, int pageSize)
+std::pair<pqxx::result, std::string> QueryExecutor::ParseAndExecute(const std::string &query, int page, int pageSize, bool includeAllMetrics)
 {
     parser.Clear();
 
-    bool isValid = parser.ConvertQuery(query, false, page, pageSize);
+    bool isValid = parser.ConvertQuery(query, false, page, pageSize, includeAllMetrics);
 
     if (!isValid)
     {

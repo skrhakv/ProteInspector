@@ -75,6 +75,7 @@ Napi::Object QueryExecutorNapi::Init(Napi::Env env, Napi::Object exports)
             env, "QueryExecutorNapi",
             {InstanceMethod("ParseAndExecute", &QueryExecutorNapi::ParseAndExecute),
              InstanceMethod("GetNumberOfPages", &QueryExecutorNapi::GetNumberOfPages),
+             InstanceMethod("ParseAndExecuteWithAllMetrics", &QueryExecutorNapi::ParseAndExecuteWithAllMetrics),
              InstanceMethod("GetDatasetsInfo", &QueryExecutorNapi::GetDatasetsInfo)});
 
     constructor = Napi::Persistent(func);
@@ -187,4 +188,36 @@ Napi::Value QueryExecutorNapi::ParseAndExecute(const Napi::CallbackInfo &info)
         return Napi::Object(env, napiResult);
     }
     return Napi::String::New(env, error);
+}
+
+Napi::Value QueryExecutorNapi::ParseAndExecuteWithAllMetrics(const Napi::CallbackInfo &info)
+{
+        Napi::Env env = info.Env();
+    Napi::HandleScope scope(env);
+
+    if (info.Length() != 3)
+    {
+        Napi::TypeError::New(env, "Wrong number of parameters: expected parameters are (string query, int pageNumber, int pageSize)").ThrowAsJavaScriptException();
+    }
+
+    std::string query{info[0].As<Napi::String>().Utf8Value()}, error;
+    int page{info[1].As<Napi::Number>().Int32Value()};
+    int pageSize{info[2].As<Napi::Number>().Int32Value()};
+
+    pqxx::result result;
+    try
+    {
+        tie(result, error) = qExecutor->ParseAndExecute(query, page, pageSize, true);
+    }
+    catch (const std::exception &e)
+    {
+        Napi::Error::New(env, e.what()).ThrowAsJavaScriptException();
+    }
+    if (error.empty())
+    {
+        auto napiResult = createJsonResultFromPqxxResult(result, env);
+        return Napi::Object(env, napiResult);
+    }
+    return Napi::String::New(env, error);
+
 }
