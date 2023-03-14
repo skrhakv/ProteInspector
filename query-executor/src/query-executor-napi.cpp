@@ -133,11 +133,12 @@ Napi::Value QueryExecutorNapi::GetNumberOfPages(const Napi::CallbackInfo &info)
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
 
-    if (info.Length() != 1)
+    if (info.Length() != 2)
     {
-        Napi::TypeError::New(env, "Wrong number of parameters: expected parameter is (string query)").ThrowAsJavaScriptException();
+        Napi::TypeError::New(env, "Wrong number of parameters: expected parameters are (string query, int pageSize)").ThrowAsJavaScriptException();
     }
     std::string query{info[0].As<Napi::String>().Utf8Value()}, error;
+    int pageSize{info[1].As<Napi::Number>().Int32Value()};
 
     pqxx::result result;
     try
@@ -151,7 +152,7 @@ Napi::Value QueryExecutorNapi::GetNumberOfPages(const Napi::CallbackInfo &info)
     if (error.empty())
     {
         size_t rowCount = result[0][0].as<size_t>();
-        size_t numberOfPages = rowCount / PAGE_SIZE + (rowCount % PAGE_SIZE != 0);
+        size_t numberOfPages = rowCount / pageSize + (rowCount % pageSize != 0);
         return Napi::Number::New(env, numberOfPages);
     }
     return Napi::String::New(env, error);
@@ -162,18 +163,19 @@ Napi::Value QueryExecutorNapi::ParseAndExecute(const Napi::CallbackInfo &info)
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
 
-    if (info.Length() != 2)
+    if (info.Length() != 3)
     {
-        Napi::TypeError::New(env, "Wrong number of parameters: expected parameter is (string query, int pageNumber)").ThrowAsJavaScriptException();
+        Napi::TypeError::New(env, "Wrong number of parameters: expected parameters are (string query, int pageNumber, int pageSize)").ThrowAsJavaScriptException();
     }
 
     std::string query{info[0].As<Napi::String>().Utf8Value()}, error;
     int page{info[1].As<Napi::Number>().Int32Value()};
+    int pageSize{info[2].As<Napi::Number>().Int32Value()};
 
     pqxx::result result;
     try
     {
-        tie(result, error) = qExecutor->ParseAndExecute(query, page);
+        tie(result, error) = qExecutor->ParseAndExecute(query, page, pageSize);
     }
     catch (const std::exception &e)
     {

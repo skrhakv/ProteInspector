@@ -62,7 +62,7 @@ bool QueryParser::parseOrderBy(const vector<hsql::OrderDescription *> *orderByCl
     return true;
 }
 
-bool QueryParser::parseQuery(const hsql::SelectStatement *selectStatement, bool countOnly, int page)
+bool QueryParser::parseQuery(const hsql::SelectStatement *selectStatement, bool countOnly, int page, int pageSize)
 {
     bool isValid = checkForAllowedGrammar((const hsql::SelectStatement *)selectStatement);
     if (!isValid)
@@ -124,17 +124,17 @@ bool QueryParser::parseQuery(const hsql::SelectStatement *selectStatement, bool 
     }
 
     if(!countOnly)
-        addPageLimitWithOffset(page);
+        addPageLimitWithOffset(page, pageSize);
 
     convertedQuery += ";";
 
     return true;
 }
 
-void QueryParser::addPageLimitWithOffset(int page)
+void QueryParser::addPageLimitWithOffset(int page, int pageSize)
 {
-    int offset = page * PAGE_SIZE;
-    convertedQuery += " LIMIT " + to_string(PAGE_SIZE) + " OFFSET " + to_string(offset);
+    int offset = page * pageSize;
+    convertedQuery += " LIMIT " + to_string(pageSize) + " OFFSET " + to_string(offset);
 }
 
 bool QueryParser::checkForAllowedGrammar(const hsql::SelectStatement *selectStatement)
@@ -162,7 +162,7 @@ bool QueryParser::checkForAllowedGrammar(const hsql::SelectStatement *selectStat
     return true;
 }
 
-bool QueryParser::ConvertQuery(const string &query, bool countOnly, int page)
+bool QueryParser::ConvertQuery(const string &query, bool countOnly, int page, int pageSize)
 {
     // parse a given query
     hsql::SQLParserResult result;
@@ -179,7 +179,7 @@ bool QueryParser::ConvertQuery(const string &query, bool countOnly, int page)
         if (!(statement->is(hsql::StatementType::kStmtSelect)))
             RETURN_PARSE_ERROR("Only SELECT statements are supported.")
 
-        return parseQuery((const hsql::SelectStatement *)statement, countOnly, page);
+        return parseQuery((const hsql::SelectStatement *)statement, countOnly, page, pageSize);
     }
     else
     {

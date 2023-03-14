@@ -20,14 +20,14 @@ private:
 
     bool parseWhere(const hsql::Expr *expression, string &result);
     bool parseOrderBy(const vector<hsql::OrderDescription *> *orderByClause, string &result);
-    bool parseQuery(const hsql::SelectStatement *selectStatement, bool countOnly, int page);
+    bool parseQuery(const hsql::SelectStatement *selectStatement, bool countOnly, int page, int pageSize);
     bool checkForAllowedGrammar(const hsql::SelectStatement *selectStatement);
-    void addPageLimitWithOffset(int page);
+    void addPageLimitWithOffset(int page, int pageSize);
 
 public:
     string errorMessage;
 
-    bool ConvertQuery(const string &query, bool countOnly, int page = 0);
+    bool ConvertQuery(const string &query, bool countOnly, int page = 0, int pageSize = 100);
     string GetConvertedQuery();
     void Clear();
 };

@@ -24,11 +24,14 @@ app.get('/data', (req, res) => {
 
     let query: string = (req.query.query as any) as string;
     let pageNumber: number = Number(req.query.page as any);
+    let pageSize: number = Number(req.query.pageSize as any);
 
     let executor: QueryExecutor = new QueryExecutor();
-    let result = executor.ParseAndExecute(query, pageNumber);
+    let result = executor.ParseAndExecute(query, pageNumber, pageSize);
     if (typeof result === 'string') {
+        res.setHeader('Content-Type', 'application/json');
         res.status(400).json(result);
+        return;
     }
     else {
         res.setHeader('Content-Type', 'application/json');
@@ -45,12 +48,16 @@ app.get('/pages', (req, res) => {
     }
 
     let query: any = (req.query.query as any) as string;
+    let pageSize: number = Number(req.query.pageSize as any);
 
     let executor: QueryExecutor = new QueryExecutor();
-    let result = executor.GetNumberOfPages(query);
+    let result = executor.GetNumberOfPages(query, pageSize);
+    
 
     if (typeof result === 'string') {
+        res.setHeader('Content-Type', 'application/json');
         res.status(400).json(result);
+        return;
     }
     else {
         res.setHeader('Content-Type', 'application/json');

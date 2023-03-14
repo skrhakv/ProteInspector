@@ -10,10 +10,11 @@ const routes: Routes = [
         path: '',
         component: NavbarLayoutComponent,
         children: [
+            { path: '', redirectTo: 'home', pathMatch: 'full' },
             { path: 'home', component: HomeComponent },
             { path: 'datasets', component: DatasetSelectorComponent },
             { path: 'search', component: QueryInterfaceComponent },
-        ] 
+        ]
     }
 ];
 
