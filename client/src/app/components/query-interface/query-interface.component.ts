@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { DatasetService } from 'src/app/services/dataset.service';
 import { trigger, transition, style, animate, state } from '@angular/animations';
+import { AppSettings } from 'src/app/app-settings';
 
 @Component({
     selector: 'app-query-interface',
@@ -17,7 +18,7 @@ import { trigger, transition, style, animate, state } from '@angular/animations'
 })
 export class QueryInterfaceComponent {
     public query: string = "";
-    private currentQuery = "";
+    public pageSize;
 
     public TableColumnNames: string[] = [];
     public TableData: any[] = [];
@@ -25,23 +26,32 @@ export class QueryInterfaceComponent {
     public numberOfPages: number = 0;
 
     constructor(public datasetService: DatasetService) {
-        // TODO: delete this
-        this.sendQuery();
+        this.pageSize = AppSettings.PAGE_SIZE;
     }
 
     sendQuery() {
         this.pageNumber = 0;
-        this.currentQuery = this.query;
-        this.getDataFromPage(this.pageNumber, this.currentQuery);
-        this.datasetService.getNumberOfPages(this.query).subscribe(data => {
+        this.datasetService.currentQuery = this.query;
+        this.getDataFromPage(this.pageNumber);
+        this.datasetService.getNumberOfPages().subscribe(data => {
             this.numberOfPages = data;
         });
     }
 
-    getDataFromPage(page: number, query: string) {
-        this.datasetService.getQueryData(query, page).subscribe(data => {
-            this.TableColumnNames = data['columnNames'];
+    getDataFromPage(page: number) {
+        this.datasetService.getQueryData(page).subscribe(data => {
+            this.TableColumnNames = data['columnNames'].sort();
             this.TableData = data['results'];
+            this.TableData.forEach((element: any) => {
+                Object.keys(element).sort().reduce(
+                    (obj: any, key: any) => {
+                        obj[key] = element[key];
+                        return obj;
+                    },
+                    {}
+                );
+
+            });
         });
     }
 
@@ -50,6 +60,6 @@ export class QueryInterfaceComponent {
             return;
 
         this.pageNumber = page;
-        this.getDataFromPage(this.pageNumber, this.currentQuery);
+        this.getDataFromPage(this.pageNumber);
     }
 }

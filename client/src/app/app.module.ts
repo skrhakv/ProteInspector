@@ -12,6 +12,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule } from '@angular/forms';
 import { QueryInterfaceComponent } from './components/query-interface/query-interface.component';
 import { DatasetSelectorComponent } from './components/dataset-selector/dataset-selector.component';
+import { ProteinViewComponent } from './components/protein-view/protein-view.component';
 
 @NgModule({
     declarations: [
@@ -19,7 +20,8 @@ import { DatasetSelectorComponent } from './components/dataset-selector/dataset-
         NavbarLayoutComponent,
         HomeComponent,
         QueryInterfaceComponent,
-        DatasetSelectorComponent
+        DatasetSelectorComponent,
+        ProteinViewComponent
     ],
     imports: [
         BrowserModule,

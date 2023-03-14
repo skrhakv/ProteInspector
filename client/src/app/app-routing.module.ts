@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { DatasetSelectorComponent } from './components/dataset-selector/dataset-selector.component';
 import { HomeComponent } from './components/home/home.component';
 import { NavbarLayoutComponent } from './components/navbar-layout/navbar-layout.component';
+import { ProteinViewComponent } from './components/protein-view/protein-view.component';
 import { QueryInterfaceComponent } from './components/query-interface/query-interface.component';
 
 const routes: Routes = [
@@ -14,6 +15,7 @@ const routes: Routes = [
             { path: 'home', component: HomeComponent },
             { path: 'datasets', component: DatasetSelectorComponent },
             { path: 'search', component: QueryInterfaceComponent },
+            { path: 'protein/:id', component: ProteinViewComponent }
         ]
     }
 ];

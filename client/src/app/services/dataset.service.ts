@@ -10,6 +10,9 @@ import { of } from 'rxjs';
 export class DatasetService {
     public datasets: Dataset[] = [];
     public SelectedDataset!: Dataset;
+    public currentQuery = "";
+
+
     constructor(private http: HttpClient) {
         this.getDatasetInfo();
     }
@@ -23,6 +26,10 @@ export class DatasetService {
         };
         return this.http.get<any>(AppSettings.API_ENDPOINT + `/datasets-info`, options).subscribe((datasetsResult) => {
             this.datasets = datasetsResult['results'];
+            if (this.datasets.length > 0)
+                this.SelectedDataset = this.datasets[0];
+            else
+                console.error("No datasets returned by the server");
         });
     }
 
@@ -30,24 +37,37 @@ export class DatasetService {
         this.SelectedDataset = dataset;
     }
 
-    getQueryData(query: string, page: number) {
+    getQueryData(page: number) {
         const headers = new HttpHeaders({
             'Access-Control-Allow-Origin': AppSettings.API_ENDPOINT
         });
         const options = {
             headers
         };
-        return this.http.get<any>(AppSettings.API_ENDPOINT + `/data/?page=` + page + "&pageSize=" + AppSettings.PAGE_SIZE + "&query=" + encodeURIComponent(query), options);
+        return this.http.get<any>(AppSettings.API_ENDPOINT + `/data/?page=` + page +
+            "&pageSize=" + AppSettings.PAGE_SIZE + "&query=" + encodeURIComponent(this.currentQuery) +
+            "&datasetId=" + this.SelectedDataset.dataset_id, options);
     }
 
-    getNumberOfPages(query: string) {
+    getNumberOfPages() {
         const headers = new HttpHeaders({
             'Access-Control-Allow-Origin': AppSettings.API_ENDPOINT
         });
         const options = {
             headers
         };
-        return this.http.get<any>(AppSettings.API_ENDPOINT + `/pages/?query=` + encodeURIComponent(query) + "&pageSize=" + AppSettings.PAGE_SIZE, options);
+        return this.http.get<any>(AppSettings.API_ENDPOINT + `/pages/?query=` + encodeURIComponent(this.currentQuery) +
+            "&pageSize=" + AppSettings.PAGE_SIZE + "&datasetId=" + this.SelectedDataset.dataset_id, options);
 
+    }
+    getSpecificRow(row: number) {
+        const headers = new HttpHeaders({
+            'Access-Control-Allow-Origin': AppSettings.API_ENDPOINT
+        });
+        const options = {
+            headers
+        };
+        return this.http.get<any>(AppSettings.API_ENDPOINT + `/data/specific-row/?row=` + row
+            + "&query=" + encodeURIComponent(this.currentQuery) + "&datasetId=" + this.SelectedDataset.dataset_id, options);
     }
 }

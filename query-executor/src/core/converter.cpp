@@ -196,6 +196,17 @@ bool Converter::GetTableAndLeftJoins(const string biologicalStructure, string &r
     return true;
 }
 
+bool Converter::GetDatasetIdMetric(const string biologicalStructure, int datasetId, string &result)
+{
+    auto datasetMetric = metricsData["forward-metrics-mapping"][biologicalStructure]["datasetid"];
+    
+    result += datasetMetric["databaseDestination"];
+    result += "=";
+    result += to_string(datasetId);
+
+    return true;
+}
+
 void Converter::Clear()
 {
     errorMessage = "";

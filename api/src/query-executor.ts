@@ -1,7 +1,7 @@
 export interface QueryExecutor {
-    ParseAndExecute(query: string, page: number, pageSize: number): Array<Array<string>>;
-    ParseAndExecuteWithAllMetrics(query: string, page: number, pageSize: number): Array<Array<string>>;
-    GetNumberOfPages(query: string, pageSize: number): number;
+    ParseAndExecute(query: string, datasetId: number, page: number, pageSize: number): Array<Array<string>>;
+    ParseAndExecuteWithAllMetrics(query: string, datasetId: number, page: number, pageSize: number): Array<Array<string>>;
+    GetNumberOfPages(query: string, datasetId: number, pageSize: number): number;
     GetDatasetsInfo(): Array<Array<string>>;
 }
 

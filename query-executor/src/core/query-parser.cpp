@@ -62,7 +62,7 @@ bool QueryParser::parseOrderBy(const vector<hsql::OrderDescription *> *orderByCl
     return true;
 }
 
-bool QueryParser::parseQuery(const hsql::SelectStatement *selectStatement, bool countOnly, int page, int pageSize, bool includeAllMetrics)
+bool QueryParser::parseQuery(const hsql::SelectStatement *selectStatement, bool countOnly, int datasetId, int page, int pageSize, bool includeAllMetrics)
 {
     bool isValid = checkForAllowedGrammar((const hsql::SelectStatement *)selectStatement);
     if (!isValid)
@@ -118,6 +118,16 @@ bool QueryParser::parseQuery(const hsql::SelectStatement *selectStatement, bool 
         if (!isValid)
             return isValid;
         convertedQuery += "WHERE " + whereClause;
+
+        string databaseIdClause;
+        converter.GetDatasetIdMetric(biologicalStructure, datasetId, databaseIdClause);
+        convertedQuery += " AND " + databaseIdClause;
+    }
+    else
+    {
+        string databaseIdClause;
+        converter.GetDatasetIdMetric(biologicalStructure, datasetId, databaseIdClause);
+        convertedQuery += " WHERE " + databaseIdClause;
     }
 
     if (selectStatement->order)
@@ -168,7 +178,7 @@ bool QueryParser::checkForAllowedGrammar(const hsql::SelectStatement *selectStat
     return true;
 }
 
-bool QueryParser::ConvertQuery(const string &query, bool countOnly, int page, int pageSize, bool includeAllMetrics)
+bool QueryParser::ConvertQuery(const string &query, bool countOnly, int datasetId, int page, int pageSize, bool includeAllMetrics)
 {
     // parse a given query
     hsql::SQLParserResult result;
@@ -185,7 +195,7 @@ bool QueryParser::ConvertQuery(const string &query, bool countOnly, int page, in
         if (!(statement->is(hsql::StatementType::kStmtSelect)))
             RETURN_PARSE_ERROR("Only SELECT statements are supported.")
 
-        return parseQuery((const hsql::SelectStatement *)statement, countOnly, page, pageSize, includeAllMetrics);
+        return parseQuery((const hsql::SelectStatement *)statement, countOnly, datasetId, page, pageSize, includeAllMetrics);
     }
     else
     {

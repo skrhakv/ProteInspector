@@ -3,11 +3,11 @@
 
 using namespace std;
 
-std::pair<pqxx::result, std::string> QueryExecutor::ParseAndExecute(const std::string &query, int page, int pageSize, bool includeAllMetrics)
+std::pair<pqxx::result, std::string> QueryExecutor::ParseAndExecute(const std::string &query, int datasetId, int page, int pageSize, bool includeAllMetrics)
 {
     parser.Clear();
 
-    bool isValid = parser.ConvertQuery(query, false, page, pageSize, includeAllMetrics);
+    bool isValid = parser.ConvertQuery(query, false, datasetId, page, pageSize, includeAllMetrics);
 
     if (!isValid)
     {
@@ -16,11 +16,11 @@ std::pair<pqxx::result, std::string> QueryExecutor::ParseAndExecute(const std::s
     return dbClient.ExecuteQuery(parser.GetConvertedQuery());
 }
 
-std::pair<pqxx::result, std::string> QueryExecutor::GetNumberOfPages(const std::string &query)
+std::pair<pqxx::result, std::string> QueryExecutor::GetNumberOfPages(const std::string &query, int datasetId)
 {
     parser.Clear();
 
-    bool isValid = parser.ConvertQuery(query, true);
+    bool isValid = parser.ConvertQuery(query, true, datasetId);
 
     if (!isValid)
     {

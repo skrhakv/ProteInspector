@@ -5,7 +5,7 @@
             <h6>Type the query:</h6>
             <div class="input-group rounded">
                 <input type="text" class="form-control rounded" placeholder="Type Query" aria-label="Search"
-                    aria-describedby="search-addon" [(ngModel)]="query" />
+                    aria-describedby="search-addon" [(ngModel)]="query" (keydown.enter)="sendQuery()" />
                 <span class="input-group-text border-0" id="search-addon">
                     <a class="btn btn-default btn-sm" (click)="sendQuery()">
                         <i class="fa fa-search"></i>
@@ -34,8 +34,7 @@
                         </a>
                     </li>
                     <li class="page-item" [ngClass]="{'disabled': pageNumber <= 0}">
-                        <a class="page-link clickable-link" aria-label="Previous"
-                            (click)="changePage(pageNumber - 1)">
+                        <a class="page-link clickable-link" aria-label="Previous" (click)="changePage(pageNumber - 1)">
                             <span aria-hidden="true">&laquo;</span>
                             <span class="sr-only"></span>
                         </a>
@@ -57,15 +56,13 @@
                     <!--<li *ngIf="pageNumber + 3 <= numberOfPages - 1" class="page-item"><a class="page-link">...</a></li>-->
 
                     <li class="page-item" [ngClass]="{'disabled': pageNumber >= numberOfPages - 1}">
-                        <a class="page-link clickable-link" aria-label="Next"
-                            (click)="changePage(pageNumber + 1)">
+                        <a class="page-link clickable-link" aria-label="Next" (click)="changePage(pageNumber + 1)">
                             <span aria-hidden=" true">&raquo;</span>
                             <span class="sr-only"></span>
                         </a>
                     </li>
                     <li class="page-item" [ngClass]="{'disabled': pageNumber >= numberOfPages - 1}">
-                        <a class="page-link clickable-link" aria-label="Last"
-                            (click)="changePage(numberOfPages - 1)">
+                        <a class="page-link clickable-link" aria-label="Last" (click)="changePage(numberOfPages - 1)">
                             <span aria-hidden="true">&raquo;&raquo;</span>
                             <span class="sr-only"></span>
                         </a>
@@ -85,8 +82,9 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="clickable-link" *ngFor="let row of TableData; index as i">
-                        <th scope="row">{{(i + 1) + (pageNumber * 100)}}</th>
+                    <tr class="clickable-link" *ngFor="let row of TableData; index as i"
+                        routerLink="/protein/{{(i + 1) + (pageNumber * pageSize)}}">
+                        <th scope="row">{{(i + 1) + (pageNumber * pageSize)}}</th>
                         <td *ngFor="let item of row | keyvalue">{{item.value}}</td>
                     </tr>
                 </tbody>
@@ -102,8 +100,7 @@
                         </a>
                     </li>
                     <li class="page-item" [ngClass]="{'disabled': pageNumber <= 0}">
-                        <a class="page-link clickable-link" aria-label="Previous"
-                            (click)="changePage(pageNumber - 1)">
+                        <a class="page-link clickable-link" aria-label="Previous" (click)="changePage(pageNumber - 1)">
                             <span aria-hidden="true">&laquo;</span>
                             <span class="sr-only"></span>
                         </a>
@@ -125,15 +122,13 @@
                     <!--<li *ngIf="pageNumber + 3 <= numberOfPages - 1" class="page-item"><a class="page-link">...</a></li>-->
 
                     <li class="page-item" [ngClass]="{'disabled': pageNumber >= numberOfPages - 1}">
-                        <a class="page-link clickable-link" aria-label="Next"
-                            (click)="changePage(pageNumber + 1)">
+                        <a class="page-link clickable-link" aria-label="Next" (click)="changePage(pageNumber + 1)">
                             <span aria-hidden=" true">&raquo;</span>
                             <span class="sr-only"></span>
                         </a>
                     </li>
                     <li class="page-item" [ngClass]="{'disabled': pageNumber >= numberOfPages - 1}">
-                        <a class="page-link clickable-link" aria-label="Last"
-                            (click)="changePage(numberOfPages - 1)">
+                        <a class="page-link clickable-link" aria-label="Last" (click)="changePage(numberOfPages - 1)">
                             <span aria-hidden="true">&raquo;&raquo;</span>
                             <span class="sr-only"></span>
                         </a>

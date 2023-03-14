@@ -124,9 +124,9 @@ VALUES
 -- add protein simulation of length 4
 -- simulates transformation from protein with protein_id=1 to protein_id=2 to protein_id=3 to protein_id=4
 INSERT INTO
-    transformations (transformation_id, transformation_length)
+    transformations (transformation_id, transformation_length, dataset_id)
 VALUES
-    (1000000000, 4);
+    (1000000000, 4, 2);
 
 INSERT INTO
     protein_transformations (
