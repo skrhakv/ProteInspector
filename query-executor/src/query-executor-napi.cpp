@@ -84,6 +84,11 @@ Napi::Object QueryExecutorNapi::Init(Napi::Env env, Napi::Object exports)
     return exports;
 }
 
+QueryExecutorNapi::~QueryExecutorNapi()
+{
+    delete this->qExecutor;
+}
+
 QueryExecutorNapi::QueryExecutorNapi(const Napi::CallbackInfo &info) : Napi::ObjectWrap<QueryExecutorNapi>(info)
 {
     Napi::Env env = info.Env();

@@ -4,11 +4,11 @@ import { QueryExecutor } from './query-executor';
 const app = express();
 const cors = require('cors');
 const port = 3000;
+const executor: QueryExecutor = new QueryExecutor();
 
 app.use(cors());
 
 app.get('/datasets-info', (req, res) => {
-    let executor: QueryExecutor = new QueryExecutor();
     let result = executor.GetDatasetsInfo();
     res.setHeader('Content-Type', 'application/json');
     res.status(200).json(result);
@@ -25,8 +25,8 @@ app.get('/data/specific-row', (req, res) => {
     let row: number = Number(req.query.row as any);
     let datasetId: number = Number(req.query.datasetId as any);
 
-    let executor: QueryExecutor = new QueryExecutor();
     let result = executor.ParseAndExecuteWithAllMetrics(query, datasetId, row, 1);
+    
     if (typeof result === 'string') {
         res.setHeader('Content-Type', 'application/json');
         console.error(result);
@@ -53,8 +53,8 @@ app.get('/data', (req, res) => {
     let pageSize: number = Number(req.query.pageSize as any);
     let datasetId: number = Number(req.query.datasetId as any);
 
-    let executor: QueryExecutor = new QueryExecutor();
     let result = executor.ParseAndExecute(query, datasetId, pageNumber, pageSize);
+
     if (typeof result === 'string') {
         res.setHeader('Content-Type', 'application/json');
         console.error(result);
@@ -79,9 +79,7 @@ app.get('/pages', (req, res) => {
     let pageSize: number = Number(req.query.pageSize as any);
     let datasetId: number = Number(req.query.datasetId as any);
 
-    let executor: QueryExecutor = new QueryExecutor();
     let result = executor.GetNumberOfPages(query, datasetId, pageSize);
-
 
     if (typeof result === 'string') {
         res.setHeader('Content-Type', 'application/json');

@@ -9,6 +9,7 @@ class QueryExecutorNapi : public Napi::ObjectWrap<QueryExecutorNapi>
 public:
     static Napi::Object Init(Napi::Env env, Napi::Object exports);
     QueryExecutorNapi(const Napi::CallbackInfo &info);
+    ~QueryExecutorNapi();
 
 private:
     static Napi::FunctionReference constructor;
