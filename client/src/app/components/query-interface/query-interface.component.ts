@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { DatasetService } from 'src/app/services/dataset.service';
 import { trigger, transition, style, animate, state } from '@angular/animations';
 import { AppSettings } from 'src/app/app-settings';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
     selector: 'app-query-interface',
@@ -25,11 +26,31 @@ export class QueryInterfaceComponent {
     public pageNumber: number = 0;
     public numberOfPages: number = 0;
 
-    constructor(public datasetService: DatasetService) {
+    constructor(public datasetService: DatasetService, private route: ActivatedRoute, private router: Router) {
         this.pageSize = AppSettings.PAGE_SIZE;
+
+        this.route.queryParams.subscribe(params => {
+            let query = params['query'];
+
+            if (query !== null) {
+                datasetService.getDatasetInfo().then(_ => {
+                    this.query = decodeURIComponent(query);
+                    this.sendQuery(false);
+                });
+            }
+        });
     }
 
-    sendQuery() {
+    sendQuery(setQueryIntoRoute: boolean = true) {
+        if (setQueryIntoRoute) {
+            this.router.navigate([], {
+                relativeTo: this.route,
+                queryParams: {
+                    query: this.encodeUri(this.query)
+                },
+                queryParamsHandling: 'merge',
+            });
+        }
         this.pageNumber = 0;
         this.datasetService.currentQuery = this.query;
         this.getDataFromPage(this.pageNumber);
@@ -52,6 +73,16 @@ export class QueryInterfaceComponent {
                 );
 
             });
+            var element: HTMLElement = <HTMLElement>document.getElementById("fixed-thead");
+            var parentElement: HTMLElement = <HTMLElement>element.parentElement;
+            window.addEventListener('scroll', () => {
+                var coordinates = parentElement.getBoundingClientRect();
+                if (coordinates.y < 0) {
+                    element.style.transform = 'translate3d(0, ' + (-coordinates.y) + 'px, 0)';
+                } else {
+                    element.style.transform = 'translate3d(0,0,0)';
+                }
+            });
         });
     }
 
@@ -61,5 +92,9 @@ export class QueryInterfaceComponent {
 
         this.pageNumber = page;
         this.getDataFromPage(this.pageNumber);
+    }
+
+    encodeUri(query: string): string {
+        return encodeURIComponent(query);
     }
 }

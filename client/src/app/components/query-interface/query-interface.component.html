@@ -71,24 +71,25 @@
             </nav>
         </div>
         <div class="row">
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th class="text-center" [attr.colspan]="TableColumnNames.length + 1">Results</th>
-                    </tr>
-                    <tr>
-                        <th scope="col">#</th>
-                        <th scope="col" *ngFor="let name of TableColumnNames">{{name}}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="clickable-link" *ngFor="let row of TableData; index as i"
-                        routerLink="/protein/{{(i + 1) + (pageNumber * pageSize)}}">
-                        <th scope="row">{{(i + 1) + (pageNumber * pageSize)}}</th>
-                        <td *ngFor="let item of row | keyvalue">{{item.value}}</td>
-                    </tr>
-                </tbody>
-            </table>
+            <h5 class="text-center">Results</h5>
+
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead id="fixed-thead">
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col" *ngFor="let name of TableColumnNames">{{name}}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="clickable-link" *ngFor="let row of TableData; index as i"
+                            routerLink="/protein/{{encodeUri(datasetService.currentQuery)}}/{{(i + 1) + (pageNumber * pageSize)}}">
+                            <th scope="row">{{(i + 1) + (pageNumber * pageSize)}}</th>
+                            <td *ngFor="let item of row | keyvalue">{{item.value}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
         <div class="row">
             <nav aria-label="Page navigation example">

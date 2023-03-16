@@ -93,7 +93,20 @@
                 "databaseDestination": "domain_transformations_data.compare_secondary_structure",
                 "type": "float"
             },
-            "domainspan": "domain_transformations_data.domain_span"
+            "afterdomainspan": {
+                "databaseDestination": [
+                    "(after_domains.domain_span).span_start",
+                    "(after_domains.domain_span).span_end"
+                ],
+                "type": "integer-between"
+            },
+            "beforedomainspan": {
+                "databaseDestination": [
+                    "(before_domains.domain_span).span_start",
+                    "(before_domains.domain_span).span_end"
+                ],
+                "type": "integer-between"
+            }
         },
         "domainpairs": {
             "datasetid": {
@@ -230,7 +243,12 @@
         "after_domains.cath_id": "AfterDomainCathId",
         "domain_transformations_data.rmsd": "Rmsd",
         "domain_transformations_data.compare_secondary_structure": "CompareSecondaryStructure",
-        "domain_transformations_data.domain_span": "DomainSpan",
+        "after_domains.domain_span": "AfterDomainSpan",
+        "before_domains.domain_span": "BeforeDomainSpan",
+        "(after_domains.domain_span).span_start": "AfterDomainSpanStart",
+        "(after_domains.domain_span).span_end": "AfterDomainSpanEnd",
+        "(before_domains.domain_span).span_start": "BeforeDomainSpanStart",
+        "(before_domains.domain_span).span_end": "BeforeDomainSpanEnd",
         "before_domains1.cath_id": "BeforeDomainCathId1",
         "before_domains2.cath_id": "BeforeDomainCathId2",
         "after_domains1.cath_id": "AfterDomainCathId1",

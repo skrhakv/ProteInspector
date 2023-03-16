@@ -15,7 +15,7 @@ const routes: Routes = [
             { path: 'home', component: HomeComponent },
             { path: 'datasets', component: DatasetSelectorComponent },
             { path: 'search', component: QueryInterfaceComponent },
-            { path: 'protein/:id', component: ProteinViewComponent }
+            { path: 'protein/:query/:id', component: ProteinViewComponent }
         ]
     }
 ];

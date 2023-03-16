@@ -1,3 +1,4 @@
+<h1 class="text-center">Protein transformation details</h1>
 <div class="container">
     <div class="row" *ngIf="datasetService.currentQuery === ''">
         <div class="col-3"></div>
@@ -9,20 +10,30 @@
         </div>
         <div class="col-3"></div>
     </div>
-    <div class="row" *ngIf="datasetService.currentQuery !== ''">
-        <table class="table table-hover">
+    <div class="row mt-3" *ngIf="datasetService.currentQuery !== ''">
+        <table class="table">
             <thead>
                 <tr>
-                    <th scope="col">#</th>
                     <th scope="col" *ngFor="let name of TableColumnNames">{{name}}</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td *ngFor="let item of TableData[0] | keyvalue">{{item.value}}</td>
+                    <td *ngFor="let item of TableData | keyvalue">{{item.value}}</td>
                 </tr>
             </tbody>
         </table>
     </div>
-
+    <div class="row mt-3">
+        <div id='before-molstar-parent'>
+            <h3 class="mx-5 text-center">Protein before transformation:</h3>
+            <canvas id='before-molstar-canvas' style="width: 800px;height: 600px;"></canvas>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div id='after-molstar-parent'>
+            <h3 class="mx-5 text-center">Protein after transformation:</h3>
+            <canvas id='after-molstar-canvas'></canvas>
+        </div>
+    </div>
 </div>

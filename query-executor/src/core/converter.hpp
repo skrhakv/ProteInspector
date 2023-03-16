@@ -2,6 +2,7 @@
 #define CONVERTER_H
 
 #include <string>
+#include <set>
 #include <nlohmann/json.hpp>
 #include "hsql/SQLParser.h"
 #include "operator-validator.hpp"
@@ -12,6 +13,7 @@ class Converter
 {
     nlohmann::json metricsData;
     OperatorValidator operatorValidator;
+    set<string> addedMetrics;
 
 public:
     string errorMessage;

@@ -149,6 +149,7 @@ bool Converter::ValidateQueryMetric(hsql::Expr *expression, const string biologi
 
     return true;
 }
+
 bool Converter::GetAllMetrics(const string biologicalStructure, string &result)
 {
     auto forwardMetrics = metricsData["forward-metrics-mapping"][biologicalStructure];
@@ -161,24 +162,32 @@ bool Converter::GetAllMetrics(const string biologicalStructure, string &result)
         {
             for (auto item : forwardMetric.value()["databaseDestination"])
             {
+                string resultMetric = item.get<std::string>();
+
+                if (!addedMetrics.contains(resultMetric))
+                {
+                    if (!first)
+                        result += ",";
+                    result += resultMetric;
+                    result += " AS \"";
+                    result += backwardMetric[resultMetric];
+                    result += "\"";
+                    addedMetrics.insert(resultMetric);
+                }
+            }
+        }
+        else
+        {
+            string resultMetric = forwardMetric.value()["databaseDestination"];
+            if (!addedMetrics.contains(resultMetric))
+            {
                 if (!first)
                     result += ",";
-                string resultMetric = item.get<std::string>();
                 result += resultMetric;
                 result += " AS \"";
                 result += backwardMetric[resultMetric];
                 result += "\"";
             }
-        }
-        else
-        {
-            if (!first)
-                result += ",";
-            string resultMetric = forwardMetric.value()["databaseDestination"];
-            result += resultMetric;
-            result += " AS \"";
-            result += backwardMetric[resultMetric];
-            result += "\"";
         }
         first = false;
     }
@@ -199,7 +208,7 @@ bool Converter::GetTableAndLeftJoins(const string biologicalStructure, string &r
 bool Converter::GetDatasetIdMetric(const string biologicalStructure, int datasetId, string &result)
 {
     auto datasetMetric = metricsData["forward-metrics-mapping"][biologicalStructure]["datasetid"];
-    
+
     result += datasetMetric["databaseDestination"];
     result += "=";
     result += to_string(datasetId);
