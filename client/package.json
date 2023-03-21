@@ -26,6 +26,7 @@
         "@ng-bootstrap/ng-bootstrap": "^14.0.1",
         "bootstrap": "^5.2.3",
         "molstar": "^3.31.4",
+        "ngx-cookie-service": "^15.0.0",
         "rxjs": "~7.8.0",
         "tslib": "^2.3.0",
         "zone.js": "~0.12.0"

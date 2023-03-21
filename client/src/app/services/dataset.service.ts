@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AppSettings } from '../app-settings';
 import { Dataset } from '../models/dataset';
 import { firstValueFrom, of } from 'rxjs';
+import { CookieService } from 'ngx-cookie-service';
 
 @Injectable({
     providedIn: 'root'
@@ -12,7 +13,7 @@ export class DatasetService {
     public SelectedDataset!: Dataset;
     public currentQuery = "";
 
-    constructor(private http: HttpClient) {
+    constructor(private http: HttpClient, private cookieService: CookieService) {
         this.getDatasetInfo();
     }
 
@@ -25,14 +26,26 @@ export class DatasetService {
         };
         let datasetsResult = await firstValueFrom(this.http.get<any>(AppSettings.API_ENDPOINT + `/datasets-info`, options));
         this.datasets = datasetsResult['results'];
-        if (this.datasets.length > 0)
-            this.SelectedDataset = this.datasets[0];
+        if (this.datasets.length > 0) {
+
+            if (this.cookieService.check('dataset-id')) {
+                let dataset = this.datasets.find(x => x.dataset_id === this.cookieService.get('dataset-id'));
+                if (dataset !== undefined)
+                    this.SelectedDataset = dataset;
+                else
+                    this.SelectedDataset = this.datasets[0];
+            }
+            else
+                this.SelectedDataset = this.datasets[0];
+
+        }
         else
             console.error("No datasets returned by the server");
     }
 
     selectDataset(dataset: Dataset) {
         this.SelectedDataset = dataset;
+        this.cookieService.set("dataset-id", this.SelectedDataset.dataset_id);
     }
 
     getQueryData(page: number) {

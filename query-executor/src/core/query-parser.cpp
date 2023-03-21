@@ -132,11 +132,20 @@ bool QueryParser::parseQuery(const hsql::SelectStatement *selectStatement, bool 
 
     if (selectStatement->order)
     {
-        string orderByClause;
-        bool isValid = parseOrderBy(selectStatement->order, orderByClause);
+        string orderByClause, defaultOrder;
+        bool isValid = parseOrderBy(selectStatement->order, orderByClause) && converter.GetDefaultOrder(biologicalStructure, defaultOrder);
         if (!isValid)
             return isValid;
+
         convertedQuery += " ORDER BY " + orderByClause;
+        convertedQuery += ", ";
+        convertedQuery += defaultOrder;
+    }
+    else if(!countOnly)
+    {
+        string defaultOrder;
+        converter.GetDefaultOrder(biologicalStructure, defaultOrder);
+        convertedQuery += " ORDER BY " + defaultOrder;
     }
 
     if (!countOnly)

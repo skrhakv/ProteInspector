@@ -216,8 +216,16 @@ bool Converter::GetDatasetIdMetric(const string biologicalStructure, int dataset
     return true;
 }
 
+bool Converter::GetDefaultOrder(const string biologicalStructure, string &result)
+{
+    auto defaultOrder = metricsData["tables"][biologicalStructure]["order"];
+    result += defaultOrder;
+    return true;
+}
+
 void Converter::Clear()
 {
     errorMessage = "";
+    addedMetrics.clear();
     operatorValidator.Clear();
 }

@@ -15,7 +15,6 @@ app.get('/datasets-info', (req, res) => {
 });
 
 app.get('/data/specific-row', (req, res) => {
-
     if (req.query === undefined || req.query.row === undefined || req.query.query === undefined || req.query.datasetId === undefined) {
         res.status(400).send("Failed! Provide paramaters 'query', 'datasetId' and 'row' in the URL.\n");
         return;
