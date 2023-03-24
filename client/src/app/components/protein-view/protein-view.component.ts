@@ -21,7 +21,9 @@ const MySpec: PluginSpec = {
 export class ProteinViewComponent {
 
     public TableColumnNames: string[] = [];
-    public TableData: any[] = [];
+    public ColumnOrder: string[] = [];
+    public TableData!: any;
+    public DataReady: boolean = false;
 
     private row!: number;
     constructor(public datasetService: DatasetService, private route: ActivatedRoute) {
@@ -29,24 +31,19 @@ export class ProteinViewComponent {
         this.row = parseInt(this.route.snapshot.paramMap.get('id') as string);
         datasetService.currentQuery = decodeURIComponent(this.route.snapshot.paramMap.get('query') as string);
         
-        // if refreshed then datasets are not loaded yet so we would get an error: selectedDataset is undefined
         datasetService.getDatasetInfo().then(_ => {
             datasetService.getSpecificRow(this.row).subscribe(data => {
 
-                this.TableColumnNames = data['columnNames'].sort();
+                this.TableColumnNames = data['columnNames'];
                 this.TableData = data['results'];
-                this.TableData.forEach((element: any) => {
-                    Object.keys(element).sort().reduce(
-                        (obj: any, key: any) => {
-                            obj[key] = element[key];
-                            return obj;
-                        },
-                        {}
-                    );
 
-                });
+                for (const columnName of this.datasetService.ColumnOrder) {
+                    if (this.TableColumnNames.includes(columnName)) {
+                        this.ColumnOrder.push(columnName);
+                    }
+                }
                 this.TableData = this.TableData[0];
-
+                this.DataReady = true;
                 if ('BeforePdbCode' in this.TableData) {
                     const canvas: HTMLCanvasElement = <HTMLCanvasElement>document.getElementById('before-molstar-canvas');
                     const parent: HTMLDivElement = <HTMLDivElement>document.getElementById('before-molstar-parent');

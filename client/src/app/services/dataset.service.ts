@@ -11,10 +11,24 @@ import { CookieService } from 'ngx-cookie-service';
 export class DatasetService {
     public datasets: Dataset[] = [];
     public SelectedDataset!: Dataset;
+    public ColumnOrder: string[] = [];
     public currentQuery = "";
 
     constructor(private http: HttpClient, private cookieService: CookieService) {
         this.getDatasetInfo();
+        this.getOrderInfo();
+    }
+
+    getOrderInfo() {
+        const headers = new HttpHeaders({
+            'Access-Control-Allow-Origin': AppSettings.API_ENDPOINT
+        });
+        const options = {
+            headers
+        };
+        this.http.get<any>(AppSettings.API_ENDPOINT + `/order`, options).subscribe(data => {
+            this.ColumnOrder = data;
+        });
     }
 
     async getDatasetInfo() {

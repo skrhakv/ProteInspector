@@ -27,9 +27,10 @@ export class QueryInterfaceComponent implements OnInit {
 
     public TableColumnNames: string[] = [];
     public TableData: any[] = [];
+    public ColumnOrder: string[] = [];
     public pageNumber: number = 0;
     public numberOfPages: number = 0;
-    public DataReady: boolean = false;
+    public DataReady: boolean = true;
 
     constructor(public datasetService: DatasetService, private route: ActivatedRoute, private router: Router) {
         this.pageSize = AppSettings.PAGE_SIZE;
@@ -70,17 +71,16 @@ export class QueryInterfaceComponent implements OnInit {
         this.ngUnsubscribe.next();
 
         this.datasetService.getQueryData(page).pipe(takeUntil(this.ngUnsubscribe)).subscribe(data => {
-            this.TableColumnNames = data['columnNames'].sort();
+            this.TableColumnNames = data['columnNames'];
             this.TableData = data['results'];
-            this.TableData.forEach((element: any) => {
-                Object.keys(element).sort().reduce(
-                    (obj: any, key: any) => {
-                        obj[key] = element[key];
-                        return obj;
-                    },
-                    {}
-                );
-            });
+            this.ColumnOrder = [];
+            
+            for (const columnName of this.datasetService.ColumnOrder) {
+                if (this.TableColumnNames.includes(columnName)) {
+                    this.ColumnOrder.push(columnName);
+                }
+            }
+
             this.DataReady = true;
         });
     }

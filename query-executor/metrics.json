@@ -9,19 +9,16 @@
             "table": "domain_transformations",
             "joins": "inner join domain_transformations_data on domain_transformations.domain_transformation_id = domain_transformations_data.domain_transformation_id inner join transformations on domain_transformations.transformation_id = transformations.transformation_id inner join domains as before_domains on before_domains.domain_id = domain_transformations.before_domain_id inner join domains as after_domains on after_domains.domain_id = domain_transformations.after_domain_id inner join proteins as before_proteins on before_proteins.protein_id = before_domains.protein_id inner join proteins as after_proteins on after_proteins.protein_id = after_domains.protein_id inner join sequences on sequences.sequence_id = before_proteins.sequence_id",
             "order": "domain_transformations.domain_transformation_id"
-
         },
         "domainpairs": {
             "table": "domain_pair_transformations",
             "joins": "inner join domain_pair_transformations_data on domain_pair_transformations_data.domain_pair_transformation_id = domain_pair_transformations.domain_pair_transformation_id inner join transformations on domain_pair_transformations.transformation_id = transformations.transformation_id inner join domain_pairs as before_domain_pairs on before_domain_pairs.domain_pair_id = domain_pair_transformations.before_domain_pair_id inner join domain_pairs as after_domain_pairs on after_domain_pairs.domain_pair_id = domain_pair_transformations.after_domain_pair_id inner join domains as before_domains1 on before_domains1.domain_id = before_domain_pairs.domain_id1 inner join domains as before_domains2 on before_domains2.domain_id = before_domain_pairs.domain_id2 inner join domains as after_domains1 on after_domains1.domain_id = after_domain_pairs.domain_id1 inner join domains as after_domains2 on after_domains2.domain_id = after_domain_pairs.domain_id2 inner join proteins as before_proteins on before_proteins.protein_id = before_domains1.protein_id inner join proteins as after_proteins on after_proteins.protein_id = after_domains1.protein_id inner join sequences on sequences.sequence_id = before_proteins.sequence_id",
             "order": "domain_pair_transformations.domain_pair_transformation_id"
-
         },
         "residues": {
             "table": "residue_labels",
             "joins": "inner join protein_transformations on protein_transformations.protein_transformation_id = residue_labels.protein_transformation_id inner join transformations on protein_transformations.transformation_id = transformations.transformation_id inner join proteins as before_proteins on before_proteins.protein_id = protein_transformations.before_protein_id inner join proteins as after_proteins on after_proteins.protein_id = protein_transformations.after_protein_id inner join sequences on sequences.sequence_id=before_proteins.sequence_id",
             "order": "residue_labels.label_id"
-
         }
     },
     "forward-metrics-mapping": {
@@ -270,5 +267,36 @@
         "residue_labels.residue_start": "ResidueStart",
         "residue_labels.residue_end": "ResidueEnd",
         "transformations.transformation_id": "ProteinProgressionId"
-    }
+    },
+    "order": [
+        "UniprotId",
+        "BeforePdbCode",
+        "BeforeChainId",
+        "BeforeDomainCathId",
+        "BeforeDomainSpan",
+        "BeforeDomainSpanStart",
+        "BeforeDomainSpanEnd",
+        "BeforeDomainCathId1",
+        "BeforeDomainCathId2",
+        "AfterPdbCode",
+        "AfterChainId",
+        "AfterDomainCathId",
+        "AfterDomainSpan",
+        "AfterDomainSpanStart",
+        "AfterDomainSpanEnd",
+        "AfterDomainCathId1",
+        "AfterDomainCathId2",
+        "Rmsd",
+        "CompareSecondaryStructure",
+        "HingeAngle",
+        "HingeTranslationInAxis",
+        "HingeTranslationOverall",
+        "BeforeInterfaceBuriedArea",
+        "AfterInterfaceBuriedArea",
+        "Label",
+        "ResidueStart",
+        "ResidueEnd",
+        "DatasetId",
+        "ProteinProgressionId"
+    ]
 }

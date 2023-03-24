@@ -14,14 +14,25 @@
         </div>
         <div class="col-3"></div>
     </div>
-    <!--<hr />
+    <hr />
 <div class="row">
     <div class="col-3"></div>
     <div class="col-6">
         Or specify the query using filters:
+        <div class="dropdown">
+            <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+              Dropdown link
+            </a>
+          
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+              <li><a class="dropdown-item" href="#">Action</a></li>
+              <li><a class="dropdown-item" href="#">Another action</a></li>
+              <li><a class="dropdown-item" href="#">Something else here</a></li>
+            </ul>
+          </div>
     </div>
     <div class="col-3"></div>
-</div> -->
+</div>
     <div [style.display]="TableData.length > 0 && TableColumnNames.length > 0 ? 'block' : 'none'">
         <hr />
         <div class="row">
@@ -81,14 +92,14 @@
                         <thead id="fixed-thead" class="bg-white my-1">
                             <tr>
                                 <th scope="col">#</th>
-                                <th scope="col" *ngFor="let name of TableColumnNames">{{name}}</th>
+                                <th scope="col" *ngFor="let name of ColumnOrder">{{name}}</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr class="clickable-link" *ngFor="let row of TableData; index as i"
                                 routerLink="/protein/{{encodeUri(datasetService.currentQuery)}}/{{(i + 1) + (pageNumber * pageSize)}}">
                                 <th scope="row">{{(i + 1) + (pageNumber * pageSize)}}</th>
-                                <td *ngFor="let item of row | keyvalue">{{item.value}}</td>
+                                <td *ngFor="let name of ColumnOrder">{{row[name]}}</td>
                             </tr>
                         </tbody>
                     </table>

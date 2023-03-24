@@ -3,6 +3,7 @@ import { QueryExecutor } from './query-executor';
 
 const app = express();
 const cors = require('cors');
+var metrics = require('../metrics.json');
 const port = 3000;
 const executor: QueryExecutor = new QueryExecutor();
 
@@ -25,7 +26,7 @@ app.get('/data/specific-row', (req, res) => {
     let datasetId: number = Number(req.query.datasetId as any);
 
     let result = executor.ParseAndExecuteWithAllMetrics(query, datasetId, row, 1);
-    
+
     if (typeof result === 'string') {
         res.setHeader('Content-Type', 'application/json');
         console.error(result);
@@ -92,6 +93,12 @@ app.get('/pages', (req, res) => {
     }
 });
 
+app.get('/order', (req, res) => {
+
+    res.setHeader('Content-Type', 'application/json');
+    res.status(200).json(metrics["order"]);
+
+});
 
 app.listen(port, () => {
     return console.log(`Express is listening at http://localhost:${port}`);
