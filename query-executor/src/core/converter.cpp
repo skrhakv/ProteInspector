@@ -11,7 +11,7 @@ Converter::Converter()
 
 bool Converter::ValidBiologicalStructure(string biologicalStructure)
 {
-    if (metricsData["forward-metrics-mapping"][biologicalStructure].is_null())
+    if (metricsData["forward-metrics-mapping"][biologicalStructure]["data"].is_null())
         return false;
     return true;
 }
@@ -22,7 +22,7 @@ bool Converter::ValidateWhereClause(const hsql::Expr *expression, const string b
 
     string metricValue, operatorValue, metricName = expression->expr->name;
     toLower(metricName);
-    auto metric = metricsData["forward-metrics-mapping"][biologicalStructure][metricName];
+    auto metric = metricsData["forward-metrics-mapping"][biologicalStructure]["data"][metricName];
 
     bool isValid = operatorValidator.parseMathOperator(expression, operatorValue);
     if (!isValid)
@@ -58,8 +58,8 @@ bool Converter::ValidateWhereClause(const hsql::Expr *expression, const string b
         if (expression->opType != hsql::OperatorType::kOpEquals && expression->opType != hsql::OperatorType::kOpBetween)
             RETURN_PARSE_ERROR("Metric " + metricName + " expects an integer and supports only '=', 'BETWEEN' operators.")
 
-        string startMetric = metric["databaseDestination"][0].get<string>();
-        string endMetric = metric["databaseDestination"][1].get<string>();
+        string startMetric = metric["database-destination"][0].get<string>();
+        string endMetric = metric["database-destination"][1].get<string>();
 
         if (expression->opType == hsql::OperatorType::kOpEquals)
         {
@@ -109,11 +109,11 @@ bool Converter::ValidateWhereClause(const hsql::Expr *expression, const string b
     else
         assert(false && "Suported types are bool, integer, float and string only!");
 
-    if (metric["databaseDestination"].is_array())
+    if (metric["database-destination"].is_array())
     {
         result += '(';
         bool first = true;
-        for (auto item : metric["databaseDestination"])
+        for (auto item : metric["database-destination"])
         {
             if (!first)
                 result += " OR ";
@@ -125,7 +125,7 @@ bool Converter::ValidateWhereClause(const hsql::Expr *expression, const string b
     }
     else
     {
-        result += metric["databaseDestination"];
+        result += metric["database-destination"];
         result += ' ' + operatorValue + ' ' + metricValue;
     }
     return true;
@@ -136,12 +136,12 @@ bool Converter::ValidateQueryMetric(hsql::Expr *expression, const string biologi
 
     string metricName = expression->name;
     toLower(metricName);
-    auto forwardMetric = metricsData["forward-metrics-mapping"][biologicalStructure][metricName];
+    auto forwardMetric = metricsData["forward-metrics-mapping"][biologicalStructure]["data"][metricName];
     auto backwardMetric = metricsData["backward-metrics-mapping"];
     if (forwardMetric == nullptr)
         RETURN_PARSE_ERROR("Unrecognized Metrics in the SELECT Clause: " + metricName)
 
-    string resultMetric = forwardMetric["databaseDestination"];
+    string resultMetric = forwardMetric["database-destination"];
     result = resultMetric;
     result += " AS \"";
     result += backwardMetric[resultMetric];
@@ -152,15 +152,15 @@ bool Converter::ValidateQueryMetric(hsql::Expr *expression, const string biologi
 
 bool Converter::GetAllMetrics(const string biologicalStructure, string &result)
 {
-    auto forwardMetrics = metricsData["forward-metrics-mapping"][biologicalStructure];
+    auto forwardMetrics = metricsData["forward-metrics-mapping"][biologicalStructure]["data"];
     auto backwardMetric = metricsData["backward-metrics-mapping"];
 
     bool first = true;
     for (const auto &forwardMetric : forwardMetrics.items())
     {
-        if (forwardMetric.value()["databaseDestination"].is_array())
+        if (forwardMetric.value()["database-destination"].is_array())
         {
-            for (auto item : forwardMetric.value()["databaseDestination"])
+            for (auto item : forwardMetric.value()["database-destination"])
             {
                 string resultMetric = item.get<std::string>();
 
@@ -178,7 +178,7 @@ bool Converter::GetAllMetrics(const string biologicalStructure, string &result)
         }
         else
         {
-            string resultMetric = forwardMetric.value()["databaseDestination"];
+            string resultMetric = forwardMetric.value()["database-destination"];
             if (!addedMetrics.contains(resultMetric))
             {
                 if (!first)
@@ -207,9 +207,9 @@ bool Converter::GetTableAndLeftJoins(const string biologicalStructure, string &r
 
 bool Converter::GetDatasetIdMetric(const string biologicalStructure, int datasetId, string &result)
 {
-    auto datasetMetric = metricsData["forward-metrics-mapping"][biologicalStructure]["datasetid"];
+    auto datasetMetric = metricsData["forward-metrics-mapping"][biologicalStructure]["data"]["datasetid"];
 
-    result += datasetMetric["databaseDestination"];
+    result += datasetMetric["database-destination"];
     result += "=";
     result += to_string(datasetId);
 

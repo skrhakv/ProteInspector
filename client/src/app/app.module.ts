@@ -14,6 +14,7 @@ import { FormsModule } from '@angular/forms';
 import { QueryInterfaceComponent } from './components/query-interface/query-interface.component';
 import { DatasetSelectorComponent } from './components/dataset-selector/dataset-selector.component';
 import { ProteinViewComponent } from './components/protein-view/protein-view.component';
+import { FilterService } from './services/filter.service';
 
 @NgModule({
     declarations: [
@@ -33,7 +34,8 @@ import { ProteinViewComponent } from './components/protein-view/protein-view.com
     ],
     providers: [
         DatasetService,
-        CookieService
+        CookieService,
+        FilterService
     ],
     bootstrap: [AppComponent]
 })

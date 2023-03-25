@@ -5,6 +5,8 @@ import { AppSettings } from 'src/app/app-settings';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
+import { FilterService } from 'src/app/services/filter.service';
+import { Metric } from 'src/app/models/metric.model';
 
 @Component({
     selector: 'app-query-interface',
@@ -20,7 +22,10 @@ import { Subject } from 'rxjs';
     ],
 })
 export class QueryInterfaceComponent implements OnInit {
+    // cancels previous requests (we don't want to spam the backend)
     protected ngUnsubscribe: Subject<void> = new Subject<void>();
+    // when we change the URL query, the constructor is called; this guard prevents to call another sendQuery(), so the request won't be called twice
+    private makeRequest: boolean = true;
 
     public query: string = "";
     public pageSize;
@@ -28,11 +33,20 @@ export class QueryInterfaceComponent implements OnInit {
     public TableColumnNames: string[] = [];
     public TableData: any[] = [];
     public ColumnOrder: string[] = [];
+
     public pageNumber: number = 0;
     public numberOfPages: number = 0;
     public DataReady: boolean = true;
 
-    constructor(public datasetService: DatasetService, private route: ActivatedRoute, private router: Router) {
+    public isBiologicalStructureSelected: boolean = false;
+    public DropdownMetricItems: Metric[] = [];
+
+    constructor(
+        public datasetService: DatasetService,
+        public filterService: FilterService,
+        private route: ActivatedRoute,
+        private router: Router
+    ) {
         this.pageSize = AppSettings.PAGE_SIZE;
 
         this.route.queryParams.subscribe(params => {
@@ -41,10 +55,18 @@ export class QueryInterfaceComponent implements OnInit {
             if (query !== null && query !== undefined && page !== null && page !== undefined) {
                 datasetService.getDatasetInfo().then(_ => {
                     this.query = decodeURIComponent(query);
-                    this.sendQuery(false, page);
+                    if (this.makeRequest)
+                        this.sendQuery(false, page);
                 });
             }
         });
+    }
+
+    sendManualQuery() {
+        this.isBiologicalStructureSelected = false;
+        this.DropdownMetricItems = [];
+
+        this.sendQuery();
     }
 
     sendQuery(setQueryIntoRoute: boolean = true, pageNum: number = 0) {
@@ -58,6 +80,8 @@ export class QueryInterfaceComponent implements OnInit {
                 queryParamsHandling: 'merge',
             });
         }
+
+        this.makeRequest = false;
         this.DataReady = false;
         this.pageNumber = pageNum;
         this.datasetService.currentQuery = this.query;
@@ -74,7 +98,7 @@ export class QueryInterfaceComponent implements OnInit {
             this.TableColumnNames = data['columnNames'];
             this.TableData = data['results'];
             this.ColumnOrder = [];
-            
+
             for (const columnName of this.datasetService.ColumnOrder) {
                 if (this.TableColumnNames.includes(columnName)) {
                     this.ColumnOrder.push(columnName);
@@ -82,7 +106,12 @@ export class QueryInterfaceComponent implements OnInit {
             }
 
             this.DataReady = true;
-        });
+        },
+            error => {
+                this.TableColumnNames = [];
+                this.TableData = [];
+                this.ColumnOrder = [];
+            });
     }
 
 
@@ -106,6 +135,58 @@ export class QueryInterfaceComponent implements OnInit {
         return encodeURIComponent(query);
     }
 
+    selectBiologicalStructureType(biologicalStructureType: string) {
+        this.DropdownMetricItems = [];
+        this.isBiologicalStructureSelected = false;
+
+        let [query, request] = this.filterService.selectBiologicalStructureType(biologicalStructureType);
+
+        this.query = query;
+        request.subscribe(data => {
+            this.filterService.AvailableMetrics = data;
+            this.isBiologicalStructureSelected = true;
+            this.DropdownMetricItems.push(new Metric());
+        });
+    }
+
+    specifyMetricName(index: number, metric: string, type: string) {
+        if (index < 0 || index > this.DropdownMetricItems.length)
+            throw "Index out of scope";
+        this.DropdownMetricItems[index].name = metric;
+        this.DropdownMetricItems[index].type = type;
+
+        if (this.DropdownMetricItems[this.DropdownMetricItems.length - 1].name !== undefined)
+            this.DropdownMetricItems.push(new Metric());
+
+        this.buildFilterQuery();
+    }
+
+    removeMetric(index: number) {
+        if (this.DropdownMetricItems[index].name !== undefined)
+            this.DropdownMetricItems.splice(index, 1);
+
+        this.buildFilterQuery();
+    }
+
+    submitFilterQuery() {
+        this.buildFilterQuery();
+        this.sendQuery();
+    }
+
+    buildFilterQuery() {
+        let q = this.filterService.buildQuery(this.DropdownMetricItems);
+        this.query = q;
+    }
+
+    metricInputChanged() {
+        this.buildFilterQuery();
+    }
+
+    onEnterDownInTextArea(event: any) {
+        event.preventDefault();
+        this.sendManualQuery();
+    }
+
     public ngOnInit(): void {
         var element: HTMLElement = <HTMLElement>document.getElementById("fixed-thead");
         if (element !== null) {
@@ -119,7 +200,5 @@ export class QueryInterfaceComponent implements OnInit {
                 }
             });
         }
-
     }
-
 }

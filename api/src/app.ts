@@ -100,6 +100,26 @@ app.get('/order', (req, res) => {
 
 });
 
+app.get('/biological-structures/:biologicalStructure', (req, res) => {
+
+    let result = structuredClone(metrics["forward-metrics-mapping"][req.params.biologicalStructure]["data"]);
+    Object.keys(result).forEach(key => delete result[key]["database-destination"]);
+
+    res.setHeader('Content-Type', 'application/json');
+    res.status(200).json(result);
+
+});
+
+app.get('/biological-structures', (req, res) => {
+
+    let result = structuredClone(metrics["forward-metrics-mapping"]);
+    Object.keys(result).forEach(key => delete result[key]["data"]);
+    
+    res.setHeader('Content-Type', 'application/json');
+    res.status(200).json(result);
+
+});
+
 app.listen(port, () => {
     return console.log(`Express is listening at http://localhost:${port}`);
 });

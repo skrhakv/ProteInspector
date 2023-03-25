@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
 {
     string query = argv[1];
     QueryExecutor executor;
-    auto [r, b] = executor.GetNumberOfPages(query);
+    auto [r, b] = executor.ParseAndExecute("SELECT * FROM PROTEINS", 0, 0, 100, true);
     std::size_t const num_rows = std::size(r);
     std::size_t const num_cols = r.columns();
     for (std::size_t rownum = 0u; rownum < num_rows; ++rownum)
