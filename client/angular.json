@@ -30,11 +30,14 @@
               "src/assets"
             ],
             "styles": [
-              "src/styles.scss"
+              "src/styles.scss",
+              "./node_modules/pdbe-molstar/build/pdbe-molstar-3.1.0.css"
+
             ],
             "scripts": [
               "./node_modules/@popperjs/core/dist/umd/popper.min.js",
-              "./node_modules/bootstrap/dist/js/bootstrap.min.js"
+              "./node_modules/bootstrap/dist/js/bootstrap.min.js",
+              "./node_modules/pdbe-molstar/build/pdbe-molstar-plugin-3.1.0.js"
             ]
           },
           "configurations": {
