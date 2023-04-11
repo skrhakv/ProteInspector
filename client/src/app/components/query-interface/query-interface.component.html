@@ -162,7 +162,7 @@
                         </thead>
                         <tbody>
                             <tr class="clickable-link" *ngFor="let row of TableData; index as i"
-                                routerLink="/protein/{{encodeUri(datasetService.currentQuery)}}/{{(i + 1) + (pageNumber * pageSize)}}">
+                                routerLink="/protein/{{encodeUri(datasetService.currentQuery)}}/{{(i) + (pageNumber * pageSize)}}">
                                 <th scope="row">{{(i + 1) + (pageNumber * pageSize)}}</th>
                                 <td *ngFor="let name of ColumnOrder">{{row[name]}}</td>
                             </tr>
