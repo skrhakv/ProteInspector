@@ -140,9 +140,12 @@ export class QueryInterfaceComponent implements OnInit {
         return encodeURIComponent(query);
     }
 
-    selectBiologicalStructureType(biologicalStructureType: string) {
+    selectBiologicalStructureType(event: any) {
+        let biologicalStructureType = event.target.value;
         this.DropdownMetricItems = [];
         this.isBiologicalStructureSelected = false;
+        console.log(this.filterService.BiologicalStructureTypes);
+        console.log(biologicalStructureType);
 
         let [query, request] = this.filterService.selectBiologicalStructureType(biologicalStructureType);
 
@@ -154,11 +157,16 @@ export class QueryInterfaceComponent implements OnInit {
         });
     }
 
-    specifyMetricName(index: number, metric: string, type: string) {
-        if (index < 0 || index > this.DropdownMetricItems.length)
+    specifyMetricName(dropdownMetricItemsIndex: number, event: any) {
+        let metric = event.target.value;
+        console.log(metric)
+        let type: string = this.filterService.AvailableMetrics[metric]["type"];
+        console.log(type)
+
+        if (dropdownMetricItemsIndex < 0 || dropdownMetricItemsIndex > this.DropdownMetricItems.length)
             throw "Index out of scope";
-        this.DropdownMetricItems[index].name = metric;
-        this.DropdownMetricItems[index].type = type;
+        this.DropdownMetricItems[dropdownMetricItemsIndex].name = metric;
+        this.DropdownMetricItems[dropdownMetricItemsIndex].type = type;
 
         if (this.DropdownMetricItems[this.DropdownMetricItems.length - 1].name !== undefined)
             this.DropdownMetricItems.push(new Metric());

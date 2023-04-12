@@ -22,10 +22,9 @@
 
             Or specify the query using filters:
             <div class="dropdown">
-                <select class="form-select">
+                <select class="form-select" (change)="selectBiologicalStructureType($event)">
                     <option selected> Select Structure Type</option>
-                    <option *ngFor="let item of filterService.BiologicalStructureTypes | keyvalue"
-                        (click)="selectBiologicalStructureType(item.key)">
+                    <option *ngFor="let item of filterService.BiologicalStructureTypes | keyvalue" [value]="item.key">
                         {{item.value["name"]}}
                     </option>
                 </select>
@@ -37,19 +36,17 @@
         <div class="container" *ngFor="let item of DropdownMetricItems; index as i">
             <div class="row mt-3">
                 <div class="col-4" *ngIf="item.name === undefined">
-                    <select class="form-select">
-                        <option selected> Select Metric</option>
-                        <option *ngFor="let metric of filterService.AvailableMetrics | keyvalue"
-                            (click)="specifyMetricName(i, metric.key, metric.value['type'])">
+                    <select class="form-select" (change)="specifyMetricName(i, $event)">
+                        <option [selected]="true">Select Metric</option>
+                        <option *ngFor="let metric of filterService.AvailableMetrics | keyvalue" value="{{metric.key}}">
                             {{metric.value["name"]}}
                         </option>
                     </select>
                 </div>
                 <div class="col-4" *ngIf="item.name !== undefined">
-                    <select class="form-select">
-                        <option *ngFor="let metric  of filterService.AvailableMetrics | keyvalue"
-                            (click)="specifyMetricName(i, metric.key, metric.value['type'])"
-                            [selected]="metric.key == item.name">
+                    <select class="form-select" (change)="specifyMetricName(i, $event)">
+                        <option *ngFor="let metric of filterService.AvailableMetrics | keyvalue" value="{{metric.key}}"
+                            [selected]="metric.value['name'] == item.name" [ngValue]="metric">
                             {{metric.value["name"]}}
                         </option>
                     </select>
@@ -97,7 +94,7 @@
     <div *ngIf="emptyResult">
         <div class="alert alert-warning text-center" role="alert">
             The server returned an empty list.
-          </div>
+        </div>
     </div>
     <div [style.display]="TableData.length > 0 && TableColumnNames.length > 0 ? 'block' : 'none'">
         <hr />
