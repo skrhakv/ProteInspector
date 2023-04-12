@@ -94,6 +94,11 @@
                 </a> </span>
         </div>
     </div>
+    <div *ngIf="emptyResult">
+        <div class="alert alert-warning text-center" role="alert">
+            The server returned an empty list.
+          </div>
+    </div>
     <div [style.display]="TableData.length > 0 && TableColumnNames.length > 0 ? 'block' : 'none'">
         <hr />
         <div class="row">

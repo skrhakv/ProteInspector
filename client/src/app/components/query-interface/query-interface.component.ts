@@ -37,6 +37,7 @@ export class QueryInterfaceComponent implements OnInit {
     public pageNumber: number = 0;
     public numberOfPages: number = 0;
     public DataReady: boolean = true;
+    public emptyResult: boolean = false;
 
     public isBiologicalStructureSelected: boolean = false;
     public DropdownMetricItems: Metric[] = [];
@@ -93,11 +94,15 @@ export class QueryInterfaceComponent implements OnInit {
 
     getDataFromPage(page: number) {
         this.ngUnsubscribe.next();
+        this.emptyResult = false;
 
         this.datasetService.getQueryData(page).pipe(takeUntil(this.ngUnsubscribe)).subscribe(data => {
             this.TableColumnNames = data['columnNames'];
             this.TableData = data['results'];
             this.ColumnOrder = [];
+
+            if(this.TableData.length === 0)
+                this.emptyResult = true;
 
             for (const columnName of this.datasetService.ColumnOrder) {
                 if (this.TableColumnNames.includes(columnName)) {
