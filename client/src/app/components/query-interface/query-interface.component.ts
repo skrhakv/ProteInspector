@@ -159,10 +159,8 @@ export class QueryInterfaceComponent implements OnInit {
 
     specifyMetricName(dropdownMetricItemsIndex: number, event: any) {
         let metric = event.target.value;
-        console.log(metric)
         let type: string = this.filterService.AvailableMetrics[metric]["type"];
-        console.log(type)
-
+        
         if (dropdownMetricItemsIndex < 0 || dropdownMetricItemsIndex > this.DropdownMetricItems.length)
             throw "Index out of scope";
         this.DropdownMetricItems[dropdownMetricItemsIndex].name = metric;

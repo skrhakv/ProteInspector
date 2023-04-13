@@ -44,9 +44,9 @@
                     </select>
                 </div>
                 <div class="col-4" *ngIf="item.name !== undefined">
-                    <select class="form-select" (change)="specifyMetricName(i, $event)">
+                    <select class="form-select" (change)="specifyMetricName(i, $event)" ngModel="{{item.name}}">
                         <option *ngFor="let metric of filterService.AvailableMetrics | keyvalue" value="{{metric.key}}"
-                            [selected]="metric.value['name'] == item.name" [ngValue]="metric">
+                            [selected]="metric.value['name'] === item.name">
                             {{metric.value["name"]}}
                         </option>
                     </select>
