@@ -16,14 +16,25 @@ import { SymmetryOperator } from 'molstar/lib/mol-math/geometry';
 import { PluginCommands } from 'molstar/lib/mol-plugin/commands';
 import { PluginStateObject } from 'molstar/lib/mol-plugin-state/objects';
 
-
+import { CustomElementProperty } from 'molstar/lib/mol-model-props/common/custom-element-property';
+import { Model, ElementIndex, StructureElement, Structure } from 'molstar/lib/mol-model/structure';
+import { QueryContext, StructureSelection } from 'molstar/lib/mol-model/structure';
+import { superpose } from 'molstar/lib/mol-model/structure/structure/util/superposition';
+import { PluginStateObject as PSO } from 'molstar/lib/mol-plugin-state/objects';
+import { MolScriptBuilder as MS } from 'molstar/lib/mol-script/language/builder';
+import { Expression } from 'molstar/lib/mol-script/language/expression';
+import { compile } from 'molstar/lib/mol-script/runtime/query/compiler';
+import { Script } from 'molstar/lib/mol-script/script';
+import { ColorNames } from 'molstar/lib/mol-util/color/names';
+import { Color } from 'molstar/lib/mol-util/color';
+import { ProteinThemeProvider } from 'src/app/providers/protein-theme-provider';
 @Component({
     selector: 'app-protein-view',
     templateUrl: './protein-view.component.html',
     styleUrls: ['./protein-view.component.scss']
 })
 export class ProteinViewComponent implements OnInit {
-    private SuperpositionTag: string = 'SuperpositionTransform';
+    // private SuperpositionTag: string = 'SuperpositionTransform';
     private plugin!: PluginUIContext;
     public TableColumnNames: string[] = [];
     public ColumnOrder: string[] = [];
@@ -59,87 +70,40 @@ export class ProteinViewComponent implements OnInit {
                     pdbCodes.push(this.TableData['BeforePdbCode'] as string);
                 }
 
-                console.log("my pdb codes: ");
-                console.log(pdbCodes);
                 this.GenerateMolstarVisualisation(pdbCodes);
             });
         });
     }
-
     GenerateMolstarVisualisation(pdbCodes: string[]) {
         this.plugin.dataTransaction(async () => {
-
             for (const s of pdbCodes) {
                 await this.loadStructure(this.plugin, `https://www.ebi.ac.uk/pdbe/static/entry/${s}_updated.cif`, 'mmcif');
             }
-        }).then(async () => {
-            const input = this.plugin.managers.structure.hierarchy.behaviors.selection.value.structures;
-            const traceOnly = true;
 
-            const structures = input.map(s => s.cell.obj?.data!);
-            const { entries, failedPairs, zeroOverlapPairs } = alignAndSuperposeWithSIFTSMapping(structures, { traceOnly });
+            // select whole protein
+            // const data = this.plugin.managers.structure.hierarchy.current.structures[1]?.cell.obj?.data;
+            // if (!data) return;
+            // const selection = Script.getStructureSelection(Q => Q.struct.generator.atomGroups({
+            //     'entity-test': MS.core.rel.eq([MS.ammp('entityType'), 'polymer'])
+            // }), data);
+            // const loci = StructureSelection.toLociWithSourceUnits(selection);
+            // this.plugin.managers.interactivity.lociHighlights.highlightOnly({ loci });
 
-            const coordinateSystem = input[0]?.transform?.cell.obj?.data.coordinateSystem;
-
-            let rmsd = 0;
-
-            for (const xform of entries) {
-                await this.transform(input[xform.other].cell, xform.transform.bTransform, coordinateSystem);
-                rmsd += xform.transform.rmsd;
-            }
-
-            rmsd /= Math.max(entries.length - 1, 1);
-
-            const formatPairs = (pairs: [number, number][]) => {
-                return `[${pairs.map(([i, j]) => `(${structures[i].models[0].entryId}, ${structures[j].models[0].entryId})`).join(', ')}]`;
-            };
-
-            if (zeroOverlapPairs.length) {
-                this.plugin.log.warn(`Superposition: No UNIPROT mapping overlap between structures ${formatPairs(zeroOverlapPairs)}.`);
-            }
-
-            if (failedPairs.length) {
-                this.plugin.log.error(`Superposition: Failed to superpose structures ${formatPairs(failedPairs)}.`);
-            }
-
-            if (entries.length) {
-                this.plugin.log.info(`Superposed ${entries.length + 1} structures with avg. RMSD ${rmsd.toFixed(2)} Å.`);
-                await this.cameraReset();
+            for (const [index, structure] of this.plugin.managers.structure.hierarchy.current.structures.entries()) {
+                await this.plugin.managers.structure.component.updateRepresentationsTheme(structure.components, {
+                    color: ProteinThemeProvider.name as any, colorParams: { value: index }
+                });
             }
         });
     }
 
-    async cameraReset() {
-        await new Promise(res => requestAnimationFrame(res));
-        PluginCommands.Camera.Reset(this.plugin);
-    }
-
-    async transform(s: StateObjectRef<PluginStateObject.Molecule.Structure>, matrix: Mat4, coordinateSystem?: SymmetryOperator) {
-        const r = StateObjectRef.resolveAndCheck(this.plugin.state.data, s);
-        if (!r) return;
-        const o = this.plugin.state.data.selectQ(q => q.byRef(r.transform.ref).subtree().withTransformer(StateTransforms.Model.TransformStructureConformation))[0];
-
-        const transform = coordinateSystem && !Mat4.isIdentity(coordinateSystem.matrix)
-            ? Mat4.mul(Mat4(), coordinateSystem.matrix, matrix)
-            : matrix;
-
-        const params = {
-            transform: {
-                name: 'matrix' as const,
-                params: { data: transform, transpose: false }
-            }
-        };
-        const b = o
-            ? this.plugin.state.data.build().to(o).update(params)
-            : this.plugin.state.data.build().to(s)
-                .insert(StateTransforms.Model.TransformStructureConformation, params, { tags: this.SuperpositionTag });
-        await this.plugin.runTask(this.plugin.state.data.updateTree(b));
-    }
 
     async loadStructure(plugin: PluginContext, url: string, format: BuiltInTrajectoryFormat, assemblyId?: string) {
         const data = await plugin.builders.data.download({ url: Asset.Url(url) });
-        const trajectory = await plugin.builders.structure.parseTrajectory(data, format);
-        await plugin.builders.structure.hierarchy.applyPreset(trajectory, 'default');
+        const trajectory = await this.plugin.builders.structure.parseTrajectory(data, format);
+        const model = await this.plugin.builders.structure.createModel(trajectory);
+        const structure = await this.plugin.builders.structure.createStructure(model);
+        const preset = await plugin.builders.structure.representation.applyPreset(structure, 'polymer-and-ligand');
     }
 
     async ngOnInit(): Promise<void> {
@@ -155,5 +119,7 @@ export class ProteinViewComponent implements OnInit {
                 remoteState: 'none'
             }
         });
+        this.plugin.representation.structure.themes.colorThemeRegistry.add(ProteinThemeProvider);
     }
 }
+
