@@ -39,7 +39,7 @@ app.get('/data/specific-row', (req, res) => {
     }
 });
 
-// curl -X GET -H "Content---verbose type: application/json"  "http://localhost:3000/data/?page=0&query=select%20*%20from%20proteins%20where%20afterpdbcode=%221btw%22&pageSize=100" | json_pp -json_opt pretty,canonical
+// curl -X GET -H "Content---verbose type: application/json"  "http://localhost:3000/data/?page=0&query=select%20*%20from%20proteins%20where%20afterpdbcode=%221btw%22&pageSize=100&datasetId=1" | json_pp -json_opt pretty,canonical
 app.get('/data', (req, res) => {
 
     if (req.query === undefined || req.query.page === undefined || req.query.query === undefined

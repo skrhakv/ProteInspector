@@ -142,11 +142,14 @@ bool Converter::ValidateQueryMetric(hsql::Expr *expression, const string biologi
         RETURN_PARSE_ERROR("Unrecognized Metrics in the SELECT Clause: " + metricName)
 
     string resultMetric = forwardMetric["database-destination"];
-    result = resultMetric;
-    result += " AS \"";
+
+    result += "array_agg(";
+    result += resultMetric;
+    result += " order by ";
+    GetDefaultOrder(biologicalStructure, result);
+    result += ") AS \"";
     result += backwardMetric[resultMetric];
     result += "\"";
-
     return true;
 }
 
@@ -168,8 +171,12 @@ bool Converter::GetAllMetrics(const string biologicalStructure, string &result)
                 {
                     if (!first)
                         result += ",";
+
+                    result += "array_agg(";
                     result += resultMetric;
-                    result += " AS \"";
+                    result += " order by ";
+                    GetDefaultOrder(biologicalStructure, result);
+                    result += ") AS \"";
                     result += backwardMetric[resultMetric];
                     result += "\"";
                     addedMetrics.insert(resultMetric);
@@ -183,8 +190,12 @@ bool Converter::GetAllMetrics(const string biologicalStructure, string &result)
             {
                 if (!first)
                     result += ",";
+
+                result += "array_agg(";
                 result += resultMetric;
-                result += " AS \"";
+                result += " order by ";
+                GetDefaultOrder(biologicalStructure, result);
+                result += ") AS \"";
                 result += backwardMetric[resultMetric];
                 result += "\"";
             }
@@ -219,6 +230,13 @@ bool Converter::GetDatasetIdMetric(const string biologicalStructure, int dataset
 bool Converter::GetDefaultOrder(const string biologicalStructure, string &result)
 {
     auto defaultOrder = metricsData["tables"][biologicalStructure]["order"];
+    result += defaultOrder;
+    return true;
+}
+
+bool Converter::GetDefaultGroupBy(const string biologicalStructure, string &result)
+{
+    auto defaultOrder = metricsData["tables"][biologicalStructure]["group-by"];
     result += defaultOrder;
     return true;
 }

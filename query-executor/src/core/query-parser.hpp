@@ -5,8 +5,8 @@
 #include "hsql/SQLParser.h"
 #include "converter.hpp"
 #include "operator-validator.hpp"
-
-#define PAGE_SIZE 100
+#include "metric-generators/metric-generator.hpp"
+#include "end-query-generators/end-query-generator.hpp"
 
 using namespace std;
 
@@ -16,18 +16,19 @@ private:
     string biologicalStructure;
     Converter converter;
     OperatorValidator operatorValidator;
+    MetricGenerator *metricGenerator;
+    EndQueryGenerator *endQueryGenerator;
     string convertedQuery;
 
-    bool parseWhere(const hsql::Expr *expression, string &result);
-    bool parseOrderBy(const vector<hsql::OrderDescription *> *orderByClause, string &result);
-    bool parseQuery(const hsql::SelectStatement *selectStatement, bool countOnly, int datasetId, int page, int pageSize, bool includeAllMetrics);
     bool checkForAllowedGrammar(const hsql::SelectStatement *selectStatement);
-    void addPageLimitWithOffset(int page, int pageSize);
 
 public:
     string errorMessage;
+    void SetMetricGenerator(MetricGenerator *_metricGenerator);
+    void SetEndQueryGenerator(EndQueryGenerator *_endQueryGenerator);
 
-    bool ConvertQuery(const string &query, bool countOnly, int datasetId, int page = 0, int pageSize = 100, bool includeAllMetrics = false);
+    bool parseQuery(const hsql::SelectStatement *selectStatement, int datasetId, int page = 0, int pageSize = 100);
+    bool ConvertQuery(const string &query, int datasetId, int page = 0, int pageSize = 100);
     string GetConvertedQuery();
     void Clear();
 };

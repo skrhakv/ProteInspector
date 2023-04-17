@@ -5,64 +5,18 @@
 #include "utils.hpp"
 #include "query-parser.hpp"
 
-bool QueryParser::parseWhere(const hsql::Expr *expression, string &result)
+void QueryParser::SetMetricGenerator(MetricGenerator *_metricGenerator)
 {
-    if (expression->expr->type == hsql::kExprColumnRef)
-    {
-        string validationResult;
-        bool isValid = converter.ValidateWhereClause(expression, biologicalStructure, validationResult);
-        if (!isValid)
-            RETURN_PARSE_ERROR(converter.errorMessage)
-
-        result += "(" + validationResult + ")";
-        return isValid;
-    }
-    else if (expression->expr->type == hsql::kExprOperator && expression->expr2->type == hsql::kExprOperator)
-    {
-        result += "(";
-        parseWhere(expression->expr, result);
-
-        string operatorResult;
-        bool isValid = operatorValidator.parseLogicOperator(expression->opType, operatorResult);
-        if (!isValid)
-            RETURN_PARSE_ERROR(converter.errorMessage)
-        result += ' ' + operatorResult + ' ';
-
-        parseWhere(expression->expr2, result);
-        result += ")";
-
-        return true;
-    }
-    else
-        RETURN_PARSE_ERROR("Unrecognized expression type: " + expression->type)
+    this->metricGenerator = _metricGenerator;
+    metricGenerator->SetConverter(converter);
+}
+void QueryParser::SetEndQueryGenerator(EndQueryGenerator *_endQueryGenerator)
+{
+    this->endQueryGenerator = _endQueryGenerator;
+    _endQueryGenerator->SetConverter(converter);
 }
 
-bool QueryParser::parseOrderBy(const vector<hsql::OrderDescription *> *orderByClause, string &result)
-{
-    bool first = true;
-    for (const auto &element : *orderByClause)
-    {
-        string metric;
-        bool isValid = converter.ValidateQueryMetric(element->expr, biologicalStructure, metric);
-        if (!isValid)
-            RETURN_PARSE_ERROR(converter.errorMessage)
-
-        if (first)
-        {
-            result += metric;
-            first = false;
-        }
-        else
-            result += ", " + metric;
-
-        if (element->type)
-            result += (element->type == hsql::OrderType::kOrderAsc) ? " ASC" : " DESC";
-    }
-
-    return true;
-}
-
-bool QueryParser::parseQuery(const hsql::SelectStatement *selectStatement, bool countOnly, int datasetId, int page, int pageSize, bool includeAllMetrics)
+bool QueryParser::parseQuery(const hsql::SelectStatement *selectStatement, int datasetId, int page, int pageSize)
 {
     bool isValid = checkForAllowedGrammar((const hsql::SelectStatement *)selectStatement);
     if (!isValid)
@@ -70,96 +24,24 @@ bool QueryParser::parseQuery(const hsql::SelectStatement *selectStatement, bool 
 
     convertedQuery += "SELECT ";
 
-    if (countOnly)
+    isValid = metricGenerator->Generate(selectStatement, biologicalStructure, convertedQuery);
+    if (!isValid)
     {
-        convertedQuery += "COUNT(*)";
-    }
-    else if (includeAllMetrics)
-    {
-        string metrics;
-        converter.GetAllMetrics(biologicalStructure, metrics);
-        convertedQuery += metrics;
-    }
-    else
-    {
-        bool first = true;
-        for (hsql::Expr *expr : *selectStatement->selectList)
-        {
-            if (expr->type == hsql::kExprStar && selectStatement->selectList->size() > 1)
-                RETURN_PARSE_ERROR("Star together with other Metric Ids violates rules of this grammar.")
-            else if (expr->type == hsql::kExprStar)
-            {
-                string metrics;
-                converter.GetAllMetrics(biologicalStructure, metrics);
-                convertedQuery += metrics;
-            }
-            else if (expr->type == hsql::kExprColumnRef)
-            {
-                if (!first)
-                    convertedQuery += ",";
-                string metric;
-                bool isValid = converter.ValidateQueryMetric(expr, biologicalStructure, metric);
-                if (!isValid)
-                    RETURN_PARSE_ERROR(converter.errorMessage)
-                convertedQuery += metric;
-                first = false;
-            }
-        }
+        errorMessage = metricGenerator->errorMessage;
+        return false;
     }
     convertedQuery += " FROM ";
     string fromClauseAndJoins;
     converter.GetTableAndLeftJoins(biologicalStructure, fromClauseAndJoins);
     convertedQuery += fromClauseAndJoins;
 
-    if (selectStatement->whereClause)
-    {
-        string whereClause;
-        bool isValid = parseWhere(selectStatement->whereClause, whereClause);
-        if (!isValid)
-            return isValid;
-        convertedQuery += "WHERE " + whereClause;
+    isValid = endQueryGenerator->Generate(selectStatement, biologicalStructure, datasetId, convertedQuery);
+    if(!isValid)
+        RETURN_PARSE_ERROR(endQueryGenerator->errorMessage)
 
-        string databaseIdClause;
-        converter.GetDatasetIdMetric(biologicalStructure, datasetId, databaseIdClause);
-        convertedQuery += " AND " + databaseIdClause;
-    }
-    else
-    {
-        string databaseIdClause;
-        converter.GetDatasetIdMetric(biologicalStructure, datasetId, databaseIdClause);
-        convertedQuery += " WHERE " + databaseIdClause;
-    }
-
-    if (selectStatement->order)
-    {
-        string orderByClause, defaultOrder;
-        bool isValid = parseOrderBy(selectStatement->order, orderByClause) && converter.GetDefaultOrder(biologicalStructure, defaultOrder);
-        if (!isValid)
-            return isValid;
-
-        convertedQuery += " ORDER BY " + orderByClause;
-        convertedQuery += ", ";
-        convertedQuery += defaultOrder;
-    }
-    else if(!countOnly)
-    {
-        string defaultOrder;
-        converter.GetDefaultOrder(biologicalStructure, defaultOrder);
-        convertedQuery += " ORDER BY " + defaultOrder;
-    }
-
-    if (!countOnly)
-        addPageLimitWithOffset(page, pageSize);
-
-    convertedQuery += ";";
+    endQueryGenerator->addPageLimitWithOffset(page, pageSize, convertedQuery);
 
     return true;
-}
-
-void QueryParser::addPageLimitWithOffset(int page, int pageSize)
-{
-    int offset = page * pageSize;
-    convertedQuery += " LIMIT " + to_string(pageSize) + " OFFSET " + to_string(offset);
 }
 
 bool QueryParser::checkForAllowedGrammar(const hsql::SelectStatement *selectStatement)
@@ -187,7 +69,7 @@ bool QueryParser::checkForAllowedGrammar(const hsql::SelectStatement *selectStat
     return true;
 }
 
-bool QueryParser::ConvertQuery(const string &query, bool countOnly, int datasetId, int page, int pageSize, bool includeAllMetrics)
+bool QueryParser::ConvertQuery(const string &query, int datasetId, int page, int pageSize)
 {
     // parse a given query
     hsql::SQLParserResult result;
@@ -204,7 +86,7 @@ bool QueryParser::ConvertQuery(const string &query, bool countOnly, int datasetI
         if (!(statement->is(hsql::StatementType::kStmtSelect)))
             RETURN_PARSE_ERROR("Only SELECT statements are supported.")
 
-        return parseQuery((const hsql::SelectStatement *)statement, countOnly, datasetId, page, pageSize, includeAllMetrics);
+        return parseQuery((const hsql::SelectStatement *)statement, datasetId, page, pageSize);
     }
     else
     {
@@ -227,5 +109,5 @@ void QueryParser::Clear()
     biologicalStructure = "";
     errorMessage = "";
     converter.Clear();
-    operatorValidator.Clear();
+    endQueryGenerator->Clear();
 }

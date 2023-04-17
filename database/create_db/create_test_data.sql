@@ -124,7 +124,11 @@ VALUES
 -- add protein simulation of length 4
 -- simulates transformation from protein with protein_id=1 to protein_id=2 to protein_id=3 to protein_id=4
 INSERT INTO
-    transformations (transformation_id, transformation_length, dataset_id)
+    transformations (
+        transformation_id,
+        transformation_length,
+        dataset_id
+    )
 VALUES
     (1000000000, 4, 2);
 
@@ -199,3 +203,51 @@ INSERT INTO
     )
 VALUES
     (1000000005, 3, 4, 1000000000, 3, 4);
+
+INSERT INTO
+    protein_transformations (
+        protein_transformation_id,
+        before_protein_id,
+        after_protein_id,
+        transformation_id,
+        before_snapshot,
+        after_snapshot
+    )
+VALUES
+    (1000000006, 1, 95570, 1000000000, 1, 5);
+
+INSERT INTO
+    protein_transformations (
+        protein_transformation_id,
+        before_protein_id,
+        after_protein_id,
+        transformation_id,
+        before_snapshot,
+        after_snapshot
+    )
+VALUES
+    (1000000007, 2, 95570, 1000000000, 2, 5);
+
+INSERT INTO
+    protein_transformations (
+        protein_transformation_id,
+        before_protein_id,
+        after_protein_id,
+        transformation_id,
+        before_snapshot,
+        after_snapshot
+    )
+VALUES
+    (1000000008, 3, 95570, 1000000000, 3, 5);
+
+INSERT INTO
+    protein_transformations (
+        protein_transformation_id,
+        before_protein_id,
+        after_protein_id,
+        transformation_id,
+        before_snapshot,
+        after_snapshot
+    )
+VALUES
+    (1000000009, 4, 95570, 1000000000, 4, 5);
