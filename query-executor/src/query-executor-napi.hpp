@@ -18,5 +18,6 @@ private:
     Napi::Value ParseAndExecuteWithAllMetrics(const Napi::CallbackInfo &info);
     Napi::Value GetNumberOfPages(const Napi::CallbackInfo &info);
     Napi::Value GetDatasetsInfo(const Napi::CallbackInfo &info);
+    Napi::Value GetResultCount(const Napi::CallbackInfo &info);
 };
 #endif

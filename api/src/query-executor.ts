@@ -3,6 +3,7 @@ export interface QueryExecutor {
     ParseAndExecuteWithAllMetrics(query: string, datasetId: number, page: number, pageSize: number): Array<Array<string>>;
     GetNumberOfPages(query: string, datasetId: number, pageSize: number): number;
     GetDatasetsInfo(): Array<Array<string>>;
+    GetResultCount(query: string, datasetId: number): number;
 }
 
 var qExecutor = require('./../build/Release/query-executor.node')

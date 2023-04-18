@@ -7,6 +7,7 @@ import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { FilterService } from 'src/app/services/filter.service';
 import { Metric } from 'src/app/models/metric.model';
+import { SortMetric } from 'src/app/models/sort-metric.model';
 
 @Component({
     selector: 'app-query-interface',
@@ -36,11 +37,13 @@ export class QueryInterfaceComponent implements OnInit {
 
     public pageNumber: number = 0;
     public numberOfPages: number = 0;
+    public resultCount: number = 0;
     public DataReady: boolean = true;
     public emptyResult: boolean = false;
 
     public isBiologicalStructureSelected: boolean = false;
     public DropdownMetricItems: Metric[] = [];
+    public SortingMetric : SortMetric = new SortMetric();
 
     constructor(
         public datasetService: DatasetService,
@@ -87,9 +90,13 @@ export class QueryInterfaceComponent implements OnInit {
         this.pageNumber = pageNum;
         this.datasetService.currentQuery = this.query;
         this.getDataFromPage(this.pageNumber);
+        this.datasetService.getNumberOfResults().pipe(takeUntil(this.ngUnsubscribe)).subscribe(data => {
+            this.resultCount = data;
+        });
         this.datasetService.getNumberOfPages().pipe(takeUntil(this.ngUnsubscribe)).subscribe(data => {
             this.numberOfPages = data;
         });
+
     }
 
     getDataFromPage(page: number) {
@@ -101,7 +108,7 @@ export class QueryInterfaceComponent implements OnInit {
             this.TableData = data['results'];
             this.ColumnOrder = [];
 
-            if(this.TableData.length === 0)
+            if (this.TableData.length === 0)
                 this.emptyResult = true;
 
             for (const columnName of this.datasetService.ColumnOrder) {
@@ -160,7 +167,7 @@ export class QueryInterfaceComponent implements OnInit {
     specifyMetricName(dropdownMetricItemsIndex: number, event: any) {
         let metric = event.target.value;
         let type: string = this.filterService.AvailableMetrics[metric]["type"];
-        
+
         if (dropdownMetricItemsIndex < 0 || dropdownMetricItemsIndex > this.DropdownMetricItems.length)
             throw "Index out of scope";
         this.DropdownMetricItems[dropdownMetricItemsIndex].name = metric;
@@ -168,6 +175,13 @@ export class QueryInterfaceComponent implements OnInit {
 
         if (this.DropdownMetricItems[this.DropdownMetricItems.length - 1].name !== undefined)
             this.DropdownMetricItems.push(new Metric());
+
+        this.buildFilterQuery();
+    }
+
+    specifySortingMetric(event: any) {
+        let metric = event.target.value;
+        this.SortingMetric.name = metric;
 
         this.buildFilterQuery();
     }
@@ -185,7 +199,7 @@ export class QueryInterfaceComponent implements OnInit {
     }
 
     buildFilterQuery() {
-        let q = this.filterService.buildQuery(this.DropdownMetricItems);
+        let q = this.filterService.buildQuery(this.DropdownMetricItems, this.SortingMetric);
         this.query = q;
     }
 

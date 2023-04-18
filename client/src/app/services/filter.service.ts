@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { AppSettings } from '../app-settings';
 import { Metric } from '../models/metric.model';
+import { SortMetric } from '../models/sort-metric.model';
 
 @Injectable({
     providedIn: 'root'
@@ -45,7 +46,7 @@ export class FilterService {
         return [query, request];
     }
 
-    buildQuery(metrics: Metric[]): string {
+    buildQuery(metrics: Metric[], sortingMetric: SortMetric): string {
         let query: string = this.buildSelectStatement();
         let error: string;
         if (metrics.length === 0)
@@ -63,7 +64,7 @@ export class FilterService {
 
             if (!first)
                 query += " AND ";
-            
+
             else {
                 query += " WHERE ";
                 first = false;
@@ -75,6 +76,11 @@ export class FilterService {
             else
                 query += metric.name + " " + metric.comparator + " " + metric.value;
         }
+
+        if (sortingMetric.name !== undefined) {
+            query += " ORDER BY " + sortingMetric.name + " " + sortingMetric.order;
+        }
+
         return query;
     }
 

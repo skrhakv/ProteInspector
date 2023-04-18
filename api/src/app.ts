@@ -93,6 +93,31 @@ app.get('/pages', (req, res) => {
     }
 });
 
+// curl -X GET -H "Content---verbose type: application/json"  "http://localhost:3000/pages/?query=select%20*%20from%20proteins%20where%20afterpdbcode=%221btw%22&datasetId=1"
+app.get('/count', (req, res) => {
+
+    if (req.query === undefined || req.query.query === undefined || req.query.datasetId === undefined) {
+        res.status(400).send("Failed! Provide paramaters 'query' and 'datasetId' in the URL.\n");
+        return;
+    }
+
+    let query: any = (req.query.query as any) as string;
+    let datasetId: number = Number(req.query.datasetId as any);
+
+    let result = executor.GetResultCount(query, datasetId);
+
+    if (typeof result === 'string') {
+        res.setHeader('Content-Type', 'application/json');
+        console.error(result);
+        res.status(400).json(result);
+        return;
+    }
+    else {
+        res.setHeader('Content-Type', 'application/json');
+        res.status(200).json(result);
+    }
+});
+
 app.get('/order', (req, res) => {
 
     res.setHeader('Content-Type', 'application/json');

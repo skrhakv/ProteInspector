@@ -8,8 +8,6 @@
 
 using namespace std;
 
-#include <iostream>
-
 std::pair<pqxx::result, std::string> QueryExecutor::ParseAndExecute(const std::string &query, int datasetId, int page, int pageSize, bool includeAllMetrics)
 {
     MetricGenerator *metricGenerator;
@@ -35,7 +33,6 @@ std::pair<pqxx::result, std::string> QueryExecutor::ParseAndExecute(const std::s
     {
         return {pqxx::result(), parser.errorMessage};
     }
-        cout << parser.GetConvertedQuery() << endl;
 
     return dbClient.ExecuteQuery(parser.GetConvertedQuery());
 }

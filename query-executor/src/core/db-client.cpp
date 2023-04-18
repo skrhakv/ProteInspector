@@ -49,7 +49,7 @@ std::pair<pqxx::result, std::string> DbClient::GetDatasetsInfo()
     pqxx::work tx{*connnection};
     try
     {
-        res = tx.exec("SELECT * FROM datasets;");
+        res = tx.exec("SELECT * FROM datasets order by dataset_id;");
         tx.commit();
     }
     catch (const exception &e)

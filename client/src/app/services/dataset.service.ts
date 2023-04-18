@@ -85,6 +85,20 @@ export class DatasetService {
             "&pageSize=" + AppSettings.PAGE_SIZE + "&datasetId=" + this.SelectedDataset.dataset_id, options);
 
     }
+
+    getNumberOfResults() {
+        const headers = new HttpHeaders({
+            'Access-Control-Allow-Origin': AppSettings.API_ENDPOINT
+        });
+        const options = {
+            headers
+        };
+        return this.http.get<any>(AppSettings.API_ENDPOINT + `/count/?query=` + encodeURIComponent(this.currentQuery) +
+            "&datasetId=" + this.SelectedDataset.dataset_id, options);
+
+
+    }
+
     getSpecificRow(row: number) {
         const headers = new HttpHeaders({
             'Access-Control-Allow-Origin': AppSettings.API_ENDPOINT
