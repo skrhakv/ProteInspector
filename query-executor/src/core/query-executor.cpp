@@ -3,7 +3,9 @@
 #include "metric-generators/count-metric-generator.hpp"
 #include "metric-generators/nonselective-metric-generator.hpp"
 #include "metric-generators/selective-metric-generator.hpp"
-#include "end-query-generators/outer-query-generator.hpp"
+#include "end-query-generators/regular-query-generator.hpp"
+#include "end-query-generators/inner-query-generator.hpp"
+
 using namespace std;
 
 #include <iostream>
@@ -11,18 +13,18 @@ using namespace std;
 std::pair<pqxx::result, std::string> QueryExecutor::ParseAndExecute(const std::string &query, int datasetId, int page, int pageSize, bool includeAllMetrics)
 {
     MetricGenerator *metricGenerator;
-    OuterQueryGenerator endQueryGenerator;
+    RegularQueryGenerator endQueryGenerator;
 
     parser.SetEndQueryGenerator(&endQueryGenerator);
 
     if (includeAllMetrics)
     {
-        metricGenerator = new NonSelectiveMetricGenerator();
+        metricGenerator = new NonSelectiveMetricGenerator(false);
         parser.SetMetricGenerator(metricGenerator);
     }
     else
     {
-        metricGenerator = new SelectiveMetricGenerator();
+        metricGenerator = new SelectiveMetricGenerator(false);
         parser.SetMetricGenerator(metricGenerator);
     }
     parser.Clear();
@@ -33,16 +35,20 @@ std::pair<pqxx::result, std::string> QueryExecutor::ParseAndExecute(const std::s
     {
         return {pqxx::result(), parser.errorMessage};
     }
-    cout << parser.GetConvertedQuery() << endl;
+        cout << parser.GetConvertedQuery() << endl;
+
     return dbClient.ExecuteQuery(parser.GetConvertedQuery());
 }
 
 std::pair<pqxx::result, std::string> QueryExecutor::GetNumberOfPages(const std::string &query, int datasetId)
 {
-    parser.Clear();
-
     CountMetricGenerator metricGenerator;
     parser.SetMetricGenerator(&metricGenerator);
+
+    InnerQueryGenerator endQueryGenerator;
+    parser.SetEndQueryGenerator(&endQueryGenerator);
+
+    parser.Clear();
 
     bool isValid = parser.ConvertQuery(query, datasetId);
 
@@ -50,6 +56,7 @@ std::pair<pqxx::result, std::string> QueryExecutor::GetNumberOfPages(const std::
     {
         return {pqxx::result(), parser.errorMessage};
     }
+
     return dbClient.ExecuteQuery(parser.GetConvertedQuery());
 }
 

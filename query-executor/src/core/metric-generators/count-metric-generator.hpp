@@ -7,7 +7,7 @@ class CountMetricGenerator : public MetricGenerator
 {
     bool Generate(const hsql::SelectStatement *selectStatement, const string &biologicalStructure, string &result) override
     {
-        result += "COUNT(*) OVER()";
+        result += "COUNT(*)";
         return true;
     }
 };

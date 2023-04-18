@@ -18,7 +18,7 @@ private:
         for (const auto &element : *orderByClause)
         {
             string metric;
-            bool isValid = converter.ValidateQueryMetric(element->expr, biologicalStructure, metric);
+            bool isValid = converter.ValidateQueryMetric(element->expr, biologicalStructure, true, false, metric);
             if (!isValid)
                 RETURN_PARSE_ERROR(converter.errorMessage)
 
@@ -70,32 +70,11 @@ public:
         result += " GROUP BY ";
         converter.GetDefaultGroupBy(biologicalStructure, result);
 
-        if (selectStatement->order)
-        {
-            string orderByClause, defaultOrder;
-            bool isValid = parseOrderBy(selectStatement->order, biologicalStructure, orderByClause) && converter.GetDefaultOrder(biologicalStructure, defaultOrder);
-            if (!isValid)
-                RETURN_PARSE_ERROR(errorMessage)
+        string defaultOrder;
+        converter.GetDefaultOrder(biologicalStructure, defaultOrder);
+        result += " ORDER BY min(" + defaultOrder + ")";
 
-            result += " ORDER BY " + orderByClause;
-            result += ", min(";
-            result += defaultOrder;
-            result += ")";
-        }
-        else
-        {
-            string defaultOrder;
-            converter.GetDefaultOrder(biologicalStructure, defaultOrder);
-            result += " ORDER BY min(" + defaultOrder + ")";
-        }
         return true;
-    }
-
-    void addPageLimitWithOffset(int page, int pageSize, string &result)
-    {
-        int offset = page * pageSize;
-        result += " LIMIT " + to_string(pageSize) + " OFFSET " + to_string(offset);
-        result += ";";
     }
 };
 

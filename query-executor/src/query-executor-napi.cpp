@@ -46,36 +46,18 @@ napi_value createJsonResultFromPqxxResult(const pqxx::result &result, Napi::Env 
         pqxx::row const row = result[rownum];
         for (std::size_t colnum = 0u; colnum < numCols; ++colnum)
         {
-            pqxx::array_parser arr = row[colnum].as_array();
-            napi_value fieldArr;
-
-            napi_create_array(env, &fieldArr);
-            pair<pqxx::array_parser::juncture, string> elem;
-
-            int index = 0;
-            do
-            {
-                elem = arr.get_next();
-                if (elem.first == pqxx::array_parser::juncture::string_value)
-                {
-                    napi_value obj;
-                    vector<napi_value> values;
-                    napi_create_string_utf8(
-                        env,
-                        elem.second.c_str(),
-                        NAPI_AUTO_LENGTH,
-                        &obj);
-                    values.push_back(obj);
-                    napi_set_element(env, fieldArr, index, obj);
-                    index++;
-                }
-            } while (elem.first != pqxx::array_parser::juncture::done);
-
+            pqxx::field const field = row[colnum];
+            napi_value obj;
+            napi_create_string_utf8(
+                env,
+                field.c_str(),
+                NAPI_AUTO_LENGTH,
+                &obj);
             napi_set_property(
                 env,
                 resultRowObj,
                 columns[colnum],
-                fieldArr);
+                obj);
         }
         napi_set_element(env, resultArr, rownum, resultRowObj);
     }

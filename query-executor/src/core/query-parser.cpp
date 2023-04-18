@@ -86,7 +86,9 @@ bool QueryParser::ConvertQuery(const string &query, int datasetId, int page, int
         if (!(statement->is(hsql::StatementType::kStmtSelect)))
             RETURN_PARSE_ERROR("Only SELECT statements are supported.")
 
-        return parseQuery((const hsql::SelectStatement *)statement, datasetId, page, pageSize);
+        bool isValid = parseQuery((const hsql::SelectStatement *)statement, datasetId, page, pageSize);
+        convertedQuery += ";";
+        return isValid;
     }
     else
     {

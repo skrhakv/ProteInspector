@@ -8,6 +8,11 @@
 
 class SelectiveMetricGenerator : public MetricGenerator
 {
+    bool groupBy;
+
+public:
+    SelectiveMetricGenerator(bool _groupBy) : groupBy(_groupBy) {}
+
     bool Generate(const hsql::SelectStatement *selectStatement, const string &biologicalStructure, string &result) override
     {
         bool first = true;
@@ -18,7 +23,7 @@ class SelectiveMetricGenerator : public MetricGenerator
             else if (expr->type == hsql::kExprStar)
             {
                 string metrics;
-                converter.GetAllMetrics(biologicalStructure, metrics);
+                converter.GetAllMetrics(biologicalStructure, groupBy, metrics);
                 result += metrics;
             }
             else if (expr->type == hsql::kExprColumnRef)
@@ -26,7 +31,7 @@ class SelectiveMetricGenerator : public MetricGenerator
                 if (!first)
                     result += ",";
                 string metric;
-                bool isValid = converter.ValidateQueryMetric(expr, biologicalStructure, metric);
+                bool isValid = converter.ValidateQueryMetric(expr, biologicalStructure, groupBy, true, metric);
                 if (!isValid)
                     RETURN_PARSE_ERROR(converter.errorMessage)
                 result += metric;

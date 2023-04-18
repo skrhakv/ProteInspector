@@ -68,7 +68,7 @@ make && make install
 ```
 
 ### Download and install library `hyrise/sql-parser`
-1. Clone the repository and build the library:
+Clone the repository and build the library:
 ```
 git clone https://github.com/hyrise/sql-parser.git
 cd sql-parser
@@ -76,13 +76,14 @@ make
 make install
 ```
 
-## Lauch both services:
+## Launch both services:
 1. Go to `/api` folder and run:
 ```
 npm run build
 npm run start
 ```
 to build and launch the backend service.
+
 2. Go to `/client` folder and run:
 ```
 npm install

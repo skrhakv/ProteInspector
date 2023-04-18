@@ -130,7 +130,7 @@ bool Converter::ValidateWhereClause(const hsql::Expr *expression, const string b
     }
     return true;
 }
-bool Converter::ValidateQueryMetric(hsql::Expr *expression, const string biologicalStructure, string &result)
+bool Converter::ValidateQueryMetric(hsql::Expr *expression, const string biologicalStructure, bool arrayAgg, bool addAlias, string &result)
 {
     assert(expression->type == hsql::kExprColumnRef);
 
@@ -143,17 +143,35 @@ bool Converter::ValidateQueryMetric(hsql::Expr *expression, const string biologi
 
     string resultMetric = forwardMetric["database-destination"];
 
-    result += "array_agg(";
-    result += resultMetric;
-    result += " order by ";
-    GetDefaultOrder(biologicalStructure, result);
-    result += ") AS \"";
-    result += backwardMetric[resultMetric];
-    result += "\"";
-    return true;
+    if (arrayAgg)
+    {
+        result += "array_agg(";
+        result += resultMetric;
+        result += " order by ";
+        GetDefaultOrder(biologicalStructure, result);
+        result += ")";
+        if (addAlias)
+        {
+            result += " AS \"";
+            result += backwardMetric[resultMetric];
+            result += "\"";
+        }
+        return true;
+    }
+    else
+    {
+        result += resultMetric;
+        if (addAlias)
+        {
+            result += " AS \"";
+            result += backwardMetric[resultMetric];
+            result += "\"";
+        }
+        return true;
+    }
 }
 
-bool Converter::GetAllMetrics(const string biologicalStructure, string &result)
+bool Converter::GetAllMetrics(const string biologicalStructure, bool arrayAgg, string &result)
 {
     auto forwardMetrics = metricsData["forward-metrics-mapping"][biologicalStructure]["data"];
     auto backwardMetric = metricsData["backward-metrics-mapping"];
@@ -171,14 +189,23 @@ bool Converter::GetAllMetrics(const string biologicalStructure, string &result)
                 {
                     if (!first)
                         result += ",";
-
-                    result += "array_agg(";
-                    result += resultMetric;
-                    result += " order by ";
-                    GetDefaultOrder(biologicalStructure, result);
-                    result += ") AS \"";
-                    result += backwardMetric[resultMetric];
-                    result += "\"";
+                    if (arrayAgg)
+                    {
+                        result += "array_agg(";
+                        result += resultMetric;
+                        result += " order by ";
+                        GetDefaultOrder(biologicalStructure, result);
+                        result += ") AS \"";
+                        result += backwardMetric[resultMetric];
+                        result += "\"";
+                    }
+                    else
+                    {
+                        result += resultMetric;
+                        result += " AS \"";
+                        result += backwardMetric[resultMetric];
+                        result += "\"";
+                    }
                     addedMetrics.insert(resultMetric);
                 }
             }
@@ -191,13 +218,23 @@ bool Converter::GetAllMetrics(const string biologicalStructure, string &result)
                 if (!first)
                     result += ",";
 
-                result += "array_agg(";
-                result += resultMetric;
-                result += " order by ";
-                GetDefaultOrder(biologicalStructure, result);
-                result += ") AS \"";
-                result += backwardMetric[resultMetric];
-                result += "\"";
+                if (arrayAgg)
+                {
+                    result += "array_agg(";
+                    result += resultMetric;
+                    result += " order by ";
+                    GetDefaultOrder(biologicalStructure, result);
+                    result += ") AS \"";
+                    result += backwardMetric[resultMetric];
+                    result += "\"";
+                }
+                else
+                {
+                    result += resultMetric;
+                    result += " AS \"";
+                    result += backwardMetric[resultMetric];
+                    result += "\"";
+                }
             }
         }
         first = false;

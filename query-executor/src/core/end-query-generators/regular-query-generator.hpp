@@ -1,10 +1,10 @@
-#ifndef InnerQueryGenerator_H
-#define InnerQueryGenerator_H
+#ifndef RegularQueryGenerator_H
+#define RegularQueryGenerator_H
 
 #include "end-query-generator.hpp"
 #include "../utils.hpp"
 
-class InnerQueryGenerator : public EndQueryGenerator
+class RegularQueryGenerator : public EndQueryGenerator
 {
     bool parseOrderBy(const vector<hsql::OrderDescription *> *orderByClause, const string &biologicalStructure, string &result)
     {
@@ -40,7 +40,27 @@ public:
         if (selectStatement->whereClause)
         {
             result += " WHERE ";
-            return this->Generate(selectStatement->whereClause, biologicalStructure, result);
+            bool isValid = this->Generate(selectStatement->whereClause, biologicalStructure, result);
+            if(!isValid)
+                RETURN_PARSE_ERROR(converter.errorMessage)
+
+            if (selectStatement->order)
+            {
+                string orderByClause, defaultOrder;
+                bool isValid = parseOrderBy(selectStatement->order, biologicalStructure, orderByClause) && converter.GetDefaultOrder(biologicalStructure, defaultOrder);
+                if (!isValid)
+                    RETURN_PARSE_ERROR(errorMessage)
+
+                result += " ORDER BY " + orderByClause;
+                result += ", ";
+                result += defaultOrder;
+            }
+            else
+            {
+                string defaultOrder;
+                converter.GetDefaultOrder(biologicalStructure, defaultOrder);
+                result += " ORDER BY " + defaultOrder;
+            }
         }
         return true;
     }
