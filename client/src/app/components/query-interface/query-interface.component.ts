@@ -8,6 +8,7 @@ import { Subject } from 'rxjs';
 import { FilterService } from 'src/app/services/filter.service';
 import { Metric } from 'src/app/models/metric.model';
 import { SortMetric } from 'src/app/models/sort-metric.model';
+declare var $: any;
 
 @Component({
     selector: 'app-query-interface',
@@ -43,7 +44,7 @@ export class QueryInterfaceComponent implements OnInit {
 
     public isBiologicalStructureSelected: boolean = false;
     public DropdownMetricItems: Metric[] = [];
-    public SortingMetric : SortMetric = new SortMetric();
+    public SortingMetric: SortMetric = new SortMetric();
 
     constructor(
         public datasetService: DatasetService,
@@ -126,7 +127,12 @@ export class QueryInterfaceComponent implements OnInit {
             });
     }
 
-
+    tableLoaded() {
+        $(document).ready(function () {
+            $('#double-scroll').doubleScroll();
+        });
+        return true;
+    }
     changePage(page: number) {
         if (page >= this.numberOfPages || page < 0)
             return;
@@ -151,8 +157,6 @@ export class QueryInterfaceComponent implements OnInit {
         let biologicalStructureType = event.target.value;
         this.DropdownMetricItems = [];
         this.isBiologicalStructureSelected = false;
-        console.log(this.filterService.BiologicalStructureTypes);
-        console.log(biologicalStructureType);
 
         let [query, request] = this.filterService.selectBiologicalStructureType(biologicalStructureType);
 
