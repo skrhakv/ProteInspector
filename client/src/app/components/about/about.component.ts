@@ -1,11 +1,11 @@
+import { animate, state, style, transition, trigger } from '@angular/animations';
 import { Component } from '@angular/core';
-import { trigger, transition, style, animate, state } from '@angular/animations';
 import { Router } from '@angular/router';
 
 @Component({
-    selector: 'app-home',
-    templateUrl: './home.component.html',
-    styleUrls: ['./home.component.scss'],
+    selector: 'app-about',
+    templateUrl: './about.component.html',
+    styleUrls: ['./about.component.scss'],
     animations: [
         trigger('animation', [
             state('void', style({ opacity: 0, })),
@@ -15,8 +15,7 @@ import { Router } from '@angular/router';
         ])
     ],
 })
-export class HomeComponent {
-
+export class AboutComponent {
     constructor(private router: Router) {
     }
 

@@ -81,7 +81,7 @@
                 "beforepdbcode": {
                     "database-destination": "before_proteins.pdb_code",
                     "type": "string",
-                    "name": "Before Chain ID"
+                    "name": "Before PDB Code"
                 },
                 "beforechainid": {
                     "database-destination": "before_proteins.chain_id",

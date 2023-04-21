@@ -5,6 +5,7 @@ import { HomeComponent } from './components/home/home.component';
 import { NavbarLayoutComponent } from './components/navbar-layout/navbar-layout.component';
 import { ProteinViewComponent } from './components/protein-view/protein-view.component';
 import { QueryInterfaceComponent } from './components/query-interface/query-interface.component';
+import { AboutComponent } from './components/about/about.component';
 
 const routes: Routes = [
     {
@@ -13,6 +14,7 @@ const routes: Routes = [
         children: [
             { path: '', redirectTo: 'home', pathMatch: 'full' },
             { path: 'home', component: HomeComponent },
+            { path: 'about', component: AboutComponent },
             { path: 'datasets', component: DatasetSelectorComponent },
             { path: 'search', component: QueryInterfaceComponent },
             { path: 'protein/:query/:id', component: ProteinViewComponent }
