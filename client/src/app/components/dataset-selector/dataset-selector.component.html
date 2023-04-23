@@ -10,11 +10,16 @@
                 Please select dataset:
             </p>
             <div *ngFor="let dataset of datasetService.datasets">
-                <div class="card text-center my-2">
+                <div class="card my-2">
                     <div class="card-body">
-                        <h5 class="card-title">{{dataset.dataset_name}}</h5>
-                        <h6 class="card-subtitle mb-2 text-muted">Description:</h6>
-                        <p class="card-text">{{dataset.dataset_description}} </p>
+                        <h5 class="text-center card-title">{{dataset.dataset_name}}</h5>
+                        <h6 class="text-center card-subtitle mb-2 text-muted">Description:</h6>
+                        <p class="text-center card-text">{{dataset.dataset_description}} </p>
+                        <p class="ml-6 text-left my-1 text-muted">Number of protein transformations: {{dataset.protein_count !== "" ? dataset.protein_count : 0}}</p>
+                        <p class="ml-6 text-left my-1 text-muted">Number of domain transformations: {{dataset.domain_count !== "" ? dataset.domain_count : 0}}</p>
+                        <p class="ml-6 text-left my-1 text-muted">Number of domain pairs transformations: {{dataset.domain_pair_count !== "" ? dataset.domain_pair_count : 0}}</p>
+                        <p class="ml-6 text-left my-1 text-muted">Number of residue label transformations: {{dataset.residue_count !== "" ? dataset.residue_count : 0}}</p>
+
                     </div>
                     <a class="btn btn-primary align-bottom my-2 mx-4" (click)="selectDataset(dataset)">Select this
                         dataset!</a>

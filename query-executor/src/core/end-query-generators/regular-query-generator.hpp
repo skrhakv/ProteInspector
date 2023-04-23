@@ -43,6 +43,14 @@ public:
             bool isValid = this->Generate(selectStatement->whereClause, biologicalStructure, result);
             if (!isValid)
                 RETURN_PARSE_ERROR(converter.errorMessage)
+
+            result += " AND ";
+            converter.GetDatasetIdMetric(biologicalStructure, datasetId, result);
+        }
+        else
+        {
+            result += " WHERE ";
+            converter.GetDatasetIdMetric(biologicalStructure, datasetId, result);
         }
         if (selectStatement->order)
         {
