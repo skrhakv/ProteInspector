@@ -8,7 +8,6 @@ import { Subject } from 'rxjs';
 import { FilterService } from 'src/app/services/filter.service';
 import { Metric } from 'src/app/models/metric.model';
 import { SortMetric } from 'src/app/models/sort-metric.model';
-declare var $: any;
 
 @Component({
     selector: 'app-query-interface',
@@ -127,12 +126,13 @@ export class QueryInterfaceComponent implements OnInit {
             });
     }
 
-    tableLoaded() {
-        $(document).ready(function () {
-            $('#double-scroll').doubleScroll();
-        });
-        return true;
-    }
+    // tableLoaded() {
+    //     $(document).ready(function () {
+    //         $('#double-scroll').doubleScroll();
+    //     });
+    //     return true;
+    // }
+
     changePage(page: number) {
         if (page >= this.numberOfPages || page < 0)
             return;
@@ -162,6 +162,12 @@ export class QueryInterfaceComponent implements OnInit {
 
         this.query = query;
         request.subscribe(data => {
+            console.log(data);
+            Object.keys(data).forEach(key => {
+                if (data[key]["name"] === undefined || data[key]["name"] === "")
+                    delete data[key];
+            });
+            console.log(data);
             this.filterService.AvailableMetrics = data;
             this.isBiologicalStructureSelected = true;
             this.DropdownMetricItems.push(new Metric());

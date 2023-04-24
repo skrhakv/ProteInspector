@@ -32,85 +32,92 @@
         </div>
         <div class="col-3"></div>
     </div>
-    <div *ngIf="isBiologicalStructureSelected">
-        <div class="container" *ngFor="let item of DropdownMetricItems; index as i">
-            <div class="row mt-3">
-                <div class="col-4" *ngIf="item.name === undefined">
-                    <select class="form-select" (change)="specifyMetricName(i, $event)">
-                        <option [selected]="true">Select Metric</option>
-                        <option *ngFor="let metric of filterService.AvailableMetrics | keyvalue" value="{{metric.key}}">
-                            {{metric.value["name"]}}
-                        </option>
-                    </select>
-                </div>
-                <div class="col-4" *ngIf="item.name !== undefined">
-                    <select class="form-select" (change)="specifyMetricName(i, $event)" ngModel="{{item.name}}">
-                        <option *ngFor="let metric of filterService.AvailableMetrics | keyvalue" value="{{metric.key}}"
-                            [selected]="metric.value['name'] === item.name">
-                            {{metric.value["name"]}}
-                        </option>
-                    </select>
-                </div>
-                <div class="col-8">
-                    <div class="input-group">
-                        <select class="form-select"
-                            *ngIf="item.type === 'integer' || item.type === 'float' || item.type === 'integer-between'"
-                            [(ngModel)]="item.comparator" (change)="metricInputChanged()">
-                            <option value="=">=</option>
-                            <option value="&gt;">&gt;</option>
-                            <option value="&gt;=">&#8805;</option>
-                            <option value="&lt;">&lt;</option>
-                            <option value="&lt;=">&#8804;</option>
-                            <option value="!=">&#8800;</option>
+    <div>
+        <div *ngIf="isBiologicalStructureSelected">
+            <div class="container" *ngFor="let item of DropdownMetricItems; index as i">
+                <div class="row mt-3">
+                    <div class="col-4" *ngIf="item.name === undefined">
+                        <select class="form-select" (change)="specifyMetricName(i, $event)">
+                            <option [selected]="true">Select Metric</option>
+                            <option *ngFor="let metric of filterService.AvailableMetrics | keyvalue"
+                                value="{{metric.key}}">
+                                {{metric.value["name"]}}
+                            </option>
                         </select>
-                        <select class="form-select" *ngIf="item.type === 'string'" [(ngModel)]="item.comparator"
-                            (change)="metricInputChanged()">
-                            <option value="=">=</option>
-                            <option value="!=">&#8800;</option>
+                    </div>
+                    <div class="col-4" *ngIf="item.name !== undefined">
+                        <select class="form-select" (change)="specifyMetricName(i, $event)" ngModel="{{item.name}}">
+                            <option *ngFor="let metric of filterService.AvailableMetrics | keyvalue"
+                                value="{{metric.key}}" [selected]="metric.value['name'] === item.name">
+                                {{metric.value["name"]}}
+                            </option>
                         </select>
-                        <input type="text" class="form-control w-75" placeholder="{{item.name}}"
-                            [(ngModel)]="item.value" (change)="metricInputChanged()"
-                            (keydown.enter)="submitFilterQuery()">
-                        <span class="input-group-text clickable-link" id="basic-addon1" (click)="removeMetric(i)">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                class="bi bi-x" viewBox="0 0 16 16">
-                                <path
-                                    d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z">
-                                </path>
-                            </svg>
-                        </span>
+                    </div>
+                    <div class="col-8">
+                        <div class="input-group">
+                            <select class="form-select"
+                                *ngIf="item.type === 'integer' || item.type === 'float' || item.type === 'integer-between'"
+                                [(ngModel)]="item.comparator" (change)="metricInputChanged()">
+                                <option value="=">=</option>
+                                <option value="&gt;">&gt;</option>
+                                <option value="&gt;=">&#8805;</option>
+                                <option value="&lt;">&lt;</option>
+                                <option value="&lt;=">&#8804;</option>
+                                <option value="!=">&#8800;</option>
+                            </select>
+                            <select class="form-select" *ngIf="item.type === 'string'" [(ngModel)]="item.comparator"
+                                (change)="metricInputChanged()">
+                                <option value="=">=</option>
+                                <option value="!=">&#8800;</option>
+                            </select>
+                            <input type="text" class="form-control w-75" placeholder="{{item.name}}"
+                                [(ngModel)]="item.value" (change)="metricInputChanged()"
+                                (keydown.enter)="submitFilterQuery()">
+                            <span class="input-group-text clickable-link" id="basic-addon1" (click)="removeMetric(i)">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                    class="bi bi-x" viewBox="0 0 16 16">
+                                    <path
+                                        d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z">
+                                    </path>
+                                </svg>
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="container">
-            <div class="mt-3">
-                Sort by Metric:</div>
-            <div class="row">
-                <div class="col-4">
-                    <select class="form-select" (change)="specifySortingMetric($event)">
-                        <option [selected]="true">Select Sorting Metric</option>
-                        <option *ngFor="let metric of filterService.AvailableMetrics | keyvalue" value="{{metric.key}}">
-                            {{metric.value["name"]}}
-                        </option>
-                    </select>
-                </div>
-                <div class="col-4">
-                    <div class="input-group">
-
-                        <select class="form-select" [(ngModel)]="SortingMetric.order" (change)="metricInputChanged()">
-                            <option value="ASC" selected="true">Ascending</option>
-                            <option value="DESC">Descending</option>
+        <div>
+            <div class="container" *ngIf="isBiologicalStructureSelected">
+                <div class="mt-3">
+                    Sort by Metric:</div>
+                <div class="row">
+                    <div class="col-4">
+                        <select class="form-select" (change)="specifySortingMetric($event)">
+                            <option [selected]="true">Select Sorting Metric</option>
+                            <option *ngFor="let metric of filterService.AvailableMetrics | keyvalue"
+                                value="{{metric.key}}">
+                                {{metric.value["name"]}}
+                            </option>
                         </select>
                     </div>
-                </div>
-                <div class="input-group rounded clickable-link mt-3 p-3 justify-content-center"
-                    (click)="submitFilterQuery()">
-                    <span class="input-group-text border-0" id="search-addon">
-                        Search
-                        <a class="btn btn-default btn-sm" (click)="sendQuery()">
-                            <i class="fa fa-search"></i>
-                        </a> </span>
+                    <div class="col-4">
+                        <div class="input-group">
+
+                            <select class="form-select" [(ngModel)]="SortingMetric.order"
+                                (change)="metricInputChanged()">
+                                <option value="ASC" selected="true">Ascending</option>
+                                <option value="DESC">Descending</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="input-group rounded clickable-link mt-3 p-3 justify-content-center"
+                        (click)="submitFilterQuery()">
+                        <span class="input-group-text border-0" id="search-addon">
+                            Search
+                            <a class="btn btn-default btn-sm" (click)="sendQuery()">
+                                <i class="fa fa-search"></i>
+                            </a> </span>
+                    </div>
                 </div>
             </div>
             <div *ngIf="emptyResult">
@@ -118,73 +125,82 @@
                     The server returned an empty list.
                 </div>
             </div>
-            <div [style.display]="TableData.length > 0 && TableColumnNames.length > 0 ? 'block' : 'none'">
-                <hr />
-                <div class="row">
-                    <p class="position-absolute mt-2 mx-5 fw-light">Number of Results: {{resultCount}}</p>
-
-                    <nav aria-label="Page navigation example">
-                        <ul class="pagination">
-                            <li class="page-item" [ngClass]="{'disabled': pageNumber <= 0 || !DataReady}">
-                                <a class="page-link clickable-link" aria-label="First" (click)="changePage(0)">
-                                    <span aria-hidden="true">&laquo;&laquo;</span>
-                                    <span class="sr-only"></span>
-                                </a>
-                            </li>
-                            <li class="page-item" [ngClass]="{'disabled': pageNumber <= 0 || !DataReady}">
-                                <a class="page-link clickable-link" aria-label="Previous"
-                                    (click)="changePage(pageNumber - 1)">
-                                    <span aria-hidden="true">&laquo;</span>
-                                    <span class="sr-only"></span>
-                                </a>
-                            </li>
-                            <li *ngIf="pageNumber - 2 >= 0" class="page-item" [ngClass]="{'disabled': !DataReady}"><a
-                                    class="page-link clickable-link" (click)="changePage(pageNumber - 2)">{{pageNumber -
-                                    1}}</a></li>
-                            <li *ngIf="pageNumber - 1 >= 0" class="page-item" [ngClass]="{'disabled': !DataReady}"><a
-                                    class="page-link clickable-link"
-                                    (click)="changePage(pageNumber - 1)">{{pageNumber}}</a>
-                            </li>
-                            <li class="page-item active"><a class="page-link">{{pageNumber + 1}}</a></li>
-                            <li *ngIf="pageNumber + 1 <= numberOfPages - 1" class="page-item"
-                                [ngClass]="{'disabled': !DataReady}">
-                                <a class="page-link clickable-link" (click)="changePage(pageNumber + 1)">{{pageNumber
-                                    + 2}}</a>
-                            </li>
-                            <li *ngIf="pageNumber + 2 <= numberOfPages - 1" class="page-item"
-                                [ngClass]="{'disabled': !DataReady}">
-                                <a class="page-link clickable-link" (click)="changePage(pageNumber + 2)">{{pageNumber
-                                    + 3}}</a>
-                            </li>
-
-                            <li class="page-item"
-                                [ngClass]="{'disabled': pageNumber >= numberOfPages - 1 || !DataReady}">
-                                <a class="page-link clickable-link" aria-label="Next"
-                                    (click)="changePage(pageNumber + 1)">
-                                    <span aria-hidden=" true">&raquo;</span>
-                                    <span class="sr-only"></span>
-                                </a>
-                            </li>
-                            <li class="page-item"
-                                [ngClass]="{'disabled': pageNumber >= numberOfPages - 1|| !DataReady}">
-                                <a class="page-link clickable-link" aria-label="Last"
-                                    (click)="changePage(numberOfPages - 1)">
-                                    <span aria-hidden="true">&raquo;&raquo;</span>
-                                    <span class="sr-only"></span>
-                                </a>
-                            </li>
-                        </ul>
-                    </nav>
-                </div>
-                <div class="row justify-content-center" [style.display]="!DataReady ? '' : 'none'">
-                    <div class="spinner-border " role="status">
-                    </div>
-                </div>
-                <div [style.display]="DataReady && tableLoaded() ? 'block' : 'none'">
+            <div>
+                <div class="container" [style.display]="TableData.length > 0 && TableColumnNames.length > 0 ? 'block' : 'none'">
+                    <hr />
                     <div class="row">
-                        <h5 class="text-center">Results</h5>
-                            <div id="double-scroll">
-                                <table class="table table-hover">
+                        <div class="col-3">
+                            <p class="mt-2 mx-5 fw-light">Number of Results: {{resultCount}}</p>
+                        </div>
+                        <div class="col-6">
+                        <nav aria-label="Page navigation example">
+                            <ul class="pagination">
+                                <li class="page-item" [ngClass]="{'disabled': pageNumber <= 0 || !DataReady}">
+                                    <a class="page-link clickable-link" aria-label="First" (click)="changePage(0)">
+                                        <span aria-hidden="true">&laquo;&laquo;</span>
+                                        <span class="sr-only"></span>
+                                    </a>
+                                </li>
+                                <li class="page-item" [ngClass]="{'disabled': pageNumber <= 0 || !DataReady}">
+                                    <a class="page-link clickable-link" aria-label="Previous"
+                                        (click)="changePage(pageNumber - 1)">
+                                        <span aria-hidden="true">&laquo;</span>
+                                        <span class="sr-only"></span>
+                                    </a>
+                                </li>
+                                <li *ngIf="pageNumber - 2 >= 0" class="page-item" [ngClass]="{'disabled': !DataReady}">
+                                    <a class="page-link clickable-link"
+                                        (click)="changePage(pageNumber - 2)">{{pageNumber -
+                                        1}}</a>
+                                </li>
+                                <li *ngIf="pageNumber - 1 >= 0" class="page-item" [ngClass]="{'disabled': !DataReady}">
+                                    <a class="page-link clickable-link"
+                                        (click)="changePage(pageNumber - 1)">{{pageNumber}}</a>
+                                </li>
+                                <li class="page-item active"><a class="page-link">{{pageNumber + 1}}</a></li>
+                                <li *ngIf="pageNumber + 1 <= numberOfPages - 1" class="page-item"
+                                    [ngClass]="{'disabled': !DataReady}">
+                                    <a class="page-link clickable-link"
+                                        (click)="changePage(pageNumber + 1)">{{pageNumber
+                                        + 2}}</a>
+                                </li>
+                                <li *ngIf="pageNumber + 2 <= numberOfPages - 1" class="page-item"
+                                    [ngClass]="{'disabled': !DataReady}">
+                                    <a class="page-link clickable-link"
+                                        (click)="changePage(pageNumber + 2)">{{pageNumber
+                                        + 3}}</a>
+                                </li>
+
+                                <li class="page-item"
+                                    [ngClass]="{'disabled': pageNumber >= numberOfPages - 1 || !DataReady}">
+                                    <a class="page-link clickable-link" aria-label="Next"
+                                        (click)="changePage(pageNumber + 1)">
+                                        <span aria-hidden=" true">&raquo;</span>
+                                        <span class="sr-only"></span>
+                                    </a>
+                                </li>
+                                <li class="page-item"
+                                    [ngClass]="{'disabled': pageNumber >= numberOfPages - 1|| !DataReady}">
+                                    <a class="page-link clickable-link" aria-label="Last"
+                                        (click)="changePage(numberOfPages - 1)">
+                                        <span aria-hidden="true">&raquo;&raquo;</span>
+                                        <span class="sr-only"></span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                        </div>
+                        <div class="col-3"></div>
+                    </div>
+                    <div class="row justify-content-center" [style.display]="!DataReady ? '' : 'none'">
+                        <div class="spinner-border " role="status">
+                        </div>
+                    </div>
+                    <div class="container" [style.display]="DataReady ? 'block' : 'none'">
+                        <div class="row">
+                            <h5 class="text-center">Results</h5>
+                            <div class="table-responsive" style="transform: rotateX(180deg);">
+                                <table class="table table-hover" style="transform: rotateX(180deg);">
                                     <thead id="fixed-thead" class="bg-white my-1">
                                         <tr>
                                             <th scope="col">#</th>
@@ -199,57 +215,62 @@
                                         </tr>
                                     </tbody>
                                 </table>
+                            </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <nav aria-label="Page navigation example">
-                            <ul class="pagination">
-                                <li class="page-item" [ngClass]="{'disabled': pageNumber <= 0}">
-                                    <a class="page-link clickable-link" aria-label="First" (click)="changePage(0)">
-                                        <span aria-hidden="true">&laquo;&laquo;</span>
-                                        <span class="sr-only"></span>
-                                    </a>
-                                </li>
-                                <li class="page-item" [ngClass]="{'disabled': pageNumber <= 0}">
-                                    <a class="page-link clickable-link" aria-label="Previous"
-                                        (click)="changePage(pageNumber - 1)">
-                                        <span aria-hidden="true">&laquo;</span>
-                                        <span class="sr-only"></span>
-                                    </a>
-                                </li>
-                                <li *ngIf="pageNumber - 2 >= 0" class="page-item"><a class="page-link clickable-link"
-                                        (click)="changePage(pageNumber - 2)">{{pageNumber -
-                                        1}}</a></li>
-                                <li *ngIf="pageNumber - 1 >= 0" class="page-item"><a class="page-link clickable-link"
-                                        (click)="changePage(pageNumber - 1)">{{pageNumber}}</a>
-                                </li>
-                                <li class="page-item active"><a class="page-link">{{pageNumber + 1}}</a></li>
-                                <li *ngIf="pageNumber + 1 <= numberOfPages - 1" class="page-item"><a
-                                        class="page-link clickable-link"
-                                        (click)="changePage(pageNumber + 1)">{{pageNumber
-                                        + 2}}</a></li>
-                                <li *ngIf="pageNumber + 2 <= numberOfPages - 1" class="page-item"><a
-                                        class="page-link clickable-link"
-                                        (click)="changePage(pageNumber + 2)">{{pageNumber
-                                        + 3}}</a></li>
+                        <div class="row">
+                            <nav aria-label="Page navigation example">
+                                <ul class="pagination">
+                                    <li class="page-item" [ngClass]="{'disabled': pageNumber <= 0}">
+                                        <a class="page-link clickable-link" aria-label="First" (click)="changePage(0)">
+                                            <span aria-hidden="true">&laquo;&laquo;</span>
+                                            <span class="sr-only"></span>
+                                        </a>
+                                    </li>
+                                    <li class="page-item" [ngClass]="{'disabled': pageNumber <= 0}">
+                                        <a class="page-link clickable-link" aria-label="Previous"
+                                            (click)="changePage(pageNumber - 1)">
+                                            <span aria-hidden="true">&laquo;</span>
+                                            <span class="sr-only"></span>
+                                        </a>
+                                    </li>
+                                    <li *ngIf="pageNumber - 2 >= 0" class="page-item"><a
+                                            class="page-link clickable-link"
+                                            (click)="changePage(pageNumber - 2)">{{pageNumber -
+                                            1}}</a></li>
+                                    <li *ngIf="pageNumber - 1 >= 0" class="page-item"><a
+                                            class="page-link clickable-link"
+                                            (click)="changePage(pageNumber - 1)">{{pageNumber}}</a>
+                                    </li>
+                                    <li class="page-item active"><a class="page-link">{{pageNumber + 1}}</a></li>
+                                    <li *ngIf="pageNumber + 1 <= numberOfPages - 1" class="page-item"><a
+                                            class="page-link clickable-link"
+                                            (click)="changePage(pageNumber + 1)">{{pageNumber
+                                            + 2}}</a></li>
+                                    <li *ngIf="pageNumber + 2 <= numberOfPages - 1" class="page-item"><a
+                                            class="page-link clickable-link"
+                                            (click)="changePage(pageNumber + 2)">{{pageNumber
+                                            + 3}}</a></li>
 
-                                <li class="page-item" [ngClass]="{'disabled': pageNumber >= numberOfPages - 1}">
-                                    <a class="page-link clickable-link" aria-label="Next"
-                                        (click)="changePage(pageNumber + 1)">
-                                        <span aria-hidden=" true">&raquo;</span>
-                                        <span class="sr-only"></span>
-                                    </a>
-                                </li>
-                                <li class="page-item" [ngClass]="{'disabled': pageNumber >= numberOfPages - 1}">
-                                    <a class="page-link clickable-link" aria-label="Last"
-                                        (click)="changePage(numberOfPages - 1)">
-                                        <span aria-hidden="true">&raquo;&raquo;</span>
-                                        <span class="sr-only"></span>
-                                    </a>
-                                </li>
-                            </ul>
-                        </nav>
+                                    <li class="page-item" [ngClass]="{'disabled': pageNumber >= numberOfPages - 1}">
+                                        <a class="page-link clickable-link" aria-label="Next"
+                                            (click)="changePage(pageNumber + 1)">
+                                            <span aria-hidden=" true">&raquo;</span>
+                                            <span class="sr-only"></span>
+                                        </a>
+                                    </li>
+                                    <li class="page-item" [ngClass]="{'disabled': pageNumber >= numberOfPages - 1}">
+                                        <a class="page-link clickable-link" aria-label="Last"
+                                            (click)="changePage(numberOfPages - 1)">
+                                            <span aria-hidden="true">&raquo;&raquo;</span>
+                                            <span class="sr-only"></span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+</div>

@@ -31,7 +31,7 @@
                 "datasetid": {
                     "database-destination": "transformations.dataset_id",
                     "type": "integer",
-                    "name": "Dataset ID"
+                    "name": ""
                 },
                 "beforepdbcode": {
                     "database-destination": "before_proteins.pdb_code",
@@ -76,7 +76,7 @@
                 "datasetid": {
                     "database-destination": "transformations.dataset_id",
                     "type": "integer",
-                    "name": "Dataset ID"
+                    "name": ""
                 },
                 "beforepdbcode": {
                     "database-destination": "before_proteins.pdb_code",
@@ -147,7 +147,7 @@
                 "datasetid": {
                     "database-destination": "transformations.dataset_id",
                     "type": "integer",
-                    "name": "Dataset ID"
+                    "name": ""
                 },
                 "beforepdbcode": {
                     "database-destination": "before_proteins.pdb_code",
@@ -244,7 +244,7 @@
                 "datasetid": {
                     "database-destination": "transformations.dataset_id",
                     "type": "integer",
-                    "name": "Dataset ID"
+                    "name": ""
                 },
                 "beforepdbcode": {
                     "database-destination": "before_proteins.pdb_code",
@@ -350,7 +350,6 @@
         "Label",
         "ResidueStart",
         "ResidueEnd",
-        "DatasetId",
         "ProteinProgressionId"
     ]
 }
