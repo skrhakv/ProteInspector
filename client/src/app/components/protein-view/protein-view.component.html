@@ -19,7 +19,15 @@
             </thead>
             <tbody>
                 <tr>
-                    <td *ngFor="let name of ColumnOrder">{{TableData[name]}}</td>
+                    <td *ngFor="let name of ColumnOrder">
+                        <ng-template [ngIf]="externalLinkService.HasExternalLink(name)" [ngIfElse]="elseBlock">
+                            <a href="{{externalLinkService.GetExternalLink(name, TableData[name])}}" target="_blank"
+                                class="link-dark" data-toggle="tooltip" data-placement="top" title="Link to external database: {{externalLinkService.GetExternalLink(name, TableData[name])}}">{{TableData[name]}}</a>
+                        </ng-template>
+                        <ng-template #elseBlock>
+                            {{TableData[name]}}
+                        </ng-template>
+                    </td>
                 </tr>
             </tbody>
         </table>

@@ -7,27 +7,10 @@ import { DefaultPluginUISpec } from 'molstar/lib/mol-plugin-ui/spec';
 import { createPluginUI } from 'molstar/lib/mol-plugin-ui/react18';
 
 import { Asset } from 'molstar/lib/mol-util/assets';
-import { StateObjectRef } from 'molstar/lib/mol-state';
 import { BuiltInTrajectoryFormat } from 'molstar/lib/mol-plugin-state/formats/trajectory';
-import { Mat4 } from 'molstar/lib/mol-math/linear-algebra';
-import { StateTransforms } from 'molstar/lib/mol-plugin-state/transforms';
-import { alignAndSuperposeWithSIFTSMapping } from 'molstar/lib/mol-model/structure/structure/util/superposition-sifts-mapping';
-import { SymmetryOperator } from 'molstar/lib/mol-math/geometry';
-import { PluginCommands } from 'molstar/lib/mol-plugin/commands';
-import { PluginStateObject } from 'molstar/lib/mol-plugin-state/objects';
-
-import { CustomElementProperty } from 'molstar/lib/mol-model-props/common/custom-element-property';
-import { Model, ElementIndex, StructureElement, Structure } from 'molstar/lib/mol-model/structure';
-import { QueryContext, StructureSelection } from 'molstar/lib/mol-model/structure';
-import { superpose } from 'molstar/lib/mol-model/structure/structure/util/superposition';
-import { PluginStateObject as PSO } from 'molstar/lib/mol-plugin-state/objects';
-import { MolScriptBuilder as MS } from 'molstar/lib/mol-script/language/builder';
-import { Expression } from 'molstar/lib/mol-script/language/expression';
-import { compile } from 'molstar/lib/mol-script/runtime/query/compiler';
-import { Script } from 'molstar/lib/mol-script/script';
-import { ColorNames } from 'molstar/lib/mol-util/color/names';
-import { Color } from 'molstar/lib/mol-util/color';
 import { ProteinThemeProvider } from 'src/app/providers/protein-theme-provider';
+import { ExternalLinkService } from 'src/app/services/external-link.service';
+
 @Component({
     selector: 'app-protein-view',
     templateUrl: './protein-view.component.html',
@@ -41,7 +24,10 @@ export class ProteinViewComponent implements OnInit {
     public TableData!: any;
     public DataReady: boolean = false;
     private row!: number;
-    constructor(public datasetService: DatasetService, private route: ActivatedRoute) {
+    constructor(
+        public datasetService: DatasetService,
+        public externalLinkService: ExternalLinkService,
+        private route: ActivatedRoute) {
 
         this.row = parseInt(this.route.snapshot.paramMap.get('id') as string);
         datasetService.currentQuery = decodeURIComponent(this.route.snapshot.paramMap.get('query') as string);
