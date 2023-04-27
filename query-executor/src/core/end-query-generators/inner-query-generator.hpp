@@ -41,6 +41,13 @@ public:
         {
             result += " WHERE ";
             return this->Generate(selectStatement->whereClause, biologicalStructure, result);
+            result += " AND ";
+            converter.GetDatasetIdMetric(biologicalStructure, datasetId, result);
+        }
+        else
+        {
+            result += " WHERE ";
+            converter.GetDatasetIdMetric(biologicalStructure, datasetId, result);
         }
         return true;
     }
