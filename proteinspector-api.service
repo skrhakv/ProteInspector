@@ -1,0 +1,18 @@
+[Unit]
+Description=ProteInspector API
+After=syslog.target network.target
+
+[Service]
+Type=simple
+Restart=on-failure
+StartLimitBurst=2
+# Restart, but not more than once every 10 minutes
+#StartLimitInterval=600
+# Restart, but not more than once every 30s (for testing purposes)
+StartLimitInterval=30
+RestartSec=1
+ExecStart=/home/skrhak/app/ProteInspector/run-proteinspector-api.sh
+User=root
+
+[Install]
+WantedBy=multi-user.target
