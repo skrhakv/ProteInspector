@@ -17,7 +17,7 @@ public:
         return false;
     }
 
-    void addPageLimitWithOffset(int page, int pageSize, string &result)
+    virtual void addPageLimitWithOffset(int page, int pageSize, string &result)
     {
         int offset = page * pageSize;
         result += " LIMIT " + to_string(pageSize) + " OFFSET " + to_string(offset);

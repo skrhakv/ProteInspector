@@ -110,4 +110,15 @@ export class DatasetService {
         return this.http.get<any>(AppSettings.API_ENDPOINT + `/data/specific-row/?row=` + row
             + "&query=" + encodeURIComponent(this.currentQuery) + "&datasetId=" + this.SelectedDataset.dataset_id, options);
     }
+
+    getTransformationContext(row: number) {
+        const headers = new HttpHeaders({
+            'Access-Control-Allow-Origin': AppSettings.API_ENDPOINT
+        });
+        const options = {
+            headers
+        };
+        return this.http.get<any>(AppSettings.API_ENDPOINT + `/data/transformation-context/?row=` + row +
+            "&query=" + encodeURIComponent(this.currentQuery) + "&datasetId=" + this.SelectedDataset.dataset_id, options);
+    }
 }

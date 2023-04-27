@@ -22,7 +22,8 @@
                     <td *ngFor="let name of ColumnOrder">
                         <ng-template [ngIf]="externalLinkService.HasExternalLink(name)" [ngIfElse]="elseBlock">
                             <a href="{{externalLinkService.GetExternalLink(name, TableData[name])}}" target="_blank"
-                                class="link-dark" data-toggle="tooltip" data-placement="top" title="Link to external database: {{externalLinkService.GetExternalLink(name, TableData[name])}}">{{TableData[name]}}</a>
+                                class="link-dark" data-toggle="tooltip" data-placement="top"
+                                title="Link to external database: {{externalLinkService.GetExternalLink(name, TableData[name])}}">{{TableData[name]}}</a>
                         </ng-template>
                         <ng-template #elseBlock>
                             {{TableData[name]}}
@@ -36,8 +37,30 @@
         <div id='molstar-viewer'>
         </div>
     </div>
-    <div class="row mt-3">
-        <div id='after-molstar-parent'>
+    <div class="row mt-5" *ngIf="datasetService.currentQuery !== '' && ContextDataReady">
+        <h1 class="text-center">Transformation Context</h1>
+        <div class="row mt-3 table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col" *ngFor="let name of ContextColumnOrder">{{name}}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="clickable-link" *ngFor="let row of ContextTableData; index as i">
+                        <td *ngFor="let name of ContextColumnOrder">
+                            <ng-template [ngIf]="externalLinkService.HasExternalLink(name)" [ngIfElse]="elseBlock">
+                                <a href="{{externalLinkService.GetExternalLink(name, row[name])}}" target="_blank"
+                                    class="link-dark" data-toggle="tooltip" data-placement="top"
+                                    title="Link to external database: {{externalLinkService.GetExternalLink(name, row[name])}}">{{row[name]}}</a>
+                            </ng-template>
+                            <ng-template #elseBlock>
+                                {{row[name]}}
+                            </ng-template>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>

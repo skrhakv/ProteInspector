@@ -3,10 +3,32 @@
 #include "metric-generators/count-metric-generator.hpp"
 #include "metric-generators/nonselective-metric-generator.hpp"
 #include "metric-generators/selective-metric-generator.hpp"
+#include "metric-generators/transformation-metric-generator.hpp"
 #include "end-query-generators/regular-query-generator.hpp"
 #include "end-query-generators/inner-query-generator.hpp"
+#include "end-query-generators/outer-query-generator.hpp"
 
 using namespace std;
+
+std::pair<pqxx::result, std::string> QueryExecutor::GetTransformationContext(const std::string &query, int datasetId, int page, int pageSize)
+{
+    NonSelectiveMetricGenerator metricGenerator(false);
+    OuterQueryGenerator endQueryGenerator(page, pageSize);
+
+    parser.SetEndQueryGenerator(&endQueryGenerator);
+    parser.SetMetricGenerator(&metricGenerator);
+    
+    parser.Clear();
+
+    bool isValid = parser.ConvertQuery(query, datasetId, page, pageSize);
+
+    if (!isValid)
+    {
+        return {pqxx::result(), parser.errorMessage};
+    }
+
+    return dbClient.ExecuteQuery(parser.GetConvertedQuery());
+}
 
 std::pair<pqxx::result, std::string> QueryExecutor::ParseAndExecute(const std::string &query, int datasetId, int page, int pageSize, bool includeAllMetrics)
 {

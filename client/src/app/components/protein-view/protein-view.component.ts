@@ -10,6 +10,9 @@ import { Asset } from 'molstar/lib/mol-util/assets';
 import { BuiltInTrajectoryFormat } from 'molstar/lib/mol-plugin-state/formats/trajectory';
 import { ProteinThemeProvider } from 'src/app/providers/protein-theme-provider';
 import { ExternalLinkService } from 'src/app/services/external-link.service';
+import { Script } from 'molstar/lib/mol-script/script';
+import { MolScriptBuilder as MS } from 'molstar/lib/mol-script/language/builder';
+import { StructureSelection } from 'molstar/lib/mol-model/structure';
 
 @Component({
     selector: 'app-protein-view',
@@ -23,6 +26,12 @@ export class ProteinViewComponent implements OnInit {
     public ColumnOrder: string[] = [];
     public TableData!: any;
     public DataReady: boolean = false;
+
+    public ContextTableColumnNames: string[] = [];
+    public ContextTableData!: any;
+    public ContextColumnOrder: string[] = [];
+    public ContextDataReady: boolean = false;
+
     private row!: number;
     constructor(
         public datasetService: DatasetService,
@@ -56,8 +65,48 @@ export class ProteinViewComponent implements OnInit {
                     pdbCodes.push(this.TableData['BeforePdbCode'] as string);
                 }
 
-                this.GenerateMolstarVisualisation(pdbCodes);
+                this.GenerateMolstarVisualisation(['1pts', '1vwm']);
             });
+
+            datasetService.getTransformationContext(this.row).subscribe(data => {
+                this.ContextTableColumnNames = data['columnNames'];
+                this.ContextTableData = data['results'].sort((a: any, b: any) => {
+                    if (a["BeforeSnapshot"] < b["BeforeSnapshot"])
+                        return -1;
+                    if (a["BeforeSnapshot"] > b["BeforeSnapshot"])
+                        return 1;
+                    if (a["AfterSnapshot"] < b["AfterSnapshot"])
+                        return -1;
+                    if (a["AfterSnapshot"] > b["AfterSnapshot"])
+                        return 1;
+                    return 0;
+                });
+                this.ContextColumnOrder = [];
+
+                console.log(data);
+                console.log(this.ContextTableColumnNames);
+                console.log(this.ContextTableData);
+
+                if (this.TableData.length > 1) {
+                    this.ContextDataReady = false;
+                    return;
+                }
+
+                for (const columnName of this.datasetService.ColumnOrder) {
+                    if (this.TableColumnNames.includes(columnName)) {
+                        this.ContextColumnOrder.push(columnName);
+                    }
+                }
+
+                this.ContextColumnOrder.push("BeforeSnapshot");
+                this.ContextColumnOrder.push("AfterSnapshot")
+                this.ContextDataReady = true;
+            },
+                error => {
+                    this.ContextTableColumnNames = [];
+                    this.ContextTableData = [];
+                    this.ContextColumnOrder = [];
+                });
         });
     }
     GenerateMolstarVisualisation(pdbCodes: string[]) {
@@ -67,13 +116,31 @@ export class ProteinViewComponent implements OnInit {
             }
 
             // select whole protein
-            // const data = this.plugin.managers.structure.hierarchy.current.structures[1]?.cell.obj?.data;
-            // if (!data) return;
-            // const selection = Script.getStructureSelection(Q => Q.struct.generator.atomGroups({
-            //     'entity-test': MS.core.rel.eq([MS.ammp('entityType'), 'polymer'])
-            // }), data);
-            // const loci = StructureSelection.toLociWithSourceUnits(selection);
+            let data = this.plugin.managers.structure.hierarchy.current.structures[1]?.cell.obj?.data;
+            if (!data) return;
+            let selection = Script.getStructureSelection(Q => Q.struct.generator.atomGroups({
+                'chain-test': Q.core.rel.eq(['B', Q.ammp('auth_asym_id')]),
+                'residue-test': MS.core.rel.inRange([MS.ammp('label_seq_id'), 0, 123])
+            }), data);
+            let loci = StructureSelection.toLociWithSourceUnits(selection);
+
+            this.plugin.managers.interactivity.lociSelects.selectOnly({ loci });
+
             // this.plugin.managers.interactivity.lociHighlights.highlightOnly({ loci });
+
+            // let data = this.plugin.managers.structure.hierarchy.current.structures[1]?.cell.obj?.data;
+            // if (!data) return;
+            // let selection = Script.getStructureSelection(Q => Q.struct.generator.atomGroups({
+            //     'chain-test': Q.core.rel.eq(['B', Q.ammp('auth_asym_id')]),
+            //     'residue-test': MS.core.rel.inRange([MS.ammp('label_seq_id'), 0, 0 + 123]),
+            //     'group-by': MS.struct.atomProperty.macromolecular.label_seq_id()
+            // 
+            //     // 'residue-test': MS.core.set.has([MS.set(...Utils.range(123, 0)), MS.ammp('label_seq_id')]),
+            // }), data);
+            // 
+            // let loci = StructureSelection.toLociWithSourceUnits(selection);
+            // this.plugin.managers.interactivity.lociHighlights.highlightOnly({ loci });
+            // this.plugin.managers.interactivity.lociSelects.selectOnly({ loci });
 
             for (const [index, structure] of this.plugin.managers.structure.hierarchy.current.structures.entries()) {
                 await this.plugin.managers.structure.component.updateRepresentationsTheme(structure.components, {

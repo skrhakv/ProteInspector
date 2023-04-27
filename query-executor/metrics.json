@@ -33,6 +33,16 @@
                     "type": "integer",
                     "name": ""
                 },
+                "beforesnapshot": {
+                    "database-destination": "protein_transformations.before_snapshot",
+                    "type": "integer",
+                    "name": ""
+                },
+                "aftersnapshot": {
+                    "database-destination": "protein_transformations.after_snapshot",
+                    "type": "integer",
+                    "name": ""
+                },
                 "beforepdbcode": {
                     "database-destination": "before_proteins.pdb_code",
                     "type": "string",
@@ -75,6 +85,16 @@
             "data": {
                 "datasetid": {
                     "database-destination": "transformations.dataset_id",
+                    "type": "integer",
+                    "name": ""
+                },
+                "beforesnapshot": {
+                    "database-destination": "domain_transformations.before_snapshot",
+                    "type": "integer",
+                    "name": ""
+                },
+                "aftersnapshot": {
+                    "database-destination": "domain_transformations.after_snapshot",
                     "type": "integer",
                     "name": ""
                 },
@@ -146,6 +166,16 @@
             "data": {
                 "datasetid": {
                     "database-destination": "transformations.dataset_id",
+                    "type": "integer",
+                    "name": ""
+                },
+                "beforesnapshot": {
+                    "database-destination": "domain_pair_transformations.before_snapshot",
+                    "type": "integer",
+                    "name": ""
+                },
+                "aftersnapshot": {
+                    "database-destination": "domain_pair_transformations.after_snapshot",
                     "type": "integer",
                     "name": ""
                 },
@@ -246,6 +276,16 @@
                     "type": "integer",
                     "name": ""
                 },
+                "beforesnapshot": {
+                    "database-destination": "protein_transformations.before_snapshot",
+                    "type": "integer",
+                    "name": ""
+                },
+                "aftersnapshot": {
+                    "database-destination": "protein_transformations.after_snapshot",
+                    "type": "integer",
+                    "name": ""
+                },
                 "beforepdbcode": {
                     "database-destination": "before_proteins.pdb_code",
                     "type": "string",
@@ -290,6 +330,12 @@
     },
     "backward-metrics-mapping": {
         "transformations.dataset_id": "DatasetId",
+        "protein_transformations.before_snapshot": "BeforeSnapshot",
+        "protein_transformations.after_snapshot": "AfterSnapshot",
+        "domain_transformations.before_snapshot": "BeforeSnapshot",
+        "domain_transformations.after_snapshot": "AfterSnapshot",
+        "domain_pair_transformations.before_snapshot": "BeforeSnapshot",
+        "domain_pair_transformations.after_snapshot": "AfterSnapshot",
         "before_proteins.pdb_code": "BeforePdbCode",
         "before_proteins.chain_id": "BeforeChainId",
         "sequences.uniprot_id": "UniprotId",

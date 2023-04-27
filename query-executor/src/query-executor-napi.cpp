@@ -76,7 +76,8 @@ Napi::Object QueryExecutorNapi::Init(Napi::Env env, Napi::Object exports)
              InstanceMethod("GetNumberOfPages", &QueryExecutorNapi::GetNumberOfPages),
              InstanceMethod("ParseAndExecuteWithAllMetrics", &QueryExecutorNapi::ParseAndExecuteWithAllMetrics),
              InstanceMethod("GetDatasetsInfo", &QueryExecutorNapi::GetDatasetsInfo),
-             InstanceMethod("GetResultCount", &QueryExecutorNapi::GetResultCount)});
+             InstanceMethod("GetResultCount", &QueryExecutorNapi::GetResultCount),
+             InstanceMethod("GetTransformationContext", &QueryExecutorNapi::GetTransformationContext)});
 
     constructor = Napi::Persistent(func);
     constructor.SuppressDestruct();
@@ -134,9 +135,40 @@ Napi::Value QueryExecutorNapi::GetDatasetsInfo(const Napi::CallbackInfo &info)
     return Napi::String::New(env, error);
 }
 
+Napi::Value QueryExecutorNapi::GetTransformationContext(const Napi::CallbackInfo &info)
+{
+    Napi::Env env = info.Env();
+    Napi::HandleScope scope(env);
+
+    if (info.Length() != 3)
+    {
+        Napi::TypeError::New(env, "Wrong number of parameters: expected parameters are (string query, int datasetId, int row)").ThrowAsJavaScriptException();
+    }
+
+    std::string query{info[0].As<Napi::String>().Utf8Value()}, error;
+    int datasetId{info[1].As<Napi::Number>().Int32Value()};
+    int row{info[2].As<Napi::Number>().Int32Value()};
+
+    pqxx::result result;
+    try
+    {
+        tie(result, error) = qExecutor->GetTransformationContext(query, datasetId, row, 1);
+    }
+    catch (const std::exception &e)
+    {
+        Napi::Error::New(env, e.what()).ThrowAsJavaScriptException();
+    }
+    if (error.empty())
+    {
+        auto napiResult = createJsonResultFromPqxxResult(result, env);
+        return Napi::Object(env, napiResult);
+    }
+    return Napi::String::New(env, error);
+}
+
 Napi::Value QueryExecutorNapi::GetResultCount(const Napi::CallbackInfo &info)
 {
-        Napi::Env env = info.Env();
+    Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
 
     if (info.Length() != 2)
@@ -162,7 +194,6 @@ Napi::Value QueryExecutorNapi::GetResultCount(const Napi::CallbackInfo &info)
         return Napi::Number::New(env, numberOfPages);
     }
     return Napi::String::New(env, error);
-
 }
 
 Napi::Value QueryExecutorNapi::GetNumberOfPages(const Napi::CallbackInfo &info)

@@ -39,6 +39,31 @@ app.get('/data/specific-row', (req, res) => {
     }
 });
 
+
+app.get('/data/transformation-context', (req, res) => {
+    if (req.query === undefined || req.query.row === undefined || req.query.query === undefined || req.query.datasetId === undefined) {
+        res.status(400).send("Failed! Provide paramaters 'query', 'datasetId' and 'row' in the URL.\n");
+        return;
+    }
+
+    let query: string = (req.query.query as any) as string;
+    let row: number = Number(req.query.row as any);
+    let datasetId: number = Number(req.query.datasetId as any);
+
+    let result = executor.GetTransformationContext(query, datasetId, row);
+
+    if (typeof result === 'string') {
+        res.setHeader('Content-Type', 'application/json');
+        console.error(result);
+        res.status(400).json(result);
+        return;
+    }
+    else {
+        res.setHeader('Content-Type', 'application/json');
+        res.status(200).json(result);
+    }
+});
+
 // curl -X GET -H "Content---verbose type: application/json"  "http://localhost:3000/data/?page=0&query=select%20*%20from%20proteins%20where%20afterpdbcode=%221btw%22&pageSize=100&datasetId=1" | json_pp -json_opt pretty,canonical
 app.get('/data', (req, res) => {
 
@@ -139,7 +164,7 @@ app.get('/biological-structures', (req, res) => {
 
     let result = structuredClone(metrics["forward-metrics-mapping"]);
     Object.keys(result).forEach(key => delete result[key]["data"]);
-    
+
     res.setHeader('Content-Type', 'application/json');
     res.status(200).json(result);
 

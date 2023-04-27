@@ -3,6 +3,7 @@
 
 #include "end-query-generator.hpp"
 #include "inner-query-generator.hpp"
+#include "regular-query-generator.hpp"
 #include "../utils.hpp"
 #include "../query-parser.hpp"
 #include "../metric-generators/transformation-metric-generator.hpp"
@@ -11,46 +12,18 @@ class OuterQueryGenerator : public EndQueryGenerator
 {
 private:
     QueryParser parser;
-
-    bool parseOrderBy(const vector<hsql::OrderDescription *> *orderByClause, const string &biologicalStructure, string &result)
-    {
-        bool first = true;
-        for (const auto &element : *orderByClause)
-        {
-            string metric;
-            bool isValid = converter.ValidateQueryMetric(element->expr, biologicalStructure, true, false, metric);
-            if (!isValid)
-                RETURN_PARSE_ERROR(converter.errorMessage)
-
-            if (first)
-            {
-                result += "min(";
-                result += metric;
-                result += ")";
-                first = false;
-            }
-            else
-            {
-                result += ", ";
-                result += "min(";
-                result += metric;
-                result += ")";
-            }
-
-            if (element->type)
-                result += (element->type == hsql::OrderType::kOrderAsc) ? " ASC" : " DESC";
-        }
-
-        return true;
-    }
+    int page = 0;
+    int pageSize = 0;
 
 public:
+    OuterQueryGenerator(int _page, int _pageSize) : page(_page), pageSize(_pageSize) {}
+
     bool Generate(const hsql::SelectStatement *selectStatement, const string &biologicalStructure, int datasetId, string &result) override
     {
         TransformationMetricGenerator transformationMetricGenerator;
-        InnerQueryGenerator innerQueryGenerator;
+        RegularQueryGenerator regularQueryGenerator;
         parser.SetMetricGenerator(&transformationMetricGenerator);
-        parser.SetEndQueryGenerator(&innerQueryGenerator);
+        parser.SetEndQueryGenerator(&regularQueryGenerator);
 
         parser.Clear();
 
@@ -60,21 +33,19 @@ public:
         converter.GetDefaultGroupBy(biologicalStructure, result);
         result += " IN (";
 
-        bool isValid = parser.parseQuery(selectStatement, datasetId);
+        bool isValid = parser.parseQuery(selectStatement, datasetId, page, pageSize);
         if (!isValid)
             RETURN_PARSE_ERROR(parser.errorMessage);
 
         result += parser.GetConvertedQuery();
+
         result += ")";
-
-        result += " GROUP BY ";
-        converter.GetDefaultGroupBy(biologicalStructure, result);
-
-        string defaultOrder;
-        converter.GetDefaultOrder(biologicalStructure, defaultOrder);
-        result += " ORDER BY min(" + defaultOrder + ")";
-
         return true;
+    }
+
+    void addPageLimitWithOffset(int page, int pageSize, string &result) override
+    {
+        return;
     }
 };
 
