@@ -16,11 +16,11 @@ psql -d $YOUR_DB_NAME
 # Create tables
 Script creates new empty tables:
 ```
-psql -U $YOUR_DB_USER -h 127.0.0.1 -d $YOUR_DB_NAME -a -f database/create_db/create.sql
+psql -U $YOUR_DB_USER -h 127.0.0.1 -d $YOUR_DB_NAME -a -f database/create-db/create.sql
 ```
 
 # Delete tables
 Script deletes existing data:
 ```
-psql -U $YOUR_DB_USER -h 127.0.0.1 -d $YOUR_DB_NAME -a -f database/create_db/delete.sql
+psql -U $YOUR_DB_USER -h 127.0.0.1 -d $YOUR_DB_NAME -a -f database/create-db/delete.sql
 ```

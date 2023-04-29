@@ -1,0 +1,151 @@
+[
+    [
+        {
+            "dataset_id": "3",
+            "before_snapshot": "1",
+            "after_snapshot": "2",
+            "uniprot_id": "A0A010",
+            "before_pdb_code": "5b02",
+            "after_pdb_code": "5b0j",
+            "before_chain_id": "A",
+            "after_chain_id": "A",
+            "protein_transformation": {
+                "rmsd": 1,
+                "compare_secondary_structure": 0.8,
+                "i1": 0,
+                "i2": 0,
+                "lcs_length": 123
+            },
+            "domain_transformation": [
+                {
+                    "before_cath_id": "5b02A00",
+                    "after_cath_id": "5b02A00",
+                    "before_domain_span": [
+                        9,
+                        272
+                    ],
+                    "after_domain_span": [
+                        9,
+                        272
+                    ],
+                    "rmsd": 1,
+                    "compare_secondary_structure": 0.8
+                }
+            ],
+            "residue_transformation": [
+                {
+                    "residue_span": [
+                        4,
+                        6
+                    ],
+                    "label": "active"
+                }
+            ]
+        },
+        {
+            "dataset_id": "3",
+            "before_snapshot": "2",
+            "after_snapshot": "3",
+            "uniprot_id": "A0A010",
+            "before_pdb_code": "5b02",
+            "after_pdb_code": "5b0i",
+            "before_chain_id": "A",
+            "after_chain_id": "A",
+            "protein_transformation": {
+                "rmsd": 1,
+                "compare_secondary_structure": 0.8,
+                "i1": 0,
+                "i2": 12,
+                "lcs_length": 123
+            },
+            "domain_transformation": [
+                {
+                    "before_cath_id": "5b02A00",
+                    "after_cath_id": "5b02A00",
+                    "before_domain_span": [
+                        9,
+                        272
+                    ],
+                    "after_domain_span": [
+                        9,
+                        272
+                    ],
+                    "rmsd": 1,
+                    "compare_secondary_structure": 0.8
+                }
+            ],
+            "residue_transformation": [
+                {
+                    "residue_span": [
+                        4,
+                        6
+                    ],
+                    "label": "inactive"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "dataset_id": "3",
+            "before_snapshot": "1",
+            "after_snapshot": "2",
+            "uniprot_id": "A0A023UGN9",
+            "before_pdb_code": "6etz",
+            "after_pdb_code": "6seb",
+            "before_chain_id": "A",
+            "after_chain_id": "A",
+            "domain_pair_transformation": [
+                {
+                    "before_cath_id1": "6etzA01",
+                    "before_cath_id2": "6etzA02",
+                    "after_cath_id1": "6etzA01",
+                    "after_cath_id2": "6etzA02",
+                    "before_domain_span1": [
+                        1,
+                        2
+                    ],
+                    "before_domain_span2": [
+                        1,
+                        2
+                    ],
+                    "after_domain_span1": [
+                        1,
+                        2
+                    ],
+                    "after_domain_span2": [
+                        1,
+                        2
+                    ],
+                    "rmsd": 1,
+                    "hinge_angle": 0.8,
+                    "hinge_translation_in_axis": 0.8,
+                    "hinge_translation_overall": 0.8,
+                    "before_interface_buried_area": 444,
+                    "after_interface_buried_area": 123
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "dataset_id": "3",
+            "before_snapshot": "1",
+            "after_snapshot": "2",
+            "uniprot_id": "A0A010",
+            "before_pdb_code": "5gwv",
+            "after_pdb_code": "5b0i",
+            "before_chain_id": "A",
+            "after_chain_id": "A",
+            "residue_transformation": [
+                {
+                    "residue_span": [
+                        4,
+                        6
+                    ],
+                    "label": "active"
+                }
+            ]
+        }
+    ]
+]
