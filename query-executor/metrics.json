@@ -2,7 +2,7 @@
     "tables": {
         "proteins": {
             "table": "protein_transformations",
-            "joins": "left join protein_transformations_data on protein_transformations.protein_transformation_id = protein_transformations_data.protein_transformation_id inner join transformations on protein_transformations.transformation_id = transformations.transformation_id inner join proteins as before_proteins on before_proteins.protein_id = protein_transformations.before_protein_id inner join proteins as after_proteins on after_proteins.protein_id = protein_transformations.after_protein_id inner join sequences on sequences.sequence_id=before_proteins.sequence_id",
+            "joins": "left join protein_lcs_data on protein_transformations.protein_transformation_id = protein_lcs_data.protein_transformation_id left join protein_transformations_data on protein_transformations.protein_transformation_id = protein_transformations_data.protein_transformation_id inner join transformations on protein_transformations.transformation_id = transformations.transformation_id inner join proteins as before_proteins on before_proteins.protein_id = protein_transformations.before_protein_id inner join proteins as after_proteins on after_proteins.protein_id = protein_transformations.after_protein_id inner join sequences on sequences.sequence_id=before_proteins.sequence_id",
             "order": "protein_transformations.protein_transformation_id",
             "group-by": "protein_transformations.transformation_id"
         },
@@ -77,6 +77,21 @@
                     "database-destination": "protein_transformations_data.compare_secondary_structure",
                     "type": "float",
                     "name": "Compare Secondary Structure"
+                },
+                "i1": {
+                    "database-destination": "protein_lcs_data.i1",
+                    "type": "integer",
+                    "name": ""
+                },
+                "i2": {
+                    "database-destination": "protein_lcs_data.i2",
+                    "type": "integer",
+                    "name": ""
+                },
+                "lcslength": {
+                    "database-destination": "protein_lcs_data.size",
+                    "type": "integer",
+                    "name": ""
                 }
             },
             "name": "Proteins"
@@ -366,7 +381,11 @@
         "residue_labels.label": "Label",
         "residue_labels.residue_start": "ResidueStart",
         "residue_labels.residue_end": "ResidueEnd",
-        "transformations.transformation_id": "ProteinProgressionId"
+        "transformations.transformation_id": "ProteinProgressionId",
+        "protein_lcs_data.i1": "BeforeLcsStart",
+        "protein_lcs_data.i2": "AfterLcsStart",
+        "protein_lcs_data.size": "LcsLength"
+        
     },
     "order": [
         "UniprotId",

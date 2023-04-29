@@ -1,18 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { DatasetService } from 'src/app/services/dataset.service';
-import { PluginContext } from 'molstar/lib/mol-plugin/context';
 import { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
 import { DefaultPluginUISpec } from 'molstar/lib/mol-plugin-ui/spec';
 import { createPluginUI } from 'molstar/lib/mol-plugin-ui/react18';
-
-import { Asset } from 'molstar/lib/mol-util/assets';
-import { BuiltInTrajectoryFormat } from 'molstar/lib/mol-plugin-state/formats/trajectory';
 import { ProteinThemeProvider } from 'src/app/providers/protein-theme-provider';
 import { ExternalLinkService } from 'src/app/services/external-link.service';
-import { Script } from 'molstar/lib/mol-script/script';
-import { MolScriptBuilder as MS } from 'molstar/lib/mol-script/language/builder';
-import { StructureSelection } from 'molstar/lib/mol-model/structure';
+import { Protein } from 'src/app/models/protein.model';
+import { SuperpositionService } from 'src/app/services/superposition.service';
 
 @Component({
     selector: 'app-protein-view',
@@ -20,7 +15,6 @@ import { StructureSelection } from 'molstar/lib/mol-model/structure';
     styleUrls: ['./protein-view.component.scss']
 })
 export class ProteinViewComponent implements OnInit {
-    // private SuperpositionTag: string = 'SuperpositionTransform';
     private plugin!: PluginUIContext;
     public TableColumnNames: string[] = [];
     public ColumnOrder: string[] = [];
@@ -36,6 +30,7 @@ export class ProteinViewComponent implements OnInit {
     constructor(
         public datasetService: DatasetService,
         public externalLinkService: ExternalLinkService,
+        public superpositionService: SuperpositionService, 
         private route: ActivatedRoute) {
 
         this.row = parseInt(this.route.snapshot.paramMap.get('id') as string);
@@ -47,6 +42,7 @@ export class ProteinViewComponent implements OnInit {
                 this.TableColumnNames = data['columnNames'];
                 this.TableData = data['results'];
 
+                // only show columns from the this.datasetService.ColumnOrder in this order:
                 for (const columnName of this.datasetService.ColumnOrder) {
                     if (this.TableColumnNames.includes(columnName)) {
                         this.ColumnOrder.push(columnName);
@@ -54,22 +50,12 @@ export class ProteinViewComponent implements OnInit {
                 }
                 this.TableData = this.TableData[0];
                 this.DataReady = true;
-
-                let pdbCodes: string[] = [];
-
-                if ('AfterPdbCode' in this.TableData) {
-                    pdbCodes.push(this.TableData['AfterPdbCode'] as string);
-                }
-
-                if ('BeforePdbCode' in this.TableData) {
-                    pdbCodes.push(this.TableData['BeforePdbCode'] as string);
-                }
-
-                this.GenerateMolstarVisualisation(['1pts', '1vwm']);
             });
 
             datasetService.getTransformationContext(this.row).subscribe(data => {
                 this.ContextTableColumnNames = data['columnNames'];
+
+                // sort by BeforeSnapshot, AfterSnapshot
                 this.ContextTableData = data['results'].sort((a: any, b: any) => {
                     if (a["BeforeSnapshot"] < b["BeforeSnapshot"])
                         return -1;
@@ -83,21 +69,44 @@ export class ProteinViewComponent implements OnInit {
                 });
                 this.ContextColumnOrder = [];
 
-                console.log(data);
-                console.log(this.ContextTableColumnNames);
-                console.log(this.ContextTableData);
+                // pick data for the protein superposition and visualization
+                let proteinsToVisualize: Protein[] = [];
+                let lcsLength: number = this.ContextTableData[0]["LcsLength"]
 
-                if (this.TableData.length > 1) {
+                for (const transformation of this.ContextTableData) {
+                    if (lcsLength !== transformation["LcsLength"]) {
+                        console.error(`Incosistent data: each LCS length needs to be the same. Found: ${lcsLength}, ${transformation["LcsLength"]}`);
+                    }
+
+                    if (proteinsToVisualize.filter(
+                        x =>
+                            x.PdbCode === transformation["BeforePdbCode"] &&
+                            x.ChainId === transformation["BeforeChainId"]).length === 0)
+                        proteinsToVisualize.push({ PdbCode: transformation["BeforePdbCode"], ChainId: transformation["BeforeChainId"], LcsStart: transformation["BeforeLcsStart"] })
+
+                    if (proteinsToVisualize.filter(
+                        x =>
+                            x.PdbCode === transformation["AfterPdbCode"] &&
+                            x.ChainId === transformation["AfterChainId"]).length === 0)
+                        proteinsToVisualize.push({ PdbCode: transformation["AfterPdbCode"], ChainId: transformation["AfterChainId"], LcsStart: transformation["AfterLcsStart"] })
+                }
+
+                this.superpositionService.GenerateMolstarVisualisation(this.plugin, proteinsToVisualize, lcsLength);
+
+                // show context only if there is any
+                if (this.ContextTableData.length <= 1) {
                     this.ContextDataReady = false;
                     return;
                 }
 
+                // only show columns from the this.datasetService.ColumnOrder in this order:
                 for (const columnName of this.datasetService.ColumnOrder) {
                     if (this.TableColumnNames.includes(columnName)) {
                         this.ContextColumnOrder.push(columnName);
                     }
                 }
 
+                // manually add BeforeSnapshot, AfterSnapshot columns to the result table 
                 this.ContextColumnOrder.push("BeforeSnapshot");
                 this.ContextColumnOrder.push("AfterSnapshot")
                 this.ContextDataReady = true;
@@ -109,57 +118,9 @@ export class ProteinViewComponent implements OnInit {
                 });
         });
     }
-    GenerateMolstarVisualisation(pdbCodes: string[]) {
-        this.plugin.dataTransaction(async () => {
-            for (const s of pdbCodes) {
-                await this.loadStructure(this.plugin, `https://www.ebi.ac.uk/pdbe/static/entry/${s}_updated.cif`, 'mmcif');
-            }
-
-            // select whole protein
-            let data = this.plugin.managers.structure.hierarchy.current.structures[1]?.cell.obj?.data;
-            if (!data) return;
-            let selection = Script.getStructureSelection(Q => Q.struct.generator.atomGroups({
-                'chain-test': Q.core.rel.eq(['B', Q.ammp('auth_asym_id')]),
-                'residue-test': MS.core.rel.inRange([MS.ammp('label_seq_id'), 0, 123])
-            }), data);
-            let loci = StructureSelection.toLociWithSourceUnits(selection);
-
-            this.plugin.managers.interactivity.lociSelects.selectOnly({ loci });
-
-            // this.plugin.managers.interactivity.lociHighlights.highlightOnly({ loci });
-
-            // let data = this.plugin.managers.structure.hierarchy.current.structures[1]?.cell.obj?.data;
-            // if (!data) return;
-            // let selection = Script.getStructureSelection(Q => Q.struct.generator.atomGroups({
-            //     'chain-test': Q.core.rel.eq(['B', Q.ammp('auth_asym_id')]),
-            //     'residue-test': MS.core.rel.inRange([MS.ammp('label_seq_id'), 0, 0 + 123]),
-            //     'group-by': MS.struct.atomProperty.macromolecular.label_seq_id()
-            // 
-            //     // 'residue-test': MS.core.set.has([MS.set(...Utils.range(123, 0)), MS.ammp('label_seq_id')]),
-            // }), data);
-            // 
-            // let loci = StructureSelection.toLociWithSourceUnits(selection);
-            // this.plugin.managers.interactivity.lociHighlights.highlightOnly({ loci });
-            // this.plugin.managers.interactivity.lociSelects.selectOnly({ loci });
-
-            for (const [index, structure] of this.plugin.managers.structure.hierarchy.current.structures.entries()) {
-                await this.plugin.managers.structure.component.updateRepresentationsTheme(structure.components, {
-                    color: ProteinThemeProvider.name as any, colorParams: { value: index }
-                });
-            }
-        });
-    }
-
-
-    async loadStructure(plugin: PluginContext, url: string, format: BuiltInTrajectoryFormat, assemblyId?: string) {
-        const data = await plugin.builders.data.download({ url: Asset.Url(url) });
-        const trajectory = await this.plugin.builders.structure.parseTrajectory(data, format);
-        const model = await this.plugin.builders.structure.createModel(trajectory);
-        const structure = await this.plugin.builders.structure.createStructure(model);
-        const preset = await plugin.builders.structure.representation.applyPreset(structure, 'polymer-and-ligand');
-    }
 
     async ngOnInit(): Promise<void> {
+        // init Mol* plugin
         this.plugin = await createPluginUI(document.getElementById('molstar-viewer') as HTMLElement, {
             ...DefaultPluginUISpec(),
             layout: {
@@ -169,9 +130,10 @@ export class ProteinViewComponent implements OnInit {
                 }
             },
             components: {
-                remoteState: 'none'
             }
         });
+
+        // add custom color theme 
         this.plugin.representation.structure.themes.colorThemeRegistry.add(ProteinThemeProvider);
     }
 }
