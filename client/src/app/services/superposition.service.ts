@@ -15,10 +15,10 @@ import { SymmetryOperator } from 'molstar/lib/mol-math/geometry';
 import { Mat4 } from 'molstar/lib/mol-math/linear-algebra';
 import { StateTransforms } from 'molstar/lib/mol-plugin-state/transforms';
 import { stripTags } from 'molstar/lib/mol-util/string';
-import { PluginCommands } from 'molstar/lib/mol-plugin/commands';
 import { Protein } from 'src/app/models/protein.model';
 import { PluginContext } from 'molstar/lib/mol-plugin/context';
 import { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
+import { MolstarService } from './molstar.service';
 
 
 @Injectable({
@@ -26,13 +26,13 @@ import { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
 })
 export class SuperpositionService {
 
-    constructor() { }
+    constructor(private molstarService: MolstarService) { }
 
     public GenerateMolstarVisualisation(plugin: PluginUIContext, proteinsToVisualize: Protein[], lcsLength: number) {
         plugin.dataTransaction(async () => {
             // load each structure
             for (const protein of proteinsToVisualize) {
-                await this.loadStructure(plugin, `https://www.ebi.ac.uk/pdbe/entry-files/download/${protein.PdbCode}.bcif`, 'mmcif', true);
+                await this.loadStructure(plugin, `http://files.rcsb.org/download/${protein.PdbCode}.cif`, 'mmcif', false);
             }
 
             // select residues which are going to be used for superposition
@@ -133,15 +133,10 @@ export class SuperpositionService {
             await this.transform(plugin, eB.cell, bTransform, coordinateSystem);
             const labelA = stripTags(eA.label);
             const labelB = stripTags(eB.label);
-            // this.plugin.log.info(`Superposed [${labelA}] and [${labelB}] with RMSD ${rmsd.toFixed(2)}.`);
+            plugin.log.info(`Superposed [${labelA}] and [${labelB}] with RMSD ${rmsd.toFixed(2)}.`);
         }
-        await this.cameraReset(plugin);
+        await this.molstarService.cameraReset(plugin);
     };
-
-    async cameraReset(plugin: PluginUIContext) {
-        await new Promise(res => requestAnimationFrame(res));
-        PluginCommands.Camera.Reset(plugin);
-    }
 
     async transform(plugin: PluginUIContext, s: StateObjectRef<PluginStateObject.Molecule.Structure>, matrix: Mat4, coordinateSystem?: SymmetryOperator) {
         const r = StateObjectRef.resolveAndCheck(plugin.state.data, s);
