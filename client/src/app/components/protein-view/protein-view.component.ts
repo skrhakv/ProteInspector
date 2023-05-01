@@ -10,25 +10,9 @@ import { Protein } from 'src/app/models/protein.model';
 import { SuperpositionService } from 'src/app/services/superposition.service';
 import { StructureComponentRef } from 'molstar/lib/mol-plugin-state/manager/structure/hierarchy-state';
 
-
-import { Injectable } from '@angular/core';
-import { Asset } from 'molstar/lib/mol-util/assets';
-import { BuiltInTrajectoryFormat } from 'molstar/lib/mol-plugin-state/formats/trajectory';
+import { setSubtreeVisibility } from 'molstar/lib/mol-plugin/behavior/static/state';
 import { Script } from 'molstar/lib/mol-script/script';
-import { MolScriptBuilder as MS } from 'molstar/lib/mol-script/language/builder';
-import { QueryContext, Structure, StructureElement, StructureProperties, StructureSelection } from 'molstar/lib/mol-model/structure';
-import { LociEntry } from 'molstar/lib/mol-plugin-ui/structure/superposition'
-import { StructureSelectionQueries } from 'molstar/lib/mol-plugin-state/helpers/structure-selection-query';
-import { PluginStateObject } from 'molstar/lib/mol-plugin-state/objects';
-import { StateObjectRef } from 'molstar/lib/mol-state';
-import { elementLabel, structureElementStatsLabel } from 'molstar/lib/mol-theme/label';
-import { alignAndSuperpose } from 'molstar/lib/mol-model/structure/structure/util/superposition';
-import { SymmetryOperator } from 'molstar/lib/mol-math/geometry';
-import { Mat4 } from 'molstar/lib/mol-math/linear-algebra';
-import { StateTransforms } from 'molstar/lib/mol-plugin-state/transforms';
-import { stripTags } from 'molstar/lib/mol-util/string';
-import { PluginCommands } from 'molstar/lib/mol-plugin/commands';
-import { PluginContext } from 'molstar/lib/mol-plugin/context';
+import { StructureSelection } from 'molstar/lib/mol-model/structure';
 import { Task } from 'molstar/lib/mol-task/task';
 import { MolstarService } from 'src/app/services/molstar.service';
 @Component({
@@ -43,6 +27,7 @@ export class ProteinViewComponent implements OnInit {
     public TableData!: any;
     public DataReady: boolean = false;
     public VisualizedProteins: Protein[] = [];
+    public IsProteinVisible: boolean[] = [];
 
     public ContextTableColumnNames: string[] = [];
     public ContextTableData!: any;
@@ -116,6 +101,10 @@ export class ProteinViewComponent implements OnInit {
                         this.VisualizedProteins.push({ PdbCode: transformation["AfterPdbCode"], ChainId: transformation["AfterChainId"], LcsStart: transformation["AfterLcsStart"] })
                 }
 
+                // set corresponding length and values for the 'IsProteinVisible' array
+                this.IsProteinVisible = new Array<boolean>(this.VisualizedProteins.length);
+                this.IsProteinVisible.fill(true);
+
                 this.superpositionService.GenerateMolstarVisualisation(this.plugin, this.VisualizedProteins, lcsLength);
 
                 // show context only if there is any
@@ -135,6 +124,7 @@ export class ProteinViewComponent implements OnInit {
                 this.ContextColumnOrder.push("BeforeSnapshot");
                 this.ContextColumnOrder.push("AfterSnapshot")
                 this.ContextDataReady = true;
+
             },
                 error => {
                     this.ContextTableColumnNames = [];
@@ -142,6 +132,16 @@ export class ProteinViewComponent implements OnInit {
                     this.ContextColumnOrder = [];
                 });
         });
+    }
+    public async ToggleStructureVisibility(index: number) {
+        if (this.IsProteinVisible[index]) {
+            this.IsProteinVisible[index] = false;
+        }
+        else {
+            this.IsProteinVisible[index] = true;
+        }
+        
+        setSubtreeVisibility(this.plugin.state.data, this.plugin.managers.structure.hierarchy.current.structures[index].cell.transform.ref, !this.IsProteinVisible[index]);
     }
 
     public async ToggleChainVisibility() {
