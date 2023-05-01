@@ -1,5 +1,5 @@
 <h1 class="text-center">Protein transformation details</h1>
-<div class="container">
+<div class="container-sm">
     <div class="row" *ngIf="datasetService.currentQuery === ''">
         <div class="col-3"></div>
         <div class="mt-5 alert alert-warning col-6 text-center" role="alert">
@@ -33,6 +33,8 @@
             </tbody>
         </table>
     </div>
+</div>
+<div class="container-fluid">
     <div class="row mt-3">
         <div class="col-2">
             <div class="container">
@@ -41,12 +43,36 @@
                         (click)="ToggleChainVisibility()">{{OnlyChains[1]}}</button>
                 </div>
                 <div class="row mt-3">
-                    <div class="btn-group-vertical">
-                        <button *ngFor="let item of VisualizedProteins; index as i
-                        "type="button" class="btn btn-outline-success"
-                            (click)="ToggleStructureVisibility(i)">
-                            <ng-container *ngIf="IsProteinVisible[i]; else HideText">Hide</ng-container>
-                            <ng-template #HideText>Show</ng-template> {{item.PdbCode}}</button>
+                    <div class="btn-group-vertical" role="group">
+                        <div class="btn-group" *ngFor="let item of VisualizedProteins; index as i">
+                            <button type="button" class="btn btn-outline-success"
+                                (click)="ToggleStructureVisibility(i)">
+                                <ng-container *ngIf="IsProteinVisible[i]; else HideText">Hide</ng-container>
+                                <ng-template #HideText>Show</ng-template> {{item.PdbCode}}</button>
+
+                            <div class="btn-group" role="group">
+                                <button id="ChangeTypeGroupDrop" type="button" class="btn btn-outline-success dropdown-toggle"
+                                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Change type
+                                </button>
+                                <div class="dropdown-menu" aria-labelledby="ChangeTypeGroupDrop">
+                                    <a class="dropdown-item" (click)="ChangeRepresentation(i, 'cartoon')">Cartoon</a>
+                                    <a class="dropdown-item" (click)="ChangeRepresentation(i, 'backbone')">Backbone</a>
+                                    <a class="dropdown-item" (click)="ChangeRepresentation(i, 'ball-and-stick')">Ball and Stick </a>
+                                    <a class="dropdown-item" (click)="ChangeRepresentation(i, 'carbohydrate')">Carbohydrate</a>
+                                    <a class="dropdown-item" (click)="ChangeRepresentation(i, 'ellipsoid')">Ellipsoid</a>
+                                    <a class="dropdown-item" (click)="ChangeRepresentation(i, 'gaussian-surface')">Gaussian Surface</a>
+                                    <a class="dropdown-item" (click)="ChangeRepresentation(i, 'gaussian-volume')">Gaussian Volume</a>
+                                    <a class="dropdown-item" (click)="ChangeRepresentation(i, 'label')">Label</a>
+                                    <a class="dropdown-item" (click)="ChangeRepresentation(i, 'line')">Line</a>
+                                    <a class="dropdown-item" (click)="ChangeRepresentation(i, 'molecular-surface')">Molecular Surface</a>
+                                    <a class="dropdown-item" (click)="ChangeRepresentation(i, 'orientation')">Orientation</a>
+                                    <a class="dropdown-item" (click)="ChangeRepresentation(i, 'point')">Point</a>
+                                    <a class="dropdown-item" (click)="ChangeRepresentation(i, 'putty')">Putty</a>
+                                    <a class="dropdown-item" (click)="ChangeRepresentation(i, 'spacefill')">Spacefill</a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -56,6 +82,8 @@
             </div>
         </div>
     </div>
+</div>
+<div class="container">
     <div class="row mt-5" *ngIf="datasetService.currentQuery !== '' && ContextDataReady">
         <h1 class="text-center">Transformation Context</h1>
         <div class="row mt-3 table-responsive">

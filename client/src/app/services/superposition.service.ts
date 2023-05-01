@@ -52,11 +52,7 @@ export class SuperpositionService {
             }
 
             // apply custom color theme to each structure
-            for (const [index, structure] of plugin.managers.structure.hierarchy.current.structures.entries()) {
-                await plugin.managers.structure.component.updateRepresentationsTheme(structure.components, {
-                    color: ProteinThemeProvider.name as any, colorParams: { value: index }
-                });
-            }
+            this.molstarService.ApplyUniformEntityColoring(plugin);
 
             // superpose selected residues
             this.superposeChains(plugin);
@@ -135,7 +131,7 @@ export class SuperpositionService {
             const labelB = stripTags(eB.label);
             plugin.log.info(`Superposed [${labelA}] and [${labelB}] with RMSD ${rmsd.toFixed(2)}.`);
         }
-        await this.molstarService.cameraReset(plugin);
+        await this.molstarService.CameraReset(plugin);
     };
 
     async transform(plugin: PluginUIContext, s: StateObjectRef<PluginStateObject.Molecule.Structure>, matrix: Mat4, coordinateSystem?: SymmetryOperator) {

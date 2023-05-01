@@ -15,6 +15,10 @@ import { Script } from 'molstar/lib/mol-script/script';
 import { StructureSelection } from 'molstar/lib/mol-model/structure';
 import { Task } from 'molstar/lib/mol-task/task';
 import { MolstarService } from 'src/app/services/molstar.service';
+import { StructureRepresentationRegistry } from 'molstar/lib/mol-repr/structure/registry';
+import { StructureRepresentationPresetProvider, presetStaticComponent } from 'molstar/lib/mol-plugin-state/builder/structure/representation-preset';
+import { StateObjectRef } from 'molstar/lib/mol-state';
+
 @Component({
     selector: 'app-protein-view',
     templateUrl: './protein-view.component.html',
@@ -28,6 +32,7 @@ export class ProteinViewComponent implements OnInit {
     public DataReady: boolean = false;
     public VisualizedProteins: Protein[] = [];
     public IsProteinVisible: boolean[] = [];
+    public ProteinRepresentation: StructureRepresentationRegistry.BuiltIn[] = [];
 
     public ContextTableColumnNames: string[] = [];
     public ContextTableData!: any;
@@ -101,9 +106,12 @@ export class ProteinViewComponent implements OnInit {
                         this.VisualizedProteins.push({ PdbCode: transformation["AfterPdbCode"], ChainId: transformation["AfterChainId"], LcsStart: transformation["AfterLcsStart"] })
                 }
 
-                // set corresponding length and values for the 'IsProteinVisible' array
+                // set corresponding length and values for the 'IsProteinVisible' array and for the 'ProteinRepresentation' array
                 this.IsProteinVisible = new Array<boolean>(this.VisualizedProteins.length);
                 this.IsProteinVisible.fill(true);
+
+                this.ProteinRepresentation = new Array<StructureRepresentationRegistry.BuiltIn>(this.VisualizedProteins.length);
+                this.ProteinRepresentation.fill('cartoon');
 
                 this.superpositionService.GenerateMolstarVisualisation(this.plugin, this.VisualizedProteins, lcsLength);
 
@@ -133,49 +141,49 @@ export class ProteinViewComponent implements OnInit {
                 });
         });
     }
+
+    public async ChangeRepresentation(index: number, structureRepresentationType: StructureRepresentationRegistry.BuiltIn) {
+        await this.molstarService.BuildRepresentation(this.plugin, index, structureRepresentationType);
+
+        if (!this.IsProteinVisible[index])
+            setSubtreeVisibility(this.plugin.state.data, this.plugin.managers.structure.hierarchy.current.structures[index].cell.transform.ref, !this.IsProteinVisible[index]);
+
+
+        if (this.OnlyChains[0]) {
+            this.molstarService.ShowChainsOnly(this.plugin, this.VisualizedProteins);
+        }
+
+        this.ProteinRepresentation[index] = structureRepresentationType;
+    }
+
     public async ToggleStructureVisibility(index: number) {
-        if (this.IsProteinVisible[index]) {
+        if (this.IsProteinVisible[index]) 
             this.IsProteinVisible[index] = false;
-        }
-        else {
-            this.IsProteinVisible[index] = true;
-        }
         
+        else 
+            this.IsProteinVisible[index] = true;
+
         setSubtreeVisibility(this.plugin.state.data, this.plugin.managers.structure.hierarchy.current.structures[index].cell.transform.ref, !this.IsProteinVisible[index]);
     }
 
     public async ToggleChainVisibility() {
+        // check whether show the whole structure or only the chains
         if (this.OnlyChains[0]) {
-            let numberOfUndoTasks = this.HiddenChainTasks.length;
-            for (let i = 0; i < numberOfUndoTasks; i++) {
-                const task = this.HiddenChainTasks.pop();
-                if (task) await this.plugin.runTask(task);
+            for (let i = 0; i < this.ProteinRepresentation.length; i++) {
+                await this.molstarService.BuildRepresentation(this.plugin, i, this.ProteinRepresentation[i]);
+                setSubtreeVisibility(this.plugin.state.data, this.plugin.managers.structure.hierarchy.current.structures[i].cell.transform.ref, !this.IsProteinVisible[i]);
             }
+
+            // reset camera and update buttons
             this.OnlyChains[0] = false;
             this.OnlyChains[1] = "Show chains only";
-            this.molstarService.cameraReset(this.plugin);
+            this.molstarService.CameraReset(this.plugin);
 
         }
         else {
-            for (const [index, protein] of this.VisualizedProteins.entries()) {
-                const data = this.plugin.managers.structure.hierarchy.current.structures[index]?.cell.obj?.data;
-                if (!data) return;
-                const selection = Script.getStructureSelection(Q =>
-                    Q.struct.generator.atomGroups({
-                        'chain-test': Q.core.rel.neq([protein.ChainId, Q.struct.atomProperty.macromolecular.auth_asym_id()]),
-                    }), data);
-                const loci = StructureSelection.toLociWithSourceUnits(selection);
+            this.molstarService.ShowChainsOnly(this.plugin, this.VisualizedProteins);
 
-                this.plugin.managers.interactivity.lociSelects.selectOnly({ loci });
-
-                const sel = this.plugin.managers.structure.hierarchy.getStructuresWithSelection();
-                const componentsToDelete: StructureComponentRef[] = [];
-                for (const s of sel) componentsToDelete.push(...s.components);
-                await this.plugin.managers.structure.component.modifyByCurrentSelection(componentsToDelete, 'subtract');
-                this.plugin.managers.interactivity.lociSelects.deselectAll();
-                this.HiddenChainTasks.push(this.plugin.state.data.undo());
-            }
-            this.molstarService.cameraReset(this.plugin);
+            //  update buttons
             this.OnlyChains[0] = true;
             this.OnlyChains[1] = "Show whole structures"
         }
@@ -199,4 +207,3 @@ export class ProteinViewComponent implements OnInit {
         this.plugin.representation.structure.themes.colorThemeRegistry.add(ProteinThemeProvider);
     }
 }
-
