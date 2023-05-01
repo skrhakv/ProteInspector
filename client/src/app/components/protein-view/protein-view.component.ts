@@ -8,16 +8,11 @@ import { ProteinThemeProvider } from 'src/app/providers/protein-theme-provider';
 import { ExternalLinkService } from 'src/app/services/external-link.service';
 import { Protein } from 'src/app/models/protein.model';
 import { SuperpositionService } from 'src/app/services/superposition.service';
-import { StructureComponentRef } from 'molstar/lib/mol-plugin-state/manager/structure/hierarchy-state';
 
 import { setSubtreeVisibility } from 'molstar/lib/mol-plugin/behavior/static/state';
-import { Script } from 'molstar/lib/mol-script/script';
-import { StructureSelection } from 'molstar/lib/mol-model/structure';
 import { Task } from 'molstar/lib/mol-task/task';
 import { MolstarService } from 'src/app/services/molstar.service';
 import { StructureRepresentationRegistry } from 'molstar/lib/mol-repr/structure/registry';
-import { StructureRepresentationPresetProvider, presetStaticComponent } from 'molstar/lib/mol-plugin-state/builder/structure/representation-preset';
-import { StateObjectRef } from 'molstar/lib/mol-state';
 
 @Component({
     selector: 'app-protein-view',
@@ -33,6 +28,7 @@ export class ProteinViewComponent implements OnInit {
     public VisualizedProteins: Protein[] = [];
     public IsProteinVisible: boolean[] = [];
     public ProteinRepresentation: StructureRepresentationRegistry.BuiltIn[] = [];
+    public VisualizationReady: boolean = false;
 
     public ContextTableColumnNames: string[] = [];
     public ContextTableData!: any;
@@ -113,8 +109,13 @@ export class ProteinViewComponent implements OnInit {
                 this.ProteinRepresentation = new Array<StructureRepresentationRegistry.BuiltIn>(this.VisualizedProteins.length);
                 this.ProteinRepresentation.fill('cartoon');
 
-                this.superpositionService.GenerateMolstarVisualisation(this.plugin, this.VisualizedProteins, lcsLength);
+                // disable the buttons until the visualization is ready using callback
+                let callback = () => {
+                    this.VisualizationReady = true;
+                }
 
+                this.superpositionService.GenerateMolstarVisualisation(this.plugin, this.VisualizedProteins, lcsLength, callback);
+                
                 // show context only if there is any
                 if (this.ContextTableData.length <= 1) {
                     this.ContextDataReady = false;

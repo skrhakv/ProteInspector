@@ -28,7 +28,7 @@ export class SuperpositionService {
 
     constructor(private molstarService: MolstarService) { }
 
-    public GenerateMolstarVisualisation(plugin: PluginUIContext, proteinsToVisualize: Protein[], lcsLength: number) {
+    public GenerateMolstarVisualisation(plugin: PluginUIContext, proteinsToVisualize: Protein[], lcsLength: number, callback: Function) {
         plugin.dataTransaction(async () => {
             // load each structure
             for (const protein of proteinsToVisualize) {
@@ -59,6 +59,8 @@ export class SuperpositionService {
 
             // clear selection
             plugin.managers.interactivity.lociSelects.deselectAll();
+
+            callback();
         });
     }
 
