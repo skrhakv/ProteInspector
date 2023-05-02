@@ -8,13 +8,13 @@
         },
         "domains": {
             "table": "domain_transformations",
-            "joins": "inner join domain_transformations_data on domain_transformations.domain_transformation_id = domain_transformations_data.domain_transformation_id inner join transformations on domain_transformations.transformation_id = transformations.transformation_id inner join domains as before_domains on before_domains.domain_id = domain_transformations.before_domain_id inner join domains as after_domains on after_domains.domain_id = domain_transformations.after_domain_id inner join proteins as before_proteins on before_proteins.protein_id = before_domains.protein_id inner join proteins as after_proteins on after_proteins.protein_id = after_domains.protein_id inner join sequences on sequences.sequence_id = before_proteins.sequence_id",
+            "joins": "inner join domain_transformations_data on domain_transformations.domain_transformation_id = domain_transformations_data.domain_transformation_id inner join transformations on domain_transformations.transformation_id = transformations.transformation_id inner join domains as before_domains on before_domains.domain_id = domain_transformations.before_domain_id inner join domains as after_domains on after_domains.domain_id = domain_transformations.after_domain_id inner join proteins as before_proteins on before_proteins.protein_id = before_domains.protein_id inner join proteins as after_proteins on after_proteins.protein_id = after_domains.protein_id inner join sequences on sequences.sequence_id = before_proteins.sequence_id left join protein_transformations on before_proteins.protein_id = protein_transformations.before_protein_id and after_proteins.protein_id = protein_transformations.after_protein_id left join protein_lcs_data on protein_transformations.protein_transformation_id = protein_lcs_data.protein_transformation_id",
             "order": "domain_transformations.domain_transformation_id",
             "group-by": "domain_transformations.transformation_id"
         },
         "domainpairs": {
             "table": "domain_pair_transformations",
-            "joins": "inner join domain_pair_transformations_data on domain_pair_transformations_data.domain_pair_transformation_id = domain_pair_transformations.domain_pair_transformation_id inner join transformations on domain_pair_transformations.transformation_id = transformations.transformation_id inner join domain_pairs as before_domain_pairs on before_domain_pairs.domain_pair_id = domain_pair_transformations.before_domain_pair_id inner join domain_pairs as after_domain_pairs on after_domain_pairs.domain_pair_id = domain_pair_transformations.after_domain_pair_id inner join domains as before_domains1 on before_domains1.domain_id = before_domain_pairs.domain_id1 inner join domains as before_domains2 on before_domains2.domain_id = before_domain_pairs.domain_id2 inner join domains as after_domains1 on after_domains1.domain_id = after_domain_pairs.domain_id1 inner join domains as after_domains2 on after_domains2.domain_id = after_domain_pairs.domain_id2 inner join proteins as before_proteins on before_proteins.protein_id = before_domains1.protein_id inner join proteins as after_proteins on after_proteins.protein_id = after_domains1.protein_id inner join sequences on sequences.sequence_id = before_proteins.sequence_id",
+            "joins": "inner join domain_pair_transformations_data on domain_pair_transformations_data.domain_pair_transformation_id = domain_pair_transformations.domain_pair_transformation_id inner join transformations on domain_pair_transformations.transformation_id = transformations.transformation_id inner join domain_pairs as before_domain_pairs on before_domain_pairs.domain_pair_id = domain_pair_transformations.before_domain_pair_id inner join domain_pairs as after_domain_pairs on after_domain_pairs.domain_pair_id = domain_pair_transformations.after_domain_pair_id inner join domains as before_domains1 on before_domains1.domain_id = before_domain_pairs.domain_id1 inner join domains as before_domains2 on before_domains2.domain_id = before_domain_pairs.domain_id2 inner join domains as after_domains1 on after_domains1.domain_id = after_domain_pairs.domain_id1 inner join domains as after_domains2 on after_domains2.domain_id = after_domain_pairs.domain_id2 inner join proteins as before_proteins on before_proteins.protein_id = before_domains1.protein_id inner join proteins as after_proteins on after_proteins.protein_id = after_domains1.protein_id inner join sequences on sequences.sequence_id = before_proteins.sequence_id left join protein_transformations on before_proteins.protein_id = protein_transformations.before_protein_id and after_proteins.protein_id = protein_transformations.after_protein_id left join protein_lcs_data on protein_transformations.protein_transformation_id = protein_lcs_data.protein_transformation_id",
             "order": "domain_pair_transformations.domain_pair_transformation_id",
             "group-by": "domain_pair_transformations.transformation_id"
         },
@@ -173,6 +173,21 @@
                     ],
                     "type": "integer-between",
                     "name": "Before Domain Span"
+                },
+                "i1": {
+                    "database-destination": "protein_lcs_data.i1",
+                    "type": "integer",
+                    "name": ""
+                },
+                "i2": {
+                    "database-destination": "protein_lcs_data.i2",
+                    "type": "integer",
+                    "name": ""
+                },
+                "lcslength": {
+                    "database-destination": "protein_lcs_data.size",
+                    "type": "integer",
+                    "name": ""
                 }
             },
             "name": "Domains"
@@ -251,6 +266,38 @@
                     "type": "string",
                     "name": "After Domain CATH ID2"
                 },
+                "afterdomainspan1": {
+                    "database-destination": [
+                        "(after_domains1.domain_span).span_start",
+                        "(after_domains1.domain_span).span_end"
+                    ],
+                    "type": "integer-between",
+                    "name": ""
+                },
+                "afterdomainspan2": {
+                    "database-destination": [
+                        "(after_domains2.domain_span).span_start",
+                        "(after_domains2.domain_span).span_end"
+                    ],
+                    "type": "integer-between",
+                    "name": ""
+                },
+                "beforedomainspan1": {
+                    "database-destination": [
+                        "(before_domains1.domain_span).span_start",
+                        "(before_domains1.domain_span).span_end"
+                    ],
+                    "type": "integer-between",
+                    "name": ""
+                },
+                "beforedomainspan2": {
+                    "database-destination": [
+                        "(before_domains2.domain_span).span_start",
+                        "(before_domains2.domain_span).span_end"
+                    ],
+                    "type": "integer-between",
+                    "name": ""
+                },
                 "rmsd": {
                     "database-destination": "domain_pair_transformations_data.rmsd",
                     "type": "float",
@@ -280,6 +327,21 @@
                     "database-destination": "domain_pair_transformations_data.after_interface_buried_area",
                     "type": "float",
                     "name": "After Interface Buried Area"
+                },
+                "i1": {
+                    "database-destination": "protein_lcs_data.i1",
+                    "type": "integer",
+                    "name": ""
+                },
+                "i2": {
+                    "database-destination": "protein_lcs_data.i2",
+                    "type": "integer",
+                    "name": ""
+                },
+                "lcslength": {
+                    "database-destination": "protein_lcs_data.size",
+                    "type": "integer",
+                    "name": ""
                 }
             },
             "name": "Domain Pairs"
@@ -331,13 +393,36 @@
                     "type": "string",
                     "name": "Label"
                 },
-                "residue": {
+                "before_residue": {
                     "database-destination": [
-                        "residue_labels.residue_start",
-                        "residue_labels.residue_end"
+                        "residue_labels.before_residue_start",
+                        "residue_labels.before_residue_end"
                     ],
                     "type": "integer-between",
-                    "name": "Residue"
+                    "name": "Before Residue Span"
+                },
+                "after_residue": {
+                    "database-destination": [
+                        "residue_labels.after_residue_start",
+                        "residue_labels.after_residue_end"
+                    ],
+                    "type": "integer-between",
+                    "name": "After Residue Span"
+                },
+                "i1": {
+                    "database-destination": "protein_lcs_data.i1",
+                    "type": "integer",
+                    "name": ""
+                },
+                "i2": {
+                    "database-destination": "protein_lcs_data.i2",
+                    "type": "integer",
+                    "name": ""
+                },
+                "lcslength": {
+                    "database-destination": "protein_lcs_data.size",
+                    "type": "integer",
+                    "name": ""
                 }
             },
             "name": "Residues"
@@ -372,6 +457,14 @@
         "before_domains2.cath_id": "BeforeDomainCathId2",
         "after_domains1.cath_id": "AfterDomainCathId1",
         "after_domains2.cath_id": "AfterDomainCathId2",
+        "(after_domains1.domain_span).span_start": "AfterDomainSpanStart1",
+        "(after_domains1.domain_span).span_end": "AfterDomainSpanEnd1",
+        "(after_domains2.domain_span).span_start": "AfterDomainSpanStart2",
+        "(after_domains2.domain_span).span_end": "AfterDomainSpanEnd2",
+        "(before_domains1.domain_span).span_start": "BeforeDomainSpanStart1",
+        "(before_domains1.domain_span).span_end": "BeforeDomainSpanEnd1",
+        "(before_domains2.domain_span).span_start": "BeforeDomainSpanStart2",
+        "(before_domains2.domain_span).span_end": "BeforeDomainSpanEnd2",
         "domain_pair_transformations_data.rmsd": "Rmsd",
         "domain_pair_transformations_data.hinge_angle": "HingeAngle",
         "domain_pair_transformations_data.hinge_translation_in_axis": "HingeTranslationInAxis",
@@ -379,13 +472,14 @@
         "domain_pair_transformations_data.before_interface_buried_area": "BeforeInterfaceBuriedArea",
         "domain_pair_transformations_data.after_interface_buried_area": "AfterInterfaceBuriedArea",
         "residue_labels.label": "Label",
-        "residue_labels.residue_start": "ResidueStart",
-        "residue_labels.residue_end": "ResidueEnd",
+        "residue_labels.before_residue_start": "BeforeResidueStart",
+        "residue_labels.before_residue_end": "BeforeResidueEnd",
+        "residue_labels.after_residue_start": "AfterResidueStart",
+        "residue_labels.after_residue_end": "AfterResidueEnd",
         "transformations.transformation_id": "ProteinProgressionId",
         "protein_lcs_data.i1": "BeforeLcsStart",
         "protein_lcs_data.i2": "AfterLcsStart",
         "protein_lcs_data.size": "LcsLength"
-        
     },
     "order": [
         "UniprotId",
@@ -413,8 +507,10 @@
         "BeforeInterfaceBuriedArea",
         "AfterInterfaceBuriedArea",
         "Label",
-        "ResidueStart",
-        "ResidueEnd",
+        "BeforeResidueStart",
+        "BeforeResidueEnd",
+        "AfterResidueStart",
+        "AfterResidueEnd",
         "ProteinProgressionId"
     ]
 }

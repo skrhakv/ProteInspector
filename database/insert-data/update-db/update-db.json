@@ -34,7 +34,11 @@
             ],
             "residue_transformation": [
                 {
-                    "residue_span": [
+                    "before_residue_span": [
+                        4,
+                        6
+                    ],
+                    "after_residue_span": [
                         4,
                         6
                     ],
@@ -76,7 +80,11 @@
             ],
             "residue_transformation": [
                 {
-                    "residue_span": [
+                    "before_residue_span": [
+                        4,
+                        6
+                    ],
+                    "after_residue_span": [
                         4,
                         6
                     ],
@@ -139,7 +147,11 @@
             "after_chain_id": "A",
             "residue_transformation": [
                 {
-                    "residue_span": [
+                    "before_residue_span": [
+                        4,
+                        6
+                    ],
+                    "after_residue_span": [
                         4,
                         6
                     ],

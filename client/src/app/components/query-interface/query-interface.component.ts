@@ -126,13 +126,6 @@ export class QueryInterfaceComponent implements OnInit {
             });
     }
 
-    // tableLoaded() {
-    //     $(document).ready(function () {
-    //         $('#double-scroll').doubleScroll();
-    //     });
-    //     return true;
-    // }
-
     changePage(page: number) {
         if (page >= this.numberOfPages || page < 0)
             return;

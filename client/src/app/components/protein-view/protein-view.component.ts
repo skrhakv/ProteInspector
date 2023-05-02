@@ -51,7 +51,6 @@ export class ProteinViewComponent implements OnInit {
 
         datasetService.getDatasetInfo().then(_ => {
             datasetService.getSpecificRow(this.row).subscribe(data => {
-
                 this.TableColumnNames = data['columnNames'];
                 this.TableData = data['results'];
 
@@ -116,7 +115,7 @@ export class ProteinViewComponent implements OnInit {
                 }
 
                 this.superpositionService.GenerateMolstarVisualisation(this.plugin, this.VisualizedProteins, lcsLength, callback);
-                
+
                 // show context only if there is any
                 if (this.ContextTableData.length <= 1) {
                     this.ContextDataReady = false;
@@ -146,8 +145,29 @@ export class ProteinViewComponent implements OnInit {
 
     get GetRepresentationTypes(): Record<StructureRepresentationRegistry.BuiltIn, string> {
         return AppSettings.REPRESENTATION_TYPES;
-      }
-    
+    }
+
+    public async ToggleHighlighting() {
+        let transformation = this.TableData;
+        if ('BeforeDomainSpanStart' in transformation) {
+            this.molstarService.Highlight(this.plugin, transformation['BeforePdbCode'], transformation['BeforeChainId'], transformation['BeforeDomainSpanStart'], transformation['BeforeDomainSpanEnd'], this.VisualizedProteins.length);
+            this.molstarService.Highlight(this.plugin, transformation['AfterPdbCode'], transformation['AfterChainId'], transformation['AfterDomainSpanStart'], transformation['AfterDomainSpanEnd'], this.VisualizedProteins.length);
+        }
+        if ('BeforeDomainSpanStart1' in transformation) {
+            this.molstarService.Highlight(this.plugin, transformation['BeforePdbCode'], transformation['BeforeChainId'], transformation['BeforeDomainSpanStart1'], transformation['BeforeDomainSpanEnd1'], this.VisualizedProteins.length);
+            this.molstarService.Highlight(this.plugin, transformation['AfterPdbCode'], transformation['AfterChainId'], transformation['AfterDomainSpanStart1'], transformation['AfterDomainSpanEnd1'], this.VisualizedProteins.length);
+        }
+        if ('BeforeDomainSpanStart2' in transformation) {
+            this.molstarService.Highlight(this.plugin, transformation['BeforePdbCode'], transformation['BeforeChainId'], transformation['BeforeDomainSpanStart2'], transformation['BeforeDomainSpanEnd2'], this.VisualizedProteins.length);
+            this.molstarService.Highlight(this.plugin, transformation['AfterPdbCode'], transformation['AfterChainId'], transformation['AfterDomainSpanStart2'], transformation['AfterDomainSpanEnd2'], this.VisualizedProteins.length);
+
+        }
+        if ('BeforeResidueStart' in transformation) {
+            this.molstarService.Highlight(this.plugin, transformation['BeforePdbCode'], transformation['BeforeChainId'], transformation['BeforeResidueStart'], transformation['BeforeResidueEnd'], this.VisualizedProteins.length);
+            this.molstarService.Highlight(this.plugin, transformation['AfterPdbCode'], transformation['AfterChainId'], transformation['AfterResidueStart'], transformation['AfterResidueEnd'], this.VisualizedProteins.length);
+        }
+    }
+
     public async ChangeRepresentation(index: number, structureRepresentationType: string) {
         await this.molstarService.BuildRepresentation(this.plugin, index, structureRepresentationType as StructureRepresentationRegistry.BuiltIn);
 
@@ -163,10 +183,10 @@ export class ProteinViewComponent implements OnInit {
     }
 
     public async ToggleStructureVisibility(index: number) {
-        if (this.IsProteinVisible[index]) 
+        if (this.IsProteinVisible[index])
             this.IsProteinVisible[index] = false;
-        
-        else 
+
+        else
             this.IsProteinVisible[index] = true;
 
         setSubtreeVisibility(this.plugin.state.data, this.plugin.managers.structure.hierarchy.current.structures[index].cell.transform.ref, !this.IsProteinVisible[index]);

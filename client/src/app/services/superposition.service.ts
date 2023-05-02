@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Asset } from 'molstar/lib/mol-util/assets';
 import { BuiltInTrajectoryFormat } from 'molstar/lib/mol-plugin-state/formats/trajectory';
-import { ProteinThemeProvider } from 'src/app/providers/protein-theme-provider';
 import { Script } from 'molstar/lib/mol-script/script';
 import { MolScriptBuilder as MS } from 'molstar/lib/mol-script/language/builder';
 import { QueryContext, Structure, StructureElement, StructureProperties, StructureSelection } from 'molstar/lib/mol-model/structure';
@@ -43,7 +42,7 @@ export class SuperpositionService {
                     Q.struct.generator.atomGroups({
                         "group-by": MS.struct.atomProperty.core.operatorName(),
                         'chain-test': Q.core.rel.eq([protein.ChainId, Q.struct.atomProperty.macromolecular.auth_asym_id()]),
-                        'residue-test': Q.core.rel.inRange([Q.struct.atomProperty.macromolecular.label_seq_id(), protein.LcsStart, lcsLength]),
+                        'residue-test': Q.core.rel.inRange([Q.struct.atomProperty.macromolecular.label_seq_id(), protein.LcsStart, protein.LcsStart + lcsLength]),
                         'entity-test': MS.core.rel.eq([MS.ammp('entityType'), 'polymer'])
                     })]), data);
                 const loci = StructureSelection.toLociWithSourceUnits(selection);

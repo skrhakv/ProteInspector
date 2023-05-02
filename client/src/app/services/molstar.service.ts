@@ -9,6 +9,7 @@ import { Script } from 'molstar/lib/mol-script/script';
 import { StructureRepresentationPresetProvider, presetStaticComponent } from 'molstar/lib/mol-plugin-state/builder/structure/representation-preset';
 import { StructureRepresentationRegistry } from 'molstar/lib/mol-repr/structure/registry';
 import { StateObjectRef } from 'molstar/lib/mol-state';
+import { MolScriptBuilder as MS } from 'molstar/lib/mol-script/language/builder';
 
 @Injectable({
     providedIn: 'root'
@@ -78,5 +79,27 @@ export class MolstarService {
             plugin.managers.interactivity.lociSelects.deselectAll();
         }
         this.CameraReset(plugin);
+    }
+
+    public async Highlight(plugin: PluginUIContext, pdbCode: string, chainId: string, start: number, end: number, maxIndex: number) {
+        let structureIndex = 0;
+        for (let i = 0; i < maxIndex; i++) {
+            if (plugin.managers.structure.hierarchy.current.structures[i]?.cell.obj?.data.units[0].model.entryId.toLowerCase() === pdbCode)
+                structureIndex = i;
+        
+        }
+        const data = plugin.managers.structure.hierarchy.current.structures[structureIndex]?.cell.obj?.data;
+        if (!data) return;
+        const selection = Script.getStructureSelection(Q => Q.struct.filter.first([
+            Q.struct.generator.atomGroups({
+                "group-by": MS.struct.atomProperty.core.operatorName(),
+                'chain-test': Q.core.rel.eq([chainId, Q.struct.atomProperty.macromolecular.auth_asym_id()]),
+                'residue-test': Q.core.rel.inRange([Q.struct.atomProperty.macromolecular.label_seq_id(), start, end]),
+                'entity-test': MS.core.rel.eq([MS.ammp('entityType'), 'polymer'])
+            })]), data);
+        const loci = StructureSelection.toLociWithSourceUnits(selection);
+
+        plugin.managers.interactivity.lociHighlights.highlight({ loci });
+
     }
 }

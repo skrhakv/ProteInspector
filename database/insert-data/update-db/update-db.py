@@ -167,11 +167,11 @@ def insert_domain_pair_data(domain_pair_transformation_id, rmsd, hinge_angle, hi
     insert_transformation_query = f"INSERT INTO domain_pair_transformations_data(domain_pair_transformation_id, rmsd, hinge_angle, hinge_translation_in_axis, hinge_translation_overall, before_interface_buried_area, after_interface_buried_area) VALUES ({domain_pair_transformation_id} ,{rmsd}, {hinge_angle}, {hinge_translation_in_axis}, {hinge_translation_overall}, {before_interface_buried_area}, {after_interface_buried_area});"
     cur.execute(insert_transformation_query)
 
-def insert_residue_data(label, protein_transformation_id, residue_start, residue_end):
+def insert_residue_data(label, protein_transformation_id, before_residue_start, before_residue_end, after_residue_start, after_residue_end):
     residue_id_query = "select nextval('residue_labels_label_id_seq');"
     cur.execute(residue_id_query)
     label_id = cur.fetchone()[0]
-    insert_label_query = f"INSERT INTO residue_labels(label_id, label, protein_transformation_id, residue_start, residue_end) VALUES ({label_id} ,'{label}', {protein_transformation_id}, {residue_start}, {residue_end});"
+    insert_label_query = f"INSERT INTO residue_labels(label_id, label, protein_transformation_id, before_residue_start, before_residue_end, after_residue_start, after_residue_end) VALUES ({label_id} ,'{label}', {protein_transformation_id}, {before_residue_start}, {before_residue_end}, {after_residue_start}, {after_residue_end});"
     cur.execute(insert_label_query)
 
     inserted_residue_labels.append(label_id)
@@ -303,10 +303,11 @@ def parse_and_insert_residue_transformation(transformation, transformation_id, p
         protein_transformation_id = get_protein_transformation_id(before_protein_id, after_protein_id, before_snapshot, after_snapshot, transformation_id)
     
     for i in transformation['residue_transformation']:
-        [residue_start, residue_end] = [i["residue_span"][0], i["residue_span"][1]]
+        [before_residue_start, before_residue_end] = [i["before_residue_span"][0], i["before_residue_span"][1]]
+        [after_residue_start, after_residue_end] = [i["after_residue_span"][0], i["after_residue_span"][1]]
         label = parse_label(i)
 
-        insert_residue_data(label, protein_transformation_id, residue_start, residue_end)
+        insert_residue_data(label, protein_transformation_id, before_residue_start, before_residue_end, after_residue_start, after_residue_end)
 
 if __name__ == "__main__":
     sys.path.insert(0, '..')

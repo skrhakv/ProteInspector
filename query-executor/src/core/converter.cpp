@@ -208,6 +208,7 @@ bool Converter::GetAllMetrics(const string biologicalStructure, bool arrayAgg, s
                     }
                     addedMetrics.insert(resultMetric);
                 }
+                first = false;
             }
         }
         else
