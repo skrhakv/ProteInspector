@@ -57,33 +57,18 @@
                                     Change type
                                 </button>
                                 <div class="dropdown-menu" aria-labelledby="ChangeTypeGroupDrop">
-                                    <a class="dropdown-item" (click)="ChangeRepresentation(i, 'cartoon')">Cartoon</a>
-                                    <a class="dropdown-item" (click)="ChangeRepresentation(i, 'backbone')">Backbone</a>
-                                    <a class="dropdown-item" (click)="ChangeRepresentation(i, 'ball-and-stick')">Ball
-                                        and Stick </a>
                                     <a class="dropdown-item"
-                                        (click)="ChangeRepresentation(i, 'carbohydrate')">Carbohydrate</a>
-                                    <a class="dropdown-item"
-                                        (click)="ChangeRepresentation(i, 'ellipsoid')">Ellipsoid</a>
-                                    <a class="dropdown-item"
-                                        (click)="ChangeRepresentation(i, 'gaussian-surface')">Gaussian Surface</a>
-                                    <a class="dropdown-item"
-                                        (click)="ChangeRepresentation(i, 'gaussian-volume')">Gaussian Volume</a>
-                                    <a class="dropdown-item" (click)="ChangeRepresentation(i, 'label')">Label</a>
-                                    <a class="dropdown-item" (click)="ChangeRepresentation(i, 'line')">Line</a>
-                                    <a class="dropdown-item"
-                                        (click)="ChangeRepresentation(i, 'molecular-surface')">Molecular Surface</a>
-                                    <a class="dropdown-item"
-                                        (click)="ChangeRepresentation(i, 'orientation')">Orientation</a>
-                                    <a class="dropdown-item" (click)="ChangeRepresentation(i, 'point')">Point</a>
-                                    <a class="dropdown-item" (click)="ChangeRepresentation(i, 'putty')">Putty</a>
-                                    <a class="dropdown-item"
-                                        (click)="ChangeRepresentation(i, 'spacefill')">Spacefill</a>
+                                        *ngFor="let RepresentationType of GetRepresentationTypes |  keyvalue"
+                                        (click)="ChangeRepresentation(i, RepresentationType.key)">{{RepresentationType.value}}</a>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+                <!-- <div class="row">
+                    <button type="button" class="btn btn-outline-success" [disabled]="!VisualizationReady"
+                        (click)="ToggleHighlighting()">Highlight span</button>
+                </div> -->
             </div>
         </div>
         <div class="col-10">

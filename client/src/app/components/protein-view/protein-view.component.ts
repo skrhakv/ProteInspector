@@ -13,6 +13,7 @@ import { setSubtreeVisibility } from 'molstar/lib/mol-plugin/behavior/static/sta
 import { Task } from 'molstar/lib/mol-task/task';
 import { MolstarService } from 'src/app/services/molstar.service';
 import { StructureRepresentationRegistry } from 'molstar/lib/mol-repr/structure/registry';
+import { AppSettings } from 'src/app/app-settings';
 
 @Component({
     selector: 'app-protein-view',
@@ -143,8 +144,12 @@ export class ProteinViewComponent implements OnInit {
         });
     }
 
-    public async ChangeRepresentation(index: number, structureRepresentationType: StructureRepresentationRegistry.BuiltIn) {
-        await this.molstarService.BuildRepresentation(this.plugin, index, structureRepresentationType);
+    get GetRepresentationTypes(): Record<StructureRepresentationRegistry.BuiltIn, string> {
+        return AppSettings.REPRESENTATION_TYPES;
+      }
+    
+    public async ChangeRepresentation(index: number, structureRepresentationType: string) {
+        await this.molstarService.BuildRepresentation(this.plugin, index, structureRepresentationType as StructureRepresentationRegistry.BuiltIn);
 
         if (!this.IsProteinVisible[index])
             setSubtreeVisibility(this.plugin.state.data, this.plugin.managers.structure.hierarchy.current.structures[index].cell.transform.ref, !this.IsProteinVisible[index]);
@@ -154,7 +159,7 @@ export class ProteinViewComponent implements OnInit {
             this.molstarService.ShowChainsOnly(this.plugin, this.VisualizedProteins);
         }
 
-        this.ProteinRepresentation[index] = structureRepresentationType;
+        this.ProteinRepresentation[index] = structureRepresentationType as StructureRepresentationRegistry.BuiltIn;
     }
 
     public async ToggleStructureVisibility(index: number) {
