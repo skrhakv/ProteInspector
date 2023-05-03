@@ -155,12 +155,10 @@ export class QueryInterfaceComponent implements OnInit {
 
         this.query = query;
         request.subscribe(data => {
-            console.log(data);
             Object.keys(data).forEach(key => {
                 if (data[key]["name"] === undefined || data[key]["name"] === "")
                     delete data[key];
             });
-            console.log(data);
             this.filterService.AvailableMetrics = data;
             this.isBiologicalStructureSelected = true;
             this.DropdownMetricItems.push(new Metric());

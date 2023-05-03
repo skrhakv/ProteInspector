@@ -66,7 +66,7 @@ export class ProteinViewComponent implements OnInit {
 
             datasetService.getTransformationContext(this.row).subscribe(data => {
                 this.ContextTableColumnNames = data['columnNames'];
-
+                console.log(data)
                 // sort by BeforeSnapshot, AfterSnapshot
                 this.ContextTableData = data['results'].sort((a: any, b: any) => {
                     if (a["BeforeSnapshot"] < b["BeforeSnapshot"])
@@ -93,13 +93,13 @@ export class ProteinViewComponent implements OnInit {
                         x =>
                             x.PdbCode === transformation["BeforePdbCode"] &&
                             x.ChainId === transformation["BeforeChainId"]).length === 0)
-                        this.VisualizedProteins.push({ PdbCode: transformation["BeforePdbCode"], ChainId: transformation["BeforeChainId"], LcsStart: transformation["BeforeLcsStart"] })
+                        this.VisualizedProteins.push({ PdbCode: transformation["BeforePdbCode"], ChainId: transformation["BeforeChainId"], LcsStart: transformation["BeforeLcsStart"], FileLocation: transformation["BeforeFileLocation"] })
 
                     if (this.VisualizedProteins.filter(
                         x =>
                             x.PdbCode === transformation["AfterPdbCode"] &&
                             x.ChainId === transformation["AfterChainId"]).length === 0)
-                        this.VisualizedProteins.push({ PdbCode: transformation["AfterPdbCode"], ChainId: transformation["AfterChainId"], LcsStart: transformation["AfterLcsStart"] })
+                        this.VisualizedProteins.push({ PdbCode: transformation["AfterPdbCode"], ChainId: transformation["AfterChainId"], LcsStart: transformation["AfterLcsStart"], FileLocation: transformation["AfterFileLocation"] })
                 }
 
                 // set corresponding length and values for the 'IsProteinVisible' array and for the 'ProteinRepresentation' array

@@ -53,6 +53,11 @@
                     "type": "string",
                     "name": "Before Chain ID"
                 },
+                "beforefilelocation": {
+                    "database-destination": "before_proteins.file_location",
+                    "type": "string",
+                    "name": ""
+                },
                 "uniprotid": {
                     "database-destination": "sequences.uniprot_id",
                     "type": "string",
@@ -67,6 +72,11 @@
                     "database-destination": "after_proteins.chain_id",
                     "type": "string",
                     "name": "After Chain ID"
+                },
+                "afterfilelocation": {
+                    "database-destination": "after_proteins.file_location",
+                    "type": "string",
+                    "name": ""
                 },
                 "rmsd": {
                     "database-destination": "protein_transformations_data.rmsd",
@@ -123,6 +133,11 @@
                     "type": "string",
                     "name": "Before Chain ID"
                 },
+                "beforefilelocation": {
+                    "database-destination": "before_proteins.file_location",
+                    "type": "string",
+                    "name": ""
+                },
                 "uniprotid": {
                     "database-destination": "sequences.uniprot_id",
                     "type": "string",
@@ -142,6 +157,11 @@
                     "database-destination": "after_proteins.chain_id",
                     "type": "string",
                     "name": "After Chain ID"
+                },
+                "afterfilelocation": {
+                    "database-destination": "after_proteins.file_location",
+                    "type": "string",
+                    "name": ""
                 },
                 "afterdomaincathid": {
                     "database-destination": "after_domains.cath_id",
@@ -219,6 +239,11 @@
                     "type": "string",
                     "name": "Before Chain ID"
                 },
+                "beforefilelocation": {
+                    "database-destination": "before_proteins.file_location",
+                    "type": "string",
+                    "name": ""
+                },
                 "beforedomaincathid1": {
                     "database-destination": [
                         "before_domains1.cath_id",
@@ -249,6 +274,11 @@
                     "database-destination": "after_proteins.chain_id",
                     "type": "string",
                     "name": "After Chain ID"
+                },
+                "afterfilelocation": {
+                    "database-destination": "after_proteins.file_location",
+                    "type": "string",
+                    "name": ""
                 },
                 "afterdomaincathid1": {
                     "database-destination": [
@@ -373,6 +403,11 @@
                     "type": "string",
                     "name": "Before Chain ID"
                 },
+                "beforefilelocation": {
+                    "database-destination": "before_proteins.file_location",
+                    "type": "string",
+                    "name": ""
+                },
                 "uniprotid": {
                     "database-destination": "sequences.uniprot_id",
                     "type": "string",
@@ -387,6 +422,11 @@
                     "database-destination": "after_proteins.chain_id",
                     "type": "string",
                     "name": "After Chain ID"
+                },
+                "afterfilelocation": {
+                    "database-destination": "after_proteins.file_location",
+                    "type": "string",
+                    "name": ""
                 },
                 "label": {
                     "database-destination": "residue_labels.label",
@@ -438,9 +478,11 @@
         "domain_pair_transformations.after_snapshot": "AfterSnapshot",
         "before_proteins.pdb_code": "BeforePdbCode",
         "before_proteins.chain_id": "BeforeChainId",
+        "before_proteins.file_location": "BeforeFileLocation",
         "sequences.uniprot_id": "UniprotId",
         "after_proteins.pdb_code": "AfterPdbCode",
         "after_proteins.chain_id": "AfterChainId",
+        "after_proteins.file_location": "AfterFileLocation",
         "protein_transformations_data.rmsd": "Rmsd",
         "protein_transformations_data.compare_secondary_structure": "CompareSecondaryStructure",
         "before_domains.cath_id": "BeforeDomainCathId",

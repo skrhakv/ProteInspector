@@ -31,7 +31,7 @@ export class SuperpositionService {
         plugin.dataTransaction(async () => {
             // load each structure
             for (const protein of proteinsToVisualize) {
-                await this.loadStructure(plugin, `http://files.rcsb.org/download/${protein.PdbCode}.cif`, 'mmcif', false);
+                await this.loadStructure(plugin, `${protein.FileLocation}${protein.PdbCode}.cif`, 'mmcif', false);
             }
 
             // select residues which are going to be used for superposition
