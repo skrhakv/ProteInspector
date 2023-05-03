@@ -65,7 +65,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="row">
+                <div class="row" *ngIf="ShowHighlightButton">
                     <button type="button" class="btn btn-outline-success" [disabled]="!VisualizationReady"
                         (click)="ToggleHighlighting()">Highlight span</button>
                 </div>

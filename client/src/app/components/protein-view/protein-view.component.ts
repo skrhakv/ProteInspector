@@ -14,6 +14,7 @@ import { Task } from 'molstar/lib/mol-task/task';
 import { MolstarService } from 'src/app/services/molstar.service';
 import { StructureRepresentationRegistry } from 'molstar/lib/mol-repr/structure/registry';
 import { AppSettings } from 'src/app/app-settings';
+import { first } from 'molstar/lib/mol-model/structure/query/queries/filters';
 
 @Component({
     selector: 'app-protein-view',
@@ -30,6 +31,7 @@ export class ProteinViewComponent implements OnInit {
     public IsProteinVisible: boolean[] = [];
     public ProteinRepresentation: StructureRepresentationRegistry.BuiltIn[] = [];
     public VisualizationReady: boolean = false;
+    public ShowHighlightButton: boolean = false;
 
     public ContextTableColumnNames: string[] = [];
     public ContextTableData!: any;
@@ -81,9 +83,14 @@ export class ProteinViewComponent implements OnInit {
                 });
                 this.ContextColumnOrder = [];
 
-                // pick data for the protein superposition and visualization
-                let lcsLength: number = this.ContextTableData[0]["LcsLength"]
+                const firstRow = this.ContextTableData[0];
 
+                // Show highlight button if there is a span to highlight
+                if ('BeforeDomainSpanStart' in firstRow || 'BeforeDomainSpanStart1' in firstRow || 'BeforeResidueStart' in firstRow)
+                    this.ShowHighlightButton = true;
+
+                // pick data for the protein superposition and visualization
+                let lcsLength: number = firstRow["LcsLength"]
                 for (const transformation of this.ContextTableData) {
                     if (lcsLength !== transformation["LcsLength"]) {
                         console.error(`Incosistent data: each LCS length needs to be the same. Found: ${lcsLength}, ${transformation["LcsLength"]}`);
