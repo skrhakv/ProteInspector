@@ -66,17 +66,20 @@ export class SuperpositionService {
     private async loadStructure(plugin: PluginContext, url: string, format: BuiltInTrajectoryFormat, isBinary?: boolean) {
         try {
             const data = await plugin.builders.data.download({ url: Asset.Url(url), isBinary: isBinary });
+            
             const trajectory = await plugin.builders.structure.parseTrajectory(data, format);
             const model = await plugin.builders.structure.createModel(trajectory);
-            const structure = await plugin.builders.structure.createStructure(model, void 0);
+            const structure = await plugin.builders.structure.createStructure(model, { name: 'model', params: {} });
+            const polymer = await plugin.builders.structure.tryCreateComponentStatic(structure, 'polymer');
 
-            //const data = await plugin.builders.data.download({ url: Asset.Url(url), isBinary: isBinary });
-            //const trajectory = await plugin.builders.structure.parseTrajectory(data, format);
-            //const model = await plugin.builders.structure.createModel(trajectory);
-            //const modelProperties = await plugin.builders.structure.insertModelProperties(model);
-            //const structure = await plugin.builders.structure.createStructure(modelProperties || model, { name: 'model', params: {} });
-            const preset = await plugin.builders.structure.representation.applyPreset(structure, 'polymer-and-ligand');
+            let repr;
+            if (polymer) {
+                repr = await plugin.builders.structure.representation.addRepresentation(polymer, {
+                    type: 'cartoon'
+                });
+            }
             await plugin.builders.structure.insertStructureProperties(structure);
+
 
             return { data, trajectory, model, structure };
         } catch (e) {

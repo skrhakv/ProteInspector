@@ -229,10 +229,12 @@ export class ProteinViewComponent implements OnInit {
             layout: {
                 initial: {
                     isExpanded: false,
-                    showControls: false
+                    showControls: false,
+                    controlsDisplay: "reactive",
                 }
             },
             components: {
+                remoteState: 'none'
             }
         });
 
