@@ -35,7 +35,7 @@ def get_sequence_id(uniprot_id):
 
     return sequence_id
 
-def get_protein_id(pdb_code, chain_id, sequence_id):
+def get_protein_id(pdb_code, chain_id, file_location, sequence_id):
     if not check_pdb_code_and_chain_id(pdb_code, chain_id):
         sys.exit(
             f"Unexpected format of pdb_code ('{pdb_code}') and chain_id ('{chain_id}')")
@@ -50,7 +50,7 @@ def get_protein_id(pdb_code, chain_id, sequence_id):
         cur.execute(protein_id_query)
         protein_id = cur.fetchone()[0]
 
-        insert_query = f"INSERT INTO proteins(protein_id, pdb_code, chain_id, is_holo, sequence_id) VALUES ({protein_id},'{pdb_code}', '{chain_id}', false, {sequence_id} );"
+        insert_query = f"INSERT INTO proteins(protein_id, pdb_code, chain_id, is_holo, sequence_id, file_location) VALUES ({protein_id},'{pdb_code}', '{chain_id}', false, {sequence_id}, {file_location} );"
         cur.execute(insert_query)
 
         inserted_proteins.append(protein_id)
@@ -183,6 +183,9 @@ def insert_lcs_data(protein_transformation_id, i1, i2, lcs_length):
 def parse_protein_info(data):
     return [data["before_pdb_code"], data["after_pdb_code"], data["before_chain_id"], data["after_chain_id"], data["uniprot_id"]]
 
+def parse_file_locations(data):
+    return [data["before_file_location"], data["after_file_location"]]
+
 def parse_dataset_id(data):
     return data["dataset_id"]
 
@@ -213,13 +216,14 @@ def parse_interface_buried_area(data):
 def parse_label(data):
     return data["label"]
 
+
 def parse_and_insert_protein_transformation(transformation, transformation_id):
     [before_pdb_code, after_pdb_code, before_chain_id, after_chain_id, uniprot_id] = parse_protein_info(transformation)
     [before_snapshot, after_snapshot] = parse_snapshots(transformation)
-    
+    [before_file_location, after_file_location] = parse_file_locations(transformation)
     sequence_id = get_sequence_id(uniprot_id)
-    before_protein_id = get_protein_id(before_pdb_code, before_chain_id, sequence_id)
-    after_protein_id = get_protein_id(after_pdb_code, after_chain_id, sequence_id)
+    before_protein_id = get_protein_id(before_pdb_code, before_chain_id, before_file_location, sequence_id)
+    after_protein_id = get_protein_id(after_pdb_code, after_chain_id, after_file_location, sequence_id)
 
     i = transformation['protein_transformation']
     rmsd = parse_rmsd(i)
@@ -237,10 +241,11 @@ def parse_and_insert_protein_transformation(transformation, transformation_id):
 def parse_and_insert_domain_transformation(transformation, transformation_id):
     [before_pdb_code, after_pdb_code, before_chain_id, after_chain_id, uniprot_id] = parse_protein_info(transformation)
     [before_snapshot, after_snapshot] = parse_snapshots(transformation)
-    
+    [before_file_location, after_file_location] = parse_file_locations(transformation)
+
     sequence_id = get_sequence_id(uniprot_id)
-    before_protein_id = get_protein_id(before_pdb_code, before_chain_id, sequence_id)
-    after_protein_id = get_protein_id(after_pdb_code, after_chain_id, sequence_id)
+    before_protein_id = get_protein_id(before_pdb_code, before_chain_id, before_file_location, sequence_id)
+    after_protein_id = get_protein_id(after_pdb_code, after_chain_id, after_file_location, sequence_id)
 
     for i in transformation['domain_transformation']:
         print(i['before_cath_id'])
@@ -262,10 +267,11 @@ def parse_and_insert_domain_transformation(transformation, transformation_id):
 def parse_and_insert_domain_pair_transformation(transformation, transformation_id):
     [before_pdb_code, after_pdb_code, before_chain_id, after_chain_id, uniprot_id] = parse_protein_info(transformation)
     [before_snapshot, after_snapshot] = parse_snapshots(transformation)
-    
+    [before_file_location, after_file_location] = parse_file_locations(transformation)
+
     sequence_id = get_sequence_id(uniprot_id)
-    before_protein_id = get_protein_id(before_pdb_code, before_chain_id, sequence_id)
-    after_protein_id = get_protein_id(after_pdb_code, after_chain_id, sequence_id)
+    before_protein_id = get_protein_id(before_pdb_code, before_chain_id, before_file_location, sequence_id)
+    after_protein_id = get_protein_id(after_pdb_code, after_chain_id, after_file_location, sequence_id)
 
     for i in transformation['domain_pair_transformation']:
         [before_cath_id1, after_cath_id1] = parse_cath_id(i, '1')
@@ -295,10 +301,11 @@ def parse_and_insert_residue_transformation(transformation, transformation_id, p
     if protein_transformation_id == -1:
         [before_pdb_code, after_pdb_code, before_chain_id, after_chain_id, uniprot_id] = parse_protein_info(transformation)
         [before_snapshot, after_snapshot] = parse_snapshots(transformation)
+        [before_file_location, after_file_location] = parse_file_locations(transformation)
 
         sequence_id = get_sequence_id(uniprot_id)
-        before_protein_id = get_protein_id(before_pdb_code, before_chain_id, sequence_id)
-        after_protein_id = get_protein_id(after_pdb_code, after_chain_id, sequence_id)
+        before_protein_id = get_protein_id(before_pdb_code, before_chain_id, before_file_location, sequence_id)
+        after_protein_id = get_protein_id(after_pdb_code, after_chain_id, after_file_location, sequence_id)
 
         protein_transformation_id = get_protein_transformation_id(before_protein_id, after_protein_id, before_snapshot, after_snapshot, transformation_id)
     
