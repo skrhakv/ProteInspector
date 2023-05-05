@@ -1,5 +1,5 @@
 <h1 class="text-center">Protein transformation details</h1>
-<div class="container-sm">
+<div class="container">
     <div class="row" *ngIf="datasetService.currentQuery === ''">
         <div class="col-3"></div>
         <div class="mt-5 alert alert-warning col-6 text-center" role="alert">
@@ -35,6 +35,10 @@
     </div>
 </div>
 <div class="container-fluid">
+    <div class="row mt-5" id="msa-viewer-wrapper">
+        <div id='msa-viewer'>
+        </div>
+    </div>
     <div class="row mt-3">
         <div class="col-2">
             <div class="container">

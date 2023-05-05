@@ -14,8 +14,9 @@ import { Task } from 'molstar/lib/mol-task/task';
 import { MolstarService } from 'src/app/services/molstar.service';
 import { StructureRepresentationRegistry } from 'molstar/lib/mol-repr/structure/registry';
 import { AppSettings } from 'src/app/app-settings';
-import { first } from 'molstar/lib/mol-model/structure/query/queries/filters';
+import { ProteinSequence } from 'src/app/models/protein-sequence.model';
 
+declare var msa: any;
 @Component({
     selector: 'app-protein-view',
     templateUrl: './protein-view.component.html',
@@ -68,7 +69,7 @@ export class ProteinViewComponent implements OnInit {
 
             datasetService.getTransformationContext(this.row).subscribe(data => {
                 this.ContextTableColumnNames = data['columnNames'];
-                console.log(data)
+
                 // sort by BeforeSnapshot, AfterSnapshot
                 this.ContextTableData = data['results'].sort((a: any, b: any) => {
                     if (a["BeforeSnapshot"] < b["BeforeSnapshot"])
@@ -119,6 +120,7 @@ export class ProteinViewComponent implements OnInit {
                 // disable the buttons until the visualization is ready using callback
                 let callback = () => {
                     this.VisualizationReady = true;
+                    this.LoadMsaViewer();
                 }
 
                 this.superpositionService.GenerateMolstarVisualisation(this.plugin, this.VisualizedProteins, lcsLength, callback);
@@ -240,5 +242,78 @@ export class ProteinViewComponent implements OnInit {
 
         // add custom color theme 
         this.plugin.representation.structure.themes.colorThemeRegistry.add(ProteinThemeProvider);
+    }
+
+    private LoadMsaViewer() {
+        let ProteinSequences: ProteinSequence[] = this.molstarService.GetChainSequences(this.plugin);
+        
+        // compute the size of the left branch of the sequence from the desired chain for each protein
+        let leftBranchSizes: number[] = [];
+
+        for (let i = 0; i < this.VisualizedProteins.length; i++) {
+            let leftBranchSize: number = 0;
+
+            // get index of the relevant chain
+            let indexOfRelevantChain: number = ProteinSequences[i].ChainSequences.findIndex(x => x.ChainId === this.VisualizedProteins[i].ChainId);
+
+            // compute how long is the left branch
+            for (let ii = 0; ii < indexOfRelevantChain; ii++) {
+                leftBranchSize += ProteinSequences[i].ChainSequences[ii].Sequence.length;
+            }
+
+            // add the additional alignment from the database
+            leftBranchSize += Number(this.VisualizedProteins[i].LcsStart);
+
+            leftBranchSizes.push(leftBranchSize);
+        }
+
+        // get labels of the structures
+        let labels: string[] = [];
+
+        for (let structure of this.plugin.managers.structure.hierarchy.current.structures) {
+            let label: string = "", entryId: string = "";
+
+            if (!structure.cell.obj?.data.units)
+                return;
+
+            for (let unit of structure.cell.obj?.data.units) {
+                label = unit.model.label;
+                entryId = unit.model.entryId;
+            }
+
+            if (label === "")
+                label = entryId;
+
+            labels.push(label);
+        }
+
+        let longestLeftBranch = Math.max(...leftBranchSizes);
+        let fasta: string = "";
+
+        for (let i = 0; i < ProteinSequences.length; i++) {
+
+            let shift = longestLeftBranch - leftBranchSizes[i];
+
+            // add label and appropriate shift
+            fasta += ">" + labels[i] + "\n" + (" ".repeat(shift));
+
+            // after the shifting add the sequences 
+            for (const ChainSequence of ProteinSequences[i].ChainSequences) {
+                fasta += ChainSequence.Sequence;
+            }
+            fasta += "\n";
+        }
+
+        var opts = {
+            el: document.getElementById("msa-viewer"),
+            seqs: msa.io.fasta.parse(fasta),
+            vis: {
+                conserv: true,
+                overviewbox: false
+            }
+        };
+
+        var m = msa(opts);
+        m.render();
     }
 }

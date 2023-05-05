@@ -72,9 +72,8 @@ export class SuperpositionService {
             const structure = await plugin.builders.structure.createStructure(model, { name: 'model', params: {} });
             const polymer = await plugin.builders.structure.tryCreateComponentStatic(structure, 'polymer');
 
-            let repr;
             if (polymer) {
-                repr = await plugin.builders.structure.representation.addRepresentation(polymer, {
+                await plugin.builders.structure.representation.addRepresentation(polymer, {
                     type: 'cartoon'
                 });
             }
