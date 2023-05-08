@@ -34,6 +34,31 @@ bool Converter::ValidateWhereClause(const hsql::Expr *expression, const string b
     if (metric == nullptr)
         RETURN_PARSE_ERROR("Unrecognized Metrics in the WHERE clause: " + metricName)
 
+    if (expression->expr2->isType(hsql::kExprColumnRef))
+    {
+        string metricName2 = expression->expr2->name;
+        toLower(metricName2);
+        if (metricsData["forward-metrics-mapping"][biologicalStructure]["data"].contains(metricName2))
+        {
+            auto metric2 = metricsData["forward-metrics-mapping"][biologicalStructure]["data"][metricName2];
+            if (metric["type"] == "string")
+            {
+                if (metric2["type"] != "string")
+                    RETURN_PARSE_ERROR("Return types don't match: " + metricName + ", " + metricName2)
+            }
+            else if (metric["type"] == "integer" || metric["type"] == "float")
+            {
+                if (metric2["type"] != "integer" && metric2["type"] != "float")
+                    RETURN_PARSE_ERROR("Return types don't match: " + metricName + ", " + metricName2)
+            }
+
+            result += metric["database-destination"];
+            result += ' ' + operatorValue + ' ';
+            result += metric2["database-destination"];
+            return true;
+        }
+    }
+
     if (metric["type"] == "string")
     {
         if (!expression->expr2->isType(hsql::kExprColumnRef))
@@ -128,6 +153,19 @@ bool Converter::ValidateWhereClause(const hsql::Expr *expression, const string b
         result += metric["database-destination"];
         result += ' ' + operatorValue + ' ' + metricValue;
     }
+    return true;
+}
+
+bool Converter::ParseValue(const hsql::Expr *expression, string &result)
+{
+    if (expression->isType(hsql::kExprLiteralInt))
+        result += to_string(expression->ival);
+    else if (expression->isType(hsql::kExprColumnRef))
+        result += expression->name;
+    else if (expression->isType(hsql::kExprLiteralFloat))
+        result += to_string(expression->expr2->fval);
+    else
+        RETURN_PARSE_ERROR("Unknown type: " + expression->type)
     return true;
 }
 bool Converter::ValidateQueryMetric(hsql::Expr *expression, const string biologicalStructure, bool arrayAgg, bool addAlias, string &result)

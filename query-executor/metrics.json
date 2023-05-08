@@ -20,7 +20,7 @@
         },
         "residues": {
             "table": "residue_labels",
-            "joins": "inner join protein_transformations on protein_transformations.protein_transformation_id = residue_labels.protein_transformation_id inner join transformations on protein_transformations.transformation_id = transformations.transformation_id inner join proteins as before_proteins on before_proteins.protein_id = protein_transformations.before_protein_id inner join proteins as after_proteins on after_proteins.protein_id = protein_transformations.after_protein_id inner join sequences on sequences.sequence_id=before_proteins.sequence_id",
+            "joins": "inner join protein_transformations on protein_transformations.protein_transformation_id = residue_labels.protein_transformation_id inner join transformations on protein_transformations.transformation_id = transformations.transformation_id inner join proteins as before_proteins on before_proteins.protein_id = protein_transformations.before_protein_id inner join proteins as after_proteins on after_proteins.protein_id = protein_transformations.after_protein_id inner join sequences on sequences.sequence_id=before_proteins.sequence_id left join protein_lcs_data on protein_transformations.protein_transformation_id = protein_lcs_data.protein_transformation_id",
             "order": "residue_labels.label_id",
             "group-by": "protein_transformations.transformation_id"
         }
@@ -178,21 +178,25 @@
                     "type": "float",
                     "name": "Compare Secondary Structure"
                 },
-                "afterdomainspan": {
-                    "database-destination": [
-                        "(after_domains.domain_span).span_start",
-                        "(after_domains.domain_span).span_end"
-                    ],
-                    "type": "integer-between",
-                    "name": "After Domain Span"
+                "afterdomainspanstart": {
+                    "database-destination": "(after_domains.domain_span).span_start",
+                    "type": "integer",
+                    "name": "After Domain Span Start"
                 },
-                "beforedomainspan": {
-                    "database-destination": [
-                        "(before_domains.domain_span).span_start",
-                        "(before_domains.domain_span).span_end"
-                    ],
-                    "type": "integer-between",
-                    "name": "Before Domain Span"
+                "afterdomainspanend": {
+                    "database-destination": "(after_domains.domain_span).span_end",
+                    "type": "integer",
+                    "name": "After Domain Span End"
+                },
+                "beforedomainspanstart": {
+                    "database-destination": "(before_domains.domain_span).span_start",
+                    "type": "integer",
+                    "name": "Before Domain Span Start"
+                },
+                "beforedomainspanend": {
+                    "database-destination": "(before_domains.domain_span).span_end",
+                    "type": "integer",
+                    "name": "Before Domain Span End"
                 },
                 "i1": {
                     "database-destination": "protein_lcs_data.i1",
@@ -296,37 +300,45 @@
                     "type": "string",
                     "name": "After Domain CATH ID2"
                 },
-                "afterdomainspan1": {
-                    "database-destination": [
-                        "(after_domains1.domain_span).span_start",
-                        "(after_domains1.domain_span).span_end"
-                    ],
-                    "type": "integer-between",
-                    "name": ""
+                "afterdomainspanend1": {
+                    "database-destination": "(after_domains1.domain_span).span_end",
+                    "type": "integer",
+                    "name": "After Domain Span End 1"
                 },
-                "afterdomainspan2": {
-                    "database-destination": [
-                        "(after_domains2.domain_span).span_start",
-                        "(after_domains2.domain_span).span_end"
-                    ],
-                    "type": "integer-between",
-                    "name": ""
+                "afterdomainspanstart1": {
+                    "database-destination": "(after_domains1.domain_span).span_start",
+                    "type": "integer",
+                    "name": "After Domain Span Start 1"
                 },
-                "beforedomainspan1": {
-                    "database-destination": [
-                        "(before_domains1.domain_span).span_start",
-                        "(before_domains1.domain_span).span_end"
-                    ],
-                    "type": "integer-between",
-                    "name": ""
+                "afterdomainspanend2": {
+                    "database-destination": "(after_domains2.domain_span).span_end",
+                    "type": "integer",
+                    "name": "After Domain Span End 2"
                 },
-                "beforedomainspan2": {
-                    "database-destination": [
-                        "(before_domains2.domain_span).span_start",
-                        "(before_domains2.domain_span).span_end"
-                    ],
-                    "type": "integer-between",
-                    "name": ""
+                "afterdomainspanstart2": {
+                    "database-destination": "(after_domains2.domain_span).span_start",
+                    "type": "integer",
+                    "name": "After Domain Span Start 2"
+                },
+                "beforedomainspanstart1": {
+                    "database-destination": "(before_domains1.domain_span).span_start",
+                    "type": "integer",
+                    "name": "Before Domain Span Start 1"
+                },
+                "beforedomainspanend1": {
+                    "database-destination": "(before_domains1.domain_span).span_end",
+                    "type": "integer",
+                    "name": "Before Domain Span End 1"
+                },
+                "beforedomainspanstart2": {
+                    "database-destination": "(before_domains2.domain_span).span_start",
+                    "type": "integer",
+                    "name": "Before Domain Span Start 2"
+                },
+                "beforedomainspanend2": {
+                    "database-destination": "(before_domains2.domain_span).span_end",
+                    "type": "integer",
+                    "name": "Before Domain Span End 2"
                 },
                 "rmsd": {
                     "database-destination": "domain_pair_transformations_data.rmsd",
@@ -433,21 +445,25 @@
                     "type": "string",
                     "name": "Label"
                 },
-                "before_residue": {
-                    "database-destination": [
-                        "residue_labels.before_residue_start",
-                        "residue_labels.before_residue_end"
-                    ],
-                    "type": "integer-between",
-                    "name": "Before Residue Span"
+                "beforeresiduestart": {
+                    "database-destination": "residue_labels.before_residue_start",
+                    "type": "integer",
+                    "name": "Before Residue Span Start"
                 },
-                "after_residue": {
-                    "database-destination": [
-                        "residue_labels.after_residue_start",
-                        "residue_labels.after_residue_end"
-                    ],
-                    "type": "integer-between",
-                    "name": "After Residue Span"
+                "beforeresidueend": {
+                    "database-destination": "residue_labels.before_residue_end",
+                    "type": "integer",
+                    "name": "Before Residue Span End"
+                },
+                "afterresiduestart": {
+                    "database-destination": "residue_labels.after_residue_start",
+                    "type": "integer",
+                    "name": "After Residue Span Start"
+                },
+                "afterresidueend": {
+                    "database-destination": "residue_labels.after_residue_end",
+                    "type": "integer",
+                    "name": "After Residue Span End"
                 },
                 "i1": {
                     "database-destination": "protein_lcs_data.i1",

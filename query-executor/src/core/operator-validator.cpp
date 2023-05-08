@@ -19,6 +19,14 @@ bool OperatorValidator::parseMathOperator(const hsql::Expr *expression, string &
         operatorResult = ">=";
     else if (expression->opType == hsql::kOpBetween)
         operatorResult = "BETWEEN";
+    else if (expression->opType == hsql::kOpPlus)
+        operatorResult = "+";
+    else if (expression->opType == hsql::kOpMinus)
+        operatorResult = "-";
+    else if (expression->opType == hsql::kOpSlash)
+        operatorResult = "/";
+    else if (expression->opType == hsql::kOpAsterisk)
+        operatorResult = "*";
     else
         RETURN_PARSE_ERROR("Unrecognized Operator type: " + expression->opType)
 

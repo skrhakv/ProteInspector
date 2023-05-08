@@ -79,6 +79,7 @@ private:
         if (expression->expr->type == hsql::kExprColumnRef)
         {
             string validationResult;
+
             bool isValid = converter.ValidateWhereClause(expression, biologicalStructure, validationResult);
             if (!isValid)
                 RETURN_PARSE_ERROR(converter.errorMessage)
@@ -89,15 +90,38 @@ private:
         else if (expression->expr->type == hsql::kExprOperator && expression->expr2->type == hsql::kExprOperator)
         {
             result += "(";
-            Generate(expression->expr, biologicalStructure, result);
+            bool isValid = Generate(expression->expr, biologicalStructure, result);
+            if (!isValid)
+                RETURN_PARSE_ERROR(errorMessage)
 
             string operatorResult;
-            bool isValid = operatorValidator.parseLogicOperator(expression->opType, operatorResult);
+            isValid = operatorValidator.parseLogicOperator(expression->opType, operatorResult);
             if (!isValid)
                 RETURN_PARSE_ERROR(converter.errorMessage)
             result += ' ' + operatorResult + ' ';
 
-            Generate(expression->expr2, biologicalStructure, result);
+            isValid = Generate(expression->expr2, biologicalStructure, result);
+            if (!isValid)
+                RETURN_PARSE_ERROR(converter.errorMessage)
+            result += ")";
+
+            return true;
+        }
+        else if (expression->expr->type == hsql::kExprOperator && expression->opType != hsql::kOpNone)
+        {
+            result += "(";
+            Generate(expression->expr, biologicalStructure, result);
+
+            string operatorResult;
+            bool isValid = operatorValidator.parseMathOperator(expression, operatorResult);
+            if (!isValid)
+                RETURN_PARSE_ERROR(converter.errorMessage)
+
+            result += ' ' + operatorResult + ' ';
+
+            isValid = converter.ParseValue(expression->expr2, result);
+            if (!isValid)
+                RETURN_PARSE_ERROR(converter.errorMessage)
             result += ")";
 
             return true;
