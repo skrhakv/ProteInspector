@@ -156,12 +156,22 @@ bool Converter::ValidateWhereClause(const hsql::Expr *expression, const string b
     return true;
 }
 
-bool Converter::ParseValue(const hsql::Expr *expression, string &result)
+bool Converter::ParseValue(const hsql::Expr *expression, const string biologicalStructure, string &result)
 {
     if (expression->isType(hsql::kExprLiteralInt))
         result += to_string(expression->ival);
     else if (expression->isType(hsql::kExprColumnRef))
-        result += expression->name;
+    {
+        string expressionValue = expression->name;
+        toLower(expressionValue);
+        if (metricsData["forward-metrics-mapping"][biologicalStructure]["data"].contains(expressionValue))
+        {
+            auto metric = metricsData["forward-metrics-mapping"][biologicalStructure]["data"][expressionValue];
+            result += metric["database-destination"];
+        }
+        else
+            result += expression->name;
+    }
     else if (expression->isType(hsql::kExprLiteralFloat))
         result += to_string(expression->expr2->fval);
     else

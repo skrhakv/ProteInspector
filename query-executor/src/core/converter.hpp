@@ -21,8 +21,7 @@ public:
     Converter();
 
     bool ValidBiologicalStructure(string biologicalStructure);
-    bool ParseValue(const hsql::Expr *expression, string &result);
-
+    bool ParseValue(const hsql::Expr *expression, const string biologicalStructure, string &result);
     bool ValidateWhereClause(const hsql::Expr *expression, const string biologicalStructure, string &result);
     bool ValidateQueryMetric(hsql::Expr *expression, const string biologicalStructure, bool arrayAgg, bool addAlias, string &result);
     bool GetAllMetrics(const string biologicalStructure, bool arrayAgg, string &result);

@@ -119,7 +119,7 @@ private:
 
             result += ' ' + operatorResult + ' ';
 
-            isValid = converter.ParseValue(expression->expr2, result);
+            isValid = converter.ParseValue(expression->expr2, biologicalStructure, result);
             if (!isValid)
                 RETURN_PARSE_ERROR(converter.errorMessage)
             result += ")";
