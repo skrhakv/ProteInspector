@@ -1,6 +1,5 @@
 # data
 /data
-/database/insert-data/.env
 /database/insert-data/__pycache__
 /database/insert-data/apo_holo_framework
 /database/insert-data/update-db/dump.sql
