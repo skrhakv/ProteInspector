@@ -1,0 +1,13 @@
+CREATE INDEX proteins_sequence_id_fk ON proteins (sequence_id);
+CREATE INDEX protein_transformations_before_protein_id_fk ON protein_transformations (before_protein_id);
+CREATE INDEX protein_transformations_after_protein_id_fk ON protein_transformations (after_protein_id);
+CREATE INDEX protein_transformations_transformation_id_fk ON protein_transformations (transformation_id);
+CREATE INDEX domains_protein_id_fk ON domains (protein_id);
+CREATE INDEX domain_transformations_before_domain_id_fk ON domain_transformations (before_domain_id);
+CREATE INDEX domain_transformations_after_domain_id_fk ON domain_transformations (after_domain_id);
+CREATE INDEX domain_transformations_transformation_id_fk ON domain_transformations (transformation_id);
+CREATE INDEX domain_pairs_domain_id1_fk ON domain_pairs (domain_id1);
+CREATE INDEX domain_pairs_domain_id2_fk ON domain_pairs (domain_id2);
+CREATE INDEX domain_pair_transformations_before_domain_pair_id_fk ON domain_pair_transformations (before_domain_pair_id);
+CREATE INDEX domain_pair_transformations_after_domain_pair_id_fk ON domain_pair_transformations (after_domain_pair_id);
+CREATE INDEX domain_pair_transformations_transformation_id_fk ON domain_pair_transformations (transformation_id);
