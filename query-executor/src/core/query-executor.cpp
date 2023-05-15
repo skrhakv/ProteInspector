@@ -1,26 +1,25 @@
 #include <string>
 #include "query-executor.hpp"
-#include "metric-generators/count-metric-generator.hpp"
-#include "metric-generators/nonselective-metric-generator.hpp"
-#include "metric-generators/selective-metric-generator.hpp"
-#include "metric-generators/transformation-metric-generator.hpp"
-#include "end-query-generators/regular-query-generator.hpp"
-#include "end-query-generators/inner-query-generator.hpp"
-#include "end-query-generators/outer-query-generator.hpp"
+#include "metrics-parsers/count-metrics-parser.hpp"
+#include "metrics-parsers/nonselective-metrics-parser.hpp"
+#include "metrics-parsers/selective-metrics-parser.hpp"
+#include "metrics-parsers/transformation-metrics-parser.hpp"
+#include "where-clause-parsers/regular-where-clause-parser.hpp"
+#include "where-clause-parsers/wrapper-where-clause-parser.hpp"
 
 using namespace std;
 
 std::pair<pqxx::result, std::string> QueryExecutor::GetTransformationContext(const std::string &query, int datasetId, int page, int pageSize)
 {
-    NonSelectiveMetricGenerator metricGenerator(false);
-    OuterQueryGenerator endQueryGenerator(page, pageSize);
+    NonSelectiveMetricsParser metricsParser;
+    WrapperWhereClauseParser wrapperWhereClauseParser(page, pageSize);
 
-    parser.SetEndQueryGenerator(&endQueryGenerator);
-    parser.SetMetricGenerator(&metricGenerator);
+    parser.SetWhereClauseParser(&wrapperWhereClauseParser);
+    parser.SetMetricsParser(&metricsParser);
     
     parser.Clear();
 
-    bool isValid = parser.ConvertQuery(query, datasetId, page, pageSize);
+    bool isValid = parser.Parse(query, datasetId, page, pageSize);
 
     if (!isValid)
     {
@@ -32,25 +31,25 @@ std::pair<pqxx::result, std::string> QueryExecutor::GetTransformationContext(con
 
 std::pair<pqxx::result, std::string> QueryExecutor::ParseAndExecute(const std::string &query, int datasetId, int page, int pageSize, bool includeAllMetrics)
 {
-    MetricGenerator *metricGenerator;
-    RegularQueryGenerator endQueryGenerator;
+    MetricsParser *metricsParser;
+    RegularWhereClauseParser regularWhereClauseParser(true);
 
-    parser.SetEndQueryGenerator(&endQueryGenerator);
+    parser.SetWhereClauseParser(&regularWhereClauseParser);
 
     if (includeAllMetrics)
     {
-        metricGenerator = new NonSelectiveMetricGenerator(false);
-        parser.SetMetricGenerator(metricGenerator);
+        metricsParser = new NonSelectiveMetricsParser();
+        parser.SetMetricsParser(metricsParser);
     }
     else
     {
-        metricGenerator = new SelectiveMetricGenerator(false);
-        parser.SetMetricGenerator(metricGenerator);
+        metricsParser = new SelectiveMetricsParser();
+        parser.SetMetricsParser(metricsParser);
     }
     parser.Clear();
 
-    bool isValid = parser.ConvertQuery(query, datasetId, page, pageSize);
-    delete metricGenerator;
+    bool isValid = parser.Parse(query, datasetId, page, pageSize);
+    delete metricsParser;
     if (!isValid)
     {
         return {pqxx::result(), parser.errorMessage};
@@ -61,15 +60,15 @@ std::pair<pqxx::result, std::string> QueryExecutor::ParseAndExecute(const std::s
 
 std::pair<pqxx::result, std::string> QueryExecutor::GetNumberOfPages(const std::string &query, int datasetId)
 {
-    CountMetricGenerator metricGenerator;
-    parser.SetMetricGenerator(&metricGenerator);
+    CountMetricsParser metricsParser;
+    parser.SetMetricsParser(&metricsParser);
 
-    InnerQueryGenerator endQueryGenerator;
-    parser.SetEndQueryGenerator(&endQueryGenerator);
+    RegularWhereClauseParser regularWhereClauseParser(false);
+    parser.SetWhereClauseParser(&regularWhereClauseParser);
 
     parser.Clear();
 
-    bool isValid = parser.ConvertQuery(query, datasetId);
+    bool isValid = parser.Parse(query, datasetId);
 
     if (!isValid)
     {

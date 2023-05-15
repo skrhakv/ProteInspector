@@ -4,13 +4,12 @@
         "cflags_cc": [ "-std=c++20","-lstdc++" ,"-fexceptions", "-Wall", "-L/usr/local/lib" ],
         'cflags_cc!': [ '-fno-rtti' ],
         "sources": [
-            "../query-executor/src/core/converter.cpp",
             "../query-executor/src/core/db-client.cpp",
             "../query-executor/src/core/json-reader.cpp",
             "../query-executor/src/core/operator-validator.cpp",
             "../query-executor/src/core/query-executor.cpp",
-            "../query-executor/src/core/query-parser.cpp",
-            "../query-executor/src/core/converter.cpp",
+            "../query-executor/src/core/select-clause-parser.cpp",
+            "../query-executor/src/core/json-data-extractor.cpp",
             "../query-executor/src/core/utils.hpp",
             "../query-executor/src/query-executor-napi.cpp",
             "../query-executor/src/main.cpp"            

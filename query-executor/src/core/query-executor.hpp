@@ -2,12 +2,12 @@
 #define QUERYEXECUTOR_H
 
 #include <string>
-#include "query-parser.hpp"
+#include "select-clause-parser.hpp"
 #include "db-client.hpp"
 
 class QueryExecutor
 {
-    QueryParser parser;
+    SelectClauseParser parser;
     DbClient dbClient;
 
 public:

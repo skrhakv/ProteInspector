@@ -1,22 +1,21 @@
 #include <string>
 #include "hsql/SQLParser.h"
-#include "converter.hpp"
 #include "operator-validator.hpp"
 #include "utils.hpp"
-#include "query-parser.hpp"
+#include "select-clause-parser.hpp"
 
-void QueryParser::SetMetricGenerator(MetricGenerator *_metricGenerator)
+void SelectClauseParser::SetMetricsParser(MetricsParser *_metricsParser)
 {
-    this->metricGenerator = _metricGenerator;
-    metricGenerator->SetConverter(converter);
+    this->metricsParser = _metricsParser;
+    this->metricsParser->SetJsonDataExtractor(jsonDataExtractor);
 }
-void QueryParser::SetEndQueryGenerator(EndQueryGenerator *_endQueryGenerator)
+void SelectClauseParser::SetWhereClauseParser(WhereClauseParser *_whereClauseParser)
 {
-    this->endQueryGenerator = _endQueryGenerator;
-    _endQueryGenerator->SetConverter(converter);
+    this->whereClauseParser = _whereClauseParser;
+    this->whereClauseParser->SetJsonDataExtractor(jsonDataExtractor);
 }
 
-bool QueryParser::parseQuery(const hsql::SelectStatement *selectStatement, int datasetId, int page, int pageSize)
+bool SelectClauseParser::Parse(const hsql::SelectStatement *selectStatement, int datasetId, int page, int pageSize)
 {
     bool isValid = checkForAllowedGrammar((const hsql::SelectStatement *)selectStatement);
     if (!isValid)
@@ -24,27 +23,27 @@ bool QueryParser::parseQuery(const hsql::SelectStatement *selectStatement, int d
 
     convertedQuery += "SELECT ";
 
-    isValid = metricGenerator->Generate(selectStatement, biologicalStructure, convertedQuery);
+    isValid = metricsParser->Parse(selectStatement, biologicalStructure, convertedQuery);
     if (!isValid)
     {
-        errorMessage = metricGenerator->errorMessage;
+        errorMessage = metricsParser->errorMessage;
         return false;
     }
     convertedQuery += " FROM ";
     string fromClauseAndJoins;
-    converter.GetTableAndLeftJoins(biologicalStructure, fromClauseAndJoins);
+    jsonDataExtractor.GetTableAndLeftJoins(biologicalStructure, fromClauseAndJoins);
     convertedQuery += fromClauseAndJoins;
 
-    isValid = endQueryGenerator->Generate(selectStatement, biologicalStructure, datasetId, convertedQuery);
-    if(!isValid)
-        RETURN_PARSE_ERROR(endQueryGenerator->errorMessage)
+    isValid = whereClauseParser->Parse(selectStatement, biologicalStructure, datasetId, convertedQuery);
+    if (!isValid)
+        RETURN_PARSE_ERROR(whereClauseParser->errorMessage)
 
-    endQueryGenerator->addPageLimitWithOffset(page, pageSize, convertedQuery);
+    whereClauseParser->addPageLimitWithOffset(page, pageSize, convertedQuery);
 
     return true;
 }
 
-bool QueryParser::checkForAllowedGrammar(const hsql::SelectStatement *selectStatement)
+bool SelectClauseParser::checkForAllowedGrammar(const hsql::SelectStatement *selectStatement)
 {
     if (selectStatement->groupBy != nullptr)
         RETURN_PARSE_ERROR("Group-By clause is not a part of this query language!")
@@ -63,14 +62,16 @@ bool QueryParser::checkForAllowedGrammar(const hsql::SelectStatement *selectStat
     toLower(biologicalStructure);
 
     // if (biologicalStructure != PROTEINS && biologicalStructure != DOMAINS && biologicalStructure != RESIDUES && biologicalStructure != PROTEIN_PROGRESSION)
-    if (!converter.ValidBiologicalStructure(biologicalStructure))
+    if (!jsonDataExtractor.ValidBiologicalStructure(biologicalStructure))
         RETURN_PARSE_ERROR("Unknown structure. Valid structures are: Proteins, Domains, Residues, and Protein-Progression")
 
     return true;
 }
 
-bool QueryParser::ConvertQuery(const string &query, int datasetId, int page, int pageSize)
+bool SelectClauseParser::Parse(const string &query, int datasetId, int page, int pageSize)
 {
+    // TODO: check whether FROM keyword is present in query
+
     // parse a given query
     hsql::SQLParserResult result;
     hsql::SQLParser::parse(query, &result);
@@ -86,7 +87,7 @@ bool QueryParser::ConvertQuery(const string &query, int datasetId, int page, int
         if (!(statement->is(hsql::StatementType::kStmtSelect)))
             RETURN_PARSE_ERROR("Only SELECT statements are supported.")
 
-        bool isValid = parseQuery((const hsql::SelectStatement *)statement, datasetId, page, pageSize);
+        bool isValid = Parse((const hsql::SelectStatement *)statement, datasetId, page, pageSize);
         convertedQuery += ";";
         return isValid;
     }
@@ -100,16 +101,16 @@ bool QueryParser::ConvertQuery(const string &query, int datasetId, int page, int
     return true;
 }
 
-string QueryParser::GetConvertedQuery()
+string SelectClauseParser::GetConvertedQuery()
 {
     return convertedQuery;
 }
 
-void QueryParser::Clear()
+void SelectClauseParser::Clear()
 {
     convertedQuery = "";
     biologicalStructure = "";
     errorMessage = "";
-    converter.Clear();
-    endQueryGenerator->Clear();
+    jsonDataExtractor.Clear();
+    whereClauseParser->Clear();
 }
