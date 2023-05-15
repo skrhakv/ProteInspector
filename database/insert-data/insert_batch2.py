@@ -85,14 +85,14 @@ if __name__ == "__main__":
                 # get the sequence ID of the duplicate, it is needed when inserting into the proteins table
                 protein_pair_id = result[0]
 
-            # insert lcs info into the protein_transformations_data table:
+            # insert lcs info into the protein_lcs_data table:
 
             # sanity check if the protein_transformations_data is not already in the DB
-            exists_query = f"select exists (select 1 from protein_transformations_data where protein_transformation_id = {protein_pair_id});"
+            exists_query = f"select exists (select 1 from protein_lcs_data where protein_transformation_id = {protein_pair_id});"
             cur.execute(exists_query)
             if not cur.fetchone()[0]:
                 # insert the info into the DB
-                insert_query = f"INSERT INTO protein_transformations_data(protein_transformation_id, size, i1, i2) VALUES ({protein_pair_id}, {lcs_length}, {lcs_i1}, {lcs_i2});"
+                insert_query = f"INSERT INTO protein_lcs_data(protein_transformation_id, size, i1, i2) VALUES ({protein_pair_id}, {lcs_length}, {lcs_i1}, {lcs_i2});"
                 cur.execute(insert_query)
             else:
                 if DEBUG:

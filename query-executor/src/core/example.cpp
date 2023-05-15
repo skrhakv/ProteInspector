@@ -7,9 +7,11 @@ using namespace std;
 // for debugging purposes
 int main(int argc, char *argv[])
 {
+    string query = argv[1];
     QueryExecutor executor;
-    // auto [r, b] = executor.ParseAndExecute("SELECT * FROM proteins WHERE rmsd > 5 order by rmsd desc", 1, 0, 100, true);
-    auto [r, b] = executor.GetTransformationContext("SELECT * FROM proteins", 2, 0, 1);
+    // SELECT * FROM proteins WHERE rmsd > 5 order by rmsd desc
+    auto [r, b] = executor.ParseAndExecute(query, 1, 0, 100, true);
+    // auto [r, b] = executor.GetTransformationContext("SELECT * FROM proteins", 2, 0, 1);
 
     std::size_t const num_rows = std::size(r);
     std::size_t const num_cols = r.columns();
