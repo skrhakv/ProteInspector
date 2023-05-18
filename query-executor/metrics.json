@@ -505,6 +505,10 @@
         }
     },
     "backward-metrics-mapping": {
+        "residue_labels.label_id": "Id",
+        "domain_pair_transformations.domain_pair_transformation_id": "Id",
+        "domain_transformations.domain_transformation_id": "Id",
+        "protein_transformations.protein_transformation_id": "Id",
         "transformations.dataset_id": "DatasetId",
         "protein_transformations.before_snapshot": "BeforeSnapshot",
         "protein_transformations.after_snapshot": "AfterSnapshot",

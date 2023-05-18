@@ -308,7 +308,7 @@ export class ProteinViewComponent implements OnInit {
             el: document.getElementById("msa-viewer"),
             seqs: msa.io.fasta.parse(fasta),
             vis: {
-                conserv: true,
+                conserv: false,
                 overviewbox: false
             }
         };

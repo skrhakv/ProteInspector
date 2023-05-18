@@ -23,7 +23,7 @@
             Or specify the query using filters:
             <div class="dropdown">
                 <select class="form-select" (change)="selectBiologicalStructureType($event)">
-                    <option selected> Select Structure Type</option>
+                    <option selected> Select Objects of Interest</option>
                     <option *ngFor="let item of filterService.BiologicalStructureTypes | keyvalue" [value]="item.key">
                         {{item.value["name"]}}
                     </option>

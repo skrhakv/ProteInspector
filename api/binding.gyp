@@ -10,6 +10,7 @@
             "../query-executor/src/core/query-executor.cpp",
             "../query-executor/src/core/select-clause-parser.cpp",
             "../query-executor/src/core/json-data-extractor.cpp",
+            "../query-executor/src/core/expression-parser.cpp",
             "../query-executor/src/core/utils.hpp",
             "../query-executor/src/query-executor-napi.cpp",
             "../query-executor/src/main.cpp"            
