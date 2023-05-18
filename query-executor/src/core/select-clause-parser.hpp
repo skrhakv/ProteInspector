@@ -21,13 +21,14 @@ private:
     string convertedQuery;
 
     bool checkForAllowedGrammar(const hsql::SelectStatement *selectStatement);
+    bool checkFromKeyword(const string query);
 
 public:
     string errorMessage;
     void SetMetricsParser(MetricsParser *_metricsParser);
     void SetWhereClauseParser(WhereClauseParser *_whereClauseParser);
 
-    bool Parse(const string &query, int datasetId, int page = 0, int pageSize = 100);
+    bool Parse(const string query, int datasetId, int page = 0, int pageSize = 100);
     bool Parse(const hsql::SelectStatement *selectStatement, int datasetId, int page = 0, int pageSize = 100);
 
     string GetConvertedQuery();

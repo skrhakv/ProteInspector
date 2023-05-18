@@ -3,7 +3,7 @@
 #include "operator-validator.hpp"
 #include "utils.hpp"
 #include "select-clause-parser.hpp"
-
+#include <iostream>
 void SelectClauseParser::SetMetricsParser(MetricsParser *_metricsParser)
 {
     this->metricsParser = _metricsParser;
@@ -67,10 +67,27 @@ bool SelectClauseParser::checkForAllowedGrammar(const hsql::SelectStatement *sel
 
     return true;
 }
-
-bool SelectClauseParser::Parse(const string &query, int datasetId, int page, int pageSize)
+bool SelectClauseParser::checkFromKeyword(const string query)
 {
-    // TODO: check whether FROM keyword is present in query
+    std::istringstream strm(query);
+    std::string s;
+
+    while ( strm >> s )
+    {
+        toLower(s);
+        if(s == "from")
+            return true;
+    }
+    return false;
+}
+
+bool SelectClauseParser::Parse(const string query, int datasetId, int page, int pageSize)
+{
+    // unfortunately the library segfaults when you forget the 'FROM' keyword in the query,
+    // so we have to check that manually:
+    bool isFromPresent = checkFromKeyword(query);
+    if (!isFromPresent)
+        RETURN_PARSE_ERROR("FROM keyword missing in the query.")
 
     // parse a given query
     hsql::SQLParserResult result;

@@ -16,7 +16,6 @@ bool JsonDataExtractor::ValidBiologicalStructure(string biologicalStructure)
     return true;
 }
 
-
 bool JsonDataExtractor::ParseValue(const hsql::Expr *expression, const string biologicalStructure, string &result)
 {
     if (expression->isType(hsql::kExprLiteralInt))
@@ -59,6 +58,16 @@ bool JsonDataExtractor::ValidateQueryMetric(hsql::Expr *expression, const string
         result += backwardMetric[resultMetric];
         result += "\"";
     }
+    return true;
+}
+
+bool JsonDataExtractor::GetDefaultIdMetric(const string biologicalStructure, string &result)
+{
+    string resultMetric = metricsData["forward-metrics-mapping"][biologicalStructure]["data"]["id"]["database-destination"];
+
+    result += ", ";
+    result += resultMetric;
+    result += "AS \"id\"";
     return true;
 }
 

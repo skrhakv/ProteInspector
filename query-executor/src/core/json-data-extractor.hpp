@@ -28,6 +28,8 @@ public:
     bool GetDatasetIdMetric(const string biologicalStructure, int datasetId, string &result);
     bool GetDefaultOrder(const string biologicalStructure, string &result);
     bool GetDefaultGroupBy(const string biologicalStructure, string &result);
+    bool GetDefaultIdMetric(const string biologicalStructure, string &result);
+
     void Clear();
 };
 

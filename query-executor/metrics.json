@@ -28,6 +28,11 @@
     "forward-metrics-mapping": {
         "proteins": {
             "data": {
+                "id" : {
+                    "database-destination": "protein_transformations.protein_transformation_id",
+                    "type": "integer",
+                    "name": ""
+                },
                 "datasetid": {
                     "database-destination": "transformations.dataset_id",
                     "type": "integer",
@@ -108,6 +113,11 @@
         },
         "domains": {
             "data": {
+                "id" : {
+                    "database-destination": "domain_transformations.domain_transformation_id",
+                    "type": "integer",
+                    "name": ""
+                },
                 "datasetid": {
                     "database-destination": "transformations.dataset_id",
                     "type": "integer",
@@ -218,6 +228,11 @@
         },
         "domainpairs": {
             "data": {
+                "id" : {
+                    "database-destination": "domain_pair_transformations.domain_pair_transformation_id",
+                    "type": "integer",
+                    "name": ""
+                },
                 "datasetid": {
                     "database-destination": "transformations.dataset_id",
                     "type": "integer",
@@ -390,6 +405,11 @@
         },
         "residues": {
             "data": {
+                "id" : {
+                    "database-destination": "residue_labels.label_id",
+                    "type": "integer",
+                    "name": ""
+                },
                 "datasetid": {
                     "database-destination": "transformations.dataset_id",
                     "type": "integer",

@@ -10,7 +10,7 @@ class SelectiveMetricsParser : public MetricsParser
 public:
     bool Parse(const hsql::SelectStatement *selectStatement, const string &biologicalStructure, string &result) override
     {
-        bool first = true;
+        bool first = true, addIdExplicitly = false;
         for (hsql::Expr *expr : *selectStatement->selectList)
         {
             if (expr->type == hsql::kExprStar && selectStatement->selectList->size() > 1)
@@ -23,6 +23,7 @@ public:
             }
             else if (expr->type == hsql::kExprColumnRef)
             {
+                addIdExplicitly = true;
                 if (!first)
                     result += ",";
                 string metric;
@@ -33,6 +34,9 @@ public:
                 first = false;
             }
         }
+        if(addIdExplicitly)
+            jsonDataExtractor.GetDefaultIdMetric(biologicalStructure, result);
+        
         return true;
     }
 };

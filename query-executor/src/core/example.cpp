@@ -11,8 +11,8 @@ int main(int argc, char *argv[])
     QueryExecutor executor;
     // SELECT * FROM proteins WHERE rmsd > 5 order by rmsd desc
     auto [r, b] = executor.ParseAndExecute(query, 1, 0, 100, true);
-    executor.GetNumberOfPages(query, 1);
-    executor.GetTransformationContext(query, 2, 0, 1);
+    // executor.GetNumberOfPages(query, 1);
+    // executor.GetTransformationContext(query, 2, 0, 1);
 
     // std::size_t const num_rows = std::size(r);
     // std::size_t const num_cols = r.columns();
