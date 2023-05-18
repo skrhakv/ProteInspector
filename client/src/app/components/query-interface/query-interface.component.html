@@ -39,17 +39,17 @@
                     <div class="col-4" *ngIf="item.name === undefined">
                         <select class="form-select" (change)="specifyMetricName(i, $event)">
                             <option [selected]="true">Select Metric</option>
-                            <option *ngFor="let metric of filterService.AvailableMetrics | keyvalue"
-                                value="{{metric.key}}">
-                                {{metric.value["name"]}}
+                            <option *ngFor="let metric of metricsOrder"
+                                value="{{metric}}">
+                                {{filterService.AvailableMetrics[metric]["name"]}}
                             </option>
                         </select>
                     </div>
                     <div class="col-4" *ngIf="item.name !== undefined">
                         <select class="form-select" (change)="specifyMetricName(i, $event)" ngModel="{{item.name}}">
-                            <option *ngFor="let metric of filterService.AvailableMetrics | keyvalue"
-                                value="{{metric.key}}" [selected]="metric.value['name'] === item.name">
-                                {{metric.value["name"]}}
+                            <option *ngFor="let metric of metricsOrder"
+                                value="{{metric}}" [selected]="filterService.AvailableMetrics[metric]['name'] === item.name">
+                                {{filterService.AvailableMetrics[metric]["name"]}}
                             </option>
                         </select>
                     </div>
@@ -94,9 +94,9 @@
                     <div class="col-4">
                         <select class="form-select" (change)="specifySortingMetric($event)">
                             <option [selected]="true">Select Sorting Metric</option>
-                            <option *ngFor="let metric of filterService.AvailableMetrics | keyvalue"
-                                value="{{metric.key}}">
-                                {{metric.value["name"]}}
+                            <option *ngFor="let metric of metricsOrder"
+                                value="{{metric}}">
+                                {{filterService.AvailableMetrics[metric]["name"]}}
                             </option>
                         </select>
                     </div>

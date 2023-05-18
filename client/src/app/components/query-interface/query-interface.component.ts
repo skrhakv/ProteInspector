@@ -40,6 +40,7 @@ export class QueryInterfaceComponent implements OnInit {
     public resultCount: number = 0;
     public DataReady: boolean = true;
     public emptyResult: boolean = false;
+    public metricsOrder: string[] = []
 
     public isBiologicalStructureSelected: boolean = false;
     public DropdownMetricItems: Metric[] = [];
@@ -69,6 +70,7 @@ export class QueryInterfaceComponent implements OnInit {
     sendManualQuery() {
         this.isBiologicalStructureSelected = false;
         this.DropdownMetricItems = [];
+        this.metricsOrder = [];
 
         this.sendQuery();
     }
@@ -149,6 +151,7 @@ export class QueryInterfaceComponent implements OnInit {
     selectBiologicalStructureType(event: any) {
         let biologicalStructureType = event.target.value;
         this.DropdownMetricItems = [];
+        this.metricsOrder = [];
         this.isBiologicalStructureSelected = false;
 
         let [query, request] = this.filterService.selectBiologicalStructureType(biologicalStructureType);
@@ -158,6 +161,8 @@ export class QueryInterfaceComponent implements OnInit {
             Object.keys(data).forEach(key => {
                 if (data[key]["name"] === undefined || data[key]["name"] === "")
                     delete data[key];
+                else
+                    this.metricsOrder.push(key);
             });
             this.filterService.AvailableMetrics = data;
             this.isBiologicalStructureSelected = true;

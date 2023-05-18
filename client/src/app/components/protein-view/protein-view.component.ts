@@ -309,7 +309,8 @@ export class ProteinViewComponent implements OnInit {
             seqs: msa.io.fasta.parse(fasta),
             vis: {
                 conserv: false,
-                overviewbox: false
+                overviewbox: false,
+                labelId: false
             }
         };
 

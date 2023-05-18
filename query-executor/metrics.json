@@ -188,16 +188,6 @@
                     "type": "float",
                     "name": "Compare Secondary Structure"
                 },
-                "afterdomainspanstart": {
-                    "database-destination": "(after_domains.domain_span).span_start",
-                    "type": "integer",
-                    "name": "After Domain Span Start"
-                },
-                "afterdomainspanend": {
-                    "database-destination": "(after_domains.domain_span).span_end",
-                    "type": "integer",
-                    "name": "After Domain Span End"
-                },
                 "beforedomainspanstart": {
                     "database-destination": "(before_domains.domain_span).span_start",
                     "type": "integer",
@@ -207,6 +197,16 @@
                     "database-destination": "(before_domains.domain_span).span_end",
                     "type": "integer",
                     "name": "Before Domain Span End"
+                },
+                "afterdomainspanstart": {
+                    "database-destination": "(after_domains.domain_span).span_start",
+                    "type": "integer",
+                    "name": "After Domain Span Start"
+                },
+                "afterdomainspanend": {
+                    "database-destination": "(after_domains.domain_span).span_end",
+                    "type": "integer",
+                    "name": "After Domain Span End"
                 },
                 "i1": {
                     "database-destination": "protein_lcs_data.i1",
@@ -315,26 +315,6 @@
                     "type": "string",
                     "name": "After Domain CATH ID2"
                 },
-                "afterdomainspanend1": {
-                    "database-destination": "(after_domains1.domain_span).span_end",
-                    "type": "integer",
-                    "name": "After Domain Span End 1"
-                },
-                "afterdomainspanstart1": {
-                    "database-destination": "(after_domains1.domain_span).span_start",
-                    "type": "integer",
-                    "name": "After Domain Span Start 1"
-                },
-                "afterdomainspanend2": {
-                    "database-destination": "(after_domains2.domain_span).span_end",
-                    "type": "integer",
-                    "name": "After Domain Span End 2"
-                },
-                "afterdomainspanstart2": {
-                    "database-destination": "(after_domains2.domain_span).span_start",
-                    "type": "integer",
-                    "name": "After Domain Span Start 2"
-                },
                 "beforedomainspanstart1": {
                     "database-destination": "(before_domains1.domain_span).span_start",
                     "type": "integer",
@@ -354,6 +334,26 @@
                     "database-destination": "(before_domains2.domain_span).span_end",
                     "type": "integer",
                     "name": "Before Domain Span End 2"
+                },
+                "afterdomainspanend1": {
+                    "database-destination": "(after_domains1.domain_span).span_end",
+                    "type": "integer",
+                    "name": "After Domain Span End 1"
+                },
+                "afterdomainspanstart1": {
+                    "database-destination": "(after_domains1.domain_span).span_start",
+                    "type": "integer",
+                    "name": "After Domain Span Start 1"
+                },
+                "afterdomainspanend2": {
+                    "database-destination": "(after_domains2.domain_span).span_end",
+                    "type": "integer",
+                    "name": "After Domain Span End 2"
+                },
+                "afterdomainspanstart2": {
+                    "database-destination": "(after_domains2.domain_span).span_start",
+                    "type": "integer",
+                    "name": "After Domain Span Start 2"
                 },
                 "rmsd": {
                     "database-destination": "domain_pair_transformations_data.rmsd",
