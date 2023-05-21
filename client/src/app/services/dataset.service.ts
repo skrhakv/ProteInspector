@@ -78,7 +78,7 @@ export class DatasetService {
         const headers = new HttpHeaders({
             'Access-Control-Allow-Origin': AppSettings.API_ENDPOINT
         });
-        
+
         const options = {
             headers: headers,
             responseType: 'blob' as 'json'
@@ -114,26 +114,27 @@ export class DatasetService {
 
     }
 
-    getSpecificRow(row: number) {
+    getSpecificRow(id: number, structure: string) {
         const headers = new HttpHeaders({
             'Access-Control-Allow-Origin': AppSettings.API_ENDPOINT
         });
         const options = {
             headers
         };
-
-        return this.http.get<any>(AppSettings.API_ENDPOINT + `/data/specific-row/?row=` + row
-            + "&query=" + encodeURIComponent(this.currentQuery) + "&datasetId=" + this.SelectedDataset.dataset_id, options);
+        return this.http.get<any>(AppSettings.API_ENDPOINT + `/data/?page=` + 0 +
+            "&pageSize=" + 100 + "&query=" + encodeURIComponent(`SELECT * FROM ` + structure + ` WHERE id=` + id) +
+            "&datasetId=" + this.SelectedDataset.dataset_id, options);
     }
 
-    getTransformationContext(row: number) {
+    getTransformationContext(id: number, structure: string) {
         const headers = new HttpHeaders({
             'Access-Control-Allow-Origin': AppSettings.API_ENDPOINT
         });
         const options = {
             headers
         };
-        return this.http.get<any>(AppSettings.API_ENDPOINT + `/data/transformation-context/?row=` + row +
-            "&query=" + encodeURIComponent(this.currentQuery) + "&datasetId=" + this.SelectedDataset.dataset_id, options);
+        return this.http.get<any>(AppSettings.API_ENDPOINT + `/data/transformation-context/?query=`
+         + encodeURIComponent(`SELECT * FROM ` + structure + ` WHERE id=` + id) + 
+         "&datasetId=" + this.SelectedDataset.dataset_id, options);
     }
 }

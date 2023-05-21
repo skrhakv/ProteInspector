@@ -9,17 +9,17 @@
 
 using namespace std;
 
-std::pair<pqxx::result, std::string> QueryExecutor::GetTransformationContext(const std::string &query, int datasetId, int page, int pageSize)
+std::pair<pqxx::result, std::string> QueryExecutor::GetTransformationContext(const std::string &query, int datasetId)
 {
     NonSelectiveMetricsParser metricsParser;
-    WrapperWhereClauseParser wrapperWhereClauseParser(page, pageSize);
+    WrapperWhereClauseParser wrapperWhereClauseParser(0, 1);
 
     parser.SetWhereClauseParser(&wrapperWhereClauseParser);
     parser.SetMetricsParser(&metricsParser);
     
     parser.Clear();
 
-    bool isValid = parser.Parse(query, datasetId, page, pageSize);
+    bool isValid = parser.Parse(query, datasetId, 0, 1000);
 
     if (!isValid)
     {

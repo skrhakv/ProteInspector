@@ -140,19 +140,18 @@ Napi::Value QueryExecutorNapi::GetTransformationContext(const Napi::CallbackInfo
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
 
-    if (info.Length() != 3)
+    if (info.Length() != 2)
     {
-        Napi::TypeError::New(env, "Wrong number of parameters: expected parameters are (string query, int datasetId, int row)").ThrowAsJavaScriptException();
+        Napi::TypeError::New(env, "Wrong number of parameters: expected parameters are (string query, int datasetId)").ThrowAsJavaScriptException();
     }
 
     std::string query{info[0].As<Napi::String>().Utf8Value()}, error;
     int datasetId{info[1].As<Napi::Number>().Int32Value()};
-    int row{info[2].As<Napi::Number>().Int32Value()};
 
     pqxx::result result;
     try
     {
-        tie(result, error) = qExecutor->GetTransformationContext(query, datasetId, row, 1);
+        tie(result, error) = qExecutor->GetTransformationContext(query, datasetId);
     }
     catch (const std::exception &e)
     {

@@ -40,8 +40,9 @@ export class ProteinViewComponent implements OnInit {
     public ContextDataReady: boolean = false;
     public OnlyChains: [visible: boolean, buttonText: string] = [false, "Show only chains"];
     public HiddenChainTasks: Task<void>[] = [];
-
+    public structure!: string;
     private row!: number;
+
     constructor(
         public datasetService: DatasetService,
         public externalLinkService: ExternalLinkService,
@@ -50,10 +51,21 @@ export class ProteinViewComponent implements OnInit {
         private route: ActivatedRoute) {
 
         this.row = parseInt(this.route.snapshot.paramMap.get('id') as string);
-        datasetService.currentQuery = decodeURIComponent(this.route.snapshot.paramMap.get('query') as string);
+
+        this.structure = this.route.snapshot.paramMap.get('structure') as string;
+
+        if (this.structure === 'proteins')
+            this.structure = 'Proteins';
+        else if (this.structure === 'domains')
+            this.structure = 'Domains';
+        else if (this.structure === 'domain-pairs')
+            this.structure = 'Domain Pairs';
+        else if (this.structure === 'residues')
+            this.structure = 'Residues';
 
         datasetService.getDatasetInfo().then(_ => {
-            datasetService.getSpecificRow(this.row).subscribe(data => {
+            datasetService.getSpecificRow(this.row, this.structure.replace(/b/gi, '')
+            ).subscribe(data => {
                 this.TableColumnNames = data['columnNames'];
                 this.TableData = data['results'];
 
@@ -67,90 +79,93 @@ export class ProteinViewComponent implements OnInit {
                 this.DataReady = true;
             });
 
-            datasetService.getTransformationContext(this.row).subscribe(data => {
-                this.ContextTableColumnNames = data['columnNames'];
+            datasetService.getTransformationContext(this.row, this.structure.replace(/b/gi, '')).subscribe({
+                next: (data) => {
+                    this.ContextTableColumnNames = data['columnNames'];
+                    console.log(data);
+                    // sort by BeforeSnapshot, AfterSnapshot
+                    this.ContextTableData = data['results'].sort((a: any, b: any) => {
+                        if (a["BeforeSnapshot"] < b["BeforeSnapshot"])
+                            return -1;
+                        if (a["BeforeSnapshot"] > b["BeforeSnapshot"])
+                            return 1;
+                        if (a["AfterSnapshot"] < b["AfterSnapshot"])
+                            return -1;
+                        if (a["AfterSnapshot"] > b["AfterSnapshot"])
+                            return 1;
+                        return 0;
+                    });
+                    this.ContextColumnOrder = [];
 
-                // sort by BeforeSnapshot, AfterSnapshot
-                this.ContextTableData = data['results'].sort((a: any, b: any) => {
-                    if (a["BeforeSnapshot"] < b["BeforeSnapshot"])
-                        return -1;
-                    if (a["BeforeSnapshot"] > b["BeforeSnapshot"])
-                        return 1;
-                    if (a["AfterSnapshot"] < b["AfterSnapshot"])
-                        return -1;
-                    if (a["AfterSnapshot"] > b["AfterSnapshot"])
-                        return 1;
-                    return 0;
-                });
-                this.ContextColumnOrder = [];
+                    const firstRow = this.ContextTableData[0];
 
-                const firstRow = this.ContextTableData[0];
+                    // Show highlight button if there is a span to highlight
+                    if ('BeforeDomainSpanStart' in firstRow || 'BeforeDomainSpanStart1' in firstRow || 'BeforeResidueStart' in firstRow)
+                        this.ShowHighlightButton = true;
 
-                // Show highlight button if there is a span to highlight
-                if ('BeforeDomainSpanStart' in firstRow || 'BeforeDomainSpanStart1' in firstRow || 'BeforeResidueStart' in firstRow)
-                    this.ShowHighlightButton = true;
+                    // pick data for the protein superposition and visualization
+                    let lcsLength: number = firstRow["LcsLength"]
+                    for (const transformation of this.ContextTableData) {
+                        if (lcsLength !== transformation["LcsLength"]) {
+                            console.error(`Incosistent data: each LCS length needs to be the same. Found: ${lcsLength}, ${transformation["LcsLength"]}`);
+                        }
 
-                // pick data for the protein superposition and visualization
-                let lcsLength: number = firstRow["LcsLength"]
-                for (const transformation of this.ContextTableData) {
-                    if (lcsLength !== transformation["LcsLength"]) {
-                        console.error(`Incosistent data: each LCS length needs to be the same. Found: ${lcsLength}, ${transformation["LcsLength"]}`);
+                        if (this.VisualizedProteins.filter(
+                            x =>
+                                x.PdbCode === transformation["BeforePdbID"] &&
+                                x.ChainId === transformation["BeforeChainId"]).length === 0)
+                            this.VisualizedProteins.push({ PdbCode: transformation["BeforePdbID"], ChainId: transformation["BeforeChainId"], LcsStart: transformation["BeforeLcsStart"], FileLocation: transformation["BeforeFileLocation"] })
+
+                        if (this.VisualizedProteins.filter(
+                            x =>
+                                x.PdbCode === transformation["AfterPdbID"] &&
+                                x.ChainId === transformation["AfterChainId"]).length === 0)
+                            this.VisualizedProteins.push({ PdbCode: transformation["AfterPdbID"], ChainId: transformation["AfterChainId"], LcsStart: transformation["AfterLcsStart"], FileLocation: transformation["AfterFileLocation"] })
                     }
 
-                    if (this.VisualizedProteins.filter(
-                        x =>
-                            x.PdbCode === transformation["BeforePdbCode"] &&
-                            x.ChainId === transformation["BeforeChainId"]).length === 0)
-                        this.VisualizedProteins.push({ PdbCode: transformation["BeforePdbCode"], ChainId: transformation["BeforeChainId"], LcsStart: transformation["BeforeLcsStart"], FileLocation: transformation["BeforeFileLocation"] })
+                    this.UpdateChainVisibilityButtonText();
 
-                    if (this.VisualizedProteins.filter(
-                        x =>
-                            x.PdbCode === transformation["AfterPdbCode"] &&
-                            x.ChainId === transformation["AfterChainId"]).length === 0)
-                        this.VisualizedProteins.push({ PdbCode: transformation["AfterPdbCode"], ChainId: transformation["AfterChainId"], LcsStart: transformation["AfterLcsStart"], FileLocation: transformation["AfterFileLocation"] })
-                }
+                    // set corresponding length and values for the 'IsProteinVisible' array and for the 'ProteinRepresentation' array
+                    this.IsProteinVisible = new Array<boolean>(this.VisualizedProteins.length);
+                    this.IsProteinVisible.fill(true);
 
-                this.UpdateChainVisibilityButtonText();
+                    this.ProteinRepresentation = new Array<StructureRepresentationRegistry.BuiltIn>(this.VisualizedProteins.length);
+                    this.ProteinRepresentation.fill('cartoon');
 
-                // set corresponding length and values for the 'IsProteinVisible' array and for the 'ProteinRepresentation' array
-                this.IsProteinVisible = new Array<boolean>(this.VisualizedProteins.length);
-                this.IsProteinVisible.fill(true);
-
-                this.ProteinRepresentation = new Array<StructureRepresentationRegistry.BuiltIn>(this.VisualizedProteins.length);
-                this.ProteinRepresentation.fill('cartoon');
-
-                // disable the buttons until the visualization is ready using callback
-                let callback = () => {
-                    this.VisualizationReady = true;
-                    this.LoadMsaViewer();
-                }
-
-                this.superpositionService.GenerateMolstarVisualisation(this.plugin, this.VisualizedProteins, lcsLength, callback);
-
-                // show context only if there is any
-                if (this.ContextTableData.length <= 1) {
-                    this.ContextDataReady = false;
-                    return;
-                }
-
-                // only show columns from the this.datasetService.ColumnOrder in this order:
-                for (const columnName of this.datasetService.ColumnOrder) {
-                    if (this.TableColumnNames.includes(columnName)) {
-                        this.ContextColumnOrder.push(columnName);
+                    // disable the buttons until the visualization is ready using callback
+                    let callback = () => {
+                        this.VisualizationReady = true;
+                        this.LoadMsaViewer();
                     }
-                }
 
-                // manually add BeforeSnapshot, AfterSnapshot columns to the result table 
-                this.ContextColumnOrder.push("BeforeSnapshot");
-                this.ContextColumnOrder.push("AfterSnapshot")
-                this.ContextDataReady = true;
+                    this.superpositionService.GenerateMolstarVisualisation(this.plugin, this.VisualizedProteins, lcsLength, callback);
 
-            },
-                error => {
+                    // show context only if there is any
+                    if (this.ContextTableData.length <= 1) {
+                        this.ContextDataReady = false;
+                        return;
+                    }
+
+                    // only show columns from the this.datasetService.ColumnOrder in this order:
+                    for (const columnName of this.datasetService.ColumnOrder) {
+                        if (this.TableColumnNames.includes(columnName)) {
+                            this.ContextColumnOrder.push(columnName);
+                        }
+                    }
+
+                    // manually add BeforeSnapshot, AfterSnapshot columns to the result table 
+                    this.ContextColumnOrder.push("BeforeSnapshot");
+                    this.ContextColumnOrder.push("AfterSnapshot")
+                    this.ContextDataReady = true;
+
+                },
+                error: (error) => {
+                    console.log(error);
                     this.ContextTableColumnNames = [];
                     this.ContextTableData = [];
                     this.ContextColumnOrder = [];
-                });
+                }
+            });
         });
     }
 

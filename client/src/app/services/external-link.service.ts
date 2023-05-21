@@ -11,11 +11,11 @@ export class ExternalLinkService {
     constructor() {
         this.linkMapping = {
             "UniprotId": this.getUniprotLink,
-            "BeforePdbCode": this.getPdbLink,
+            "BeforePdbID": this.getPdbLink,
             "BeforeDomainCathId": this.getCathLink,
             "BeforeDomainCathId1": this.getCathLink,
             "BeforeDomainCathId2": this.getCathLink,
-            "AfterPdbCode": this.getPdbLink,
+            "AfterPdbID": this.getPdbLink,
             "AfterDomainCathId": this.getCathLink,
             "AfterDomainCathId1": this.getCathLink,
             "AfterDomainCathId2": this.getCathLink,

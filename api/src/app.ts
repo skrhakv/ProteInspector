@@ -17,42 +17,17 @@ app.get('/datasets-info', (req, res) => {
     res.status(200).json(result);
 });
 
-app.get('/data/specific-row', (req, res) => {
-    if (req.query === undefined || req.query.row === undefined || req.query.query === undefined || req.query.datasetId === undefined) {
-        res.status(400).send("Failed! Provide paramaters 'query', 'datasetId' and 'row' in the URL.\n");
-        return;
-    }
-
-    let query: string = req.query.query as string;
-    let row: number = Number(req.query.row as any);
-    let datasetId: number = Number(req.query.datasetId as any);
-
-    let result = executor.ParseAndExecuteWithAllMetrics(query, datasetId, row, 1);
-
-    if (typeof result === 'string') {
-        res.setHeader('Content-Type', 'application/json');
-        console.error(result);
-        res.status(400).json(result);
-        return;
-    }
-    else {
-        res.setHeader('Content-Type', 'application/json');
-        res.status(200).json(result);
-    }
-});
-
 
 app.get('/data/transformation-context', (req, res) => {
-    if (req.query === undefined || req.query.row === undefined || req.query.query === undefined || req.query.datasetId === undefined) {
-        res.status(400).send("Failed! Provide paramaters 'query', 'datasetId' and 'row' in the URL.\n");
+    if (req.query === undefined  || req.query.query === undefined || req.query.datasetId === undefined) {
+        res.status(400).send("Failed! Provide paramaters 'query' and 'datasetId' in the URL.\n");
         return;
     }
 
     let query: string = req.query.query as string;
-    let row: number = Number(req.query.row as any);
     let datasetId: number = Number(req.query.datasetId as any);
 
-    let result = executor.GetTransformationContext(query, datasetId, row);
+    let result = executor.GetTransformationContext(query, datasetId);
 
     if (typeof result === 'string') {
         res.setHeader('Content-Type', 'application/json');

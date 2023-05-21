@@ -194,11 +194,11 @@
                         <div class="col-3">
                             <button id="ChangeTypeGroupDrop" type="button"
                                 class="btn btn-outline-success dropdown-toggle" data-bs-toggle="dropdown"
-                                aria-haspopup="true" aria-expanded="false" [disabled]="!DataReady">
+                                aria-haspopup="true" aria-expanded="false" [disabled]="!DataReady || exportDisabled">
                                 Export Results
                             </button>
                             <div class="dropdown-menu" aria-labelledby="ChangeTypeGroupDrop">
-                                <a class="dropdown-item"
+                                <a class="dropdown-item" [ngClass]="!DataReady || exportDisabled ? 'disabled' : ''"
                                     *ngFor="let fileFormat of ['JSON', 'CSV']"
                                     (click)="ExportResults(fileFormat)">{{fileFormat}}</a>
                             </div>
@@ -222,7 +222,7 @@
                                     </thead>
                                     <tbody>
                                         <tr class="clickable-link" *ngFor="let row of TableData; index as i"
-                                            routerLink="/protein/{{encodeUri(datasetService.currentQuery)}}/{{(i) + (pageNumber * pageSize)}}">
+                                            routerLink="/detail/{{structure}}/{{row.Id}}">
                                             <th scope="row">{{(i + 1) + (pageNumber * pageSize)}}</th>
                                             <td *ngFor="let name of ColumnOrder">{{row[name]}}</td>
                                         </tr>

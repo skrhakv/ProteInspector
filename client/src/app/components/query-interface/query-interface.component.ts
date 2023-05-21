@@ -2,9 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { DatasetService } from 'src/app/services/dataset.service';
 import { trigger, transition, style, animate, state } from '@angular/animations';
 import { AppSettings } from 'src/app/app-settings';
-import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntil } from 'rxjs/operators';
-import { Observable, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
 import { FilterService } from 'src/app/services/filter.service';
 import { Metric } from 'src/app/models/metric.model';
 import { SortMetric } from 'src/app/models/sort-metric.model';
@@ -42,30 +41,29 @@ export class QueryInterfaceComponent implements OnInit {
     public DataReady: boolean = true;
     public emptyResult: boolean = false;
     public metricsOrder: string[] = []
+    public exportDisabled: boolean = false;
 
     public isBiologicalStructureSelected: boolean = false;
     public DropdownMetricItems: Metric[] = [];
     public SortingMetric: SortMetric = new SortMetric();
-
+    public structure!: string;
     constructor(
         public datasetService: DatasetService,
-        public filterService: FilterService,
-        private route: ActivatedRoute,
-        private router: Router
+        public filterService: FilterService
     ) {
         this.pageSize = AppSettings.PAGE_SIZE;
 
-        this.route.queryParams.subscribe(params => {
-            let query = params['query'];
-            let page = parseInt(params['page']);
-            if (query !== null && query !== undefined && page !== null && page !== undefined) {
-                datasetService.getDatasetInfo().then(_ => {
-                    this.query = decodeURIComponent(query);
-                    if (this.makeRequest)
-                        this.sendQuery(false, page);
-                });
-            }
-        });
+        let query: string | null = sessionStorage.getItem('query');
+        let page: string | null = sessionStorage.getItem('page');
+        if (query !== null && page !== null && page !== undefined) {
+            let parsedpage: number = parseInt(page);
+            datasetService.getDatasetInfo().then(_ => {
+                this.query = query !== null ? query : '';
+                if (this.makeRequest)
+                    this.sendQuery(false, parsedpage);
+
+            });
+        }
     }
 
     sendManualQuery() {
@@ -78,20 +76,15 @@ export class QueryInterfaceComponent implements OnInit {
 
     sendQuery(setQueryIntoRoute: boolean = true, pageNum: number = 0) {
         if (setQueryIntoRoute) {
-            this.router.navigate([], {
-                relativeTo: this.route,
-                queryParams: {
-                    query: this.encodeUri(this.query),
-                    page: pageNum
-                },
-                queryParamsHandling: 'merge',
-            });
+            sessionStorage.setItem('query', this.query);
+            sessionStorage.setItem('page', pageNum.toString());
         }
 
         this.makeRequest = false;
         this.DataReady = false;
         this.pageNumber = pageNum;
         this.datasetService.currentQuery = this.query;
+        this.structure = this.getStructure();
         this.getDataFromPage(this.pageNumber);
         this.datasetService.getNumberOfResults().pipe(takeUntil(this.ngUnsubscribe)).subscribe(data => {
             this.resultCount = data;
@@ -102,47 +95,72 @@ export class QueryInterfaceComponent implements OnInit {
 
     }
 
+    private getStructure(): string {
+        let tokens: string[] = this.query.toLowerCase().split(' ');
+        if (tokens.includes('proteins'))
+            return 'proteins';
+        if (tokens.includes('domains'))
+            return 'domains';
+        if (tokens.includes('domainpairs'))
+            return 'domainpairs';
+        if (tokens.includes('residues'))
+            return 'residues';
+        else return '';
+    }
+
     getDataFromPage(page: number) {
         this.ngUnsubscribe.next();
         this.emptyResult = false;
 
-        this.datasetService.getQueryData(page, AppSettings.PAGE_SIZE).pipe(takeUntil(this.ngUnsubscribe)).subscribe(data => {
-            this.TableColumnNames = data['columnNames'];
-            this.TableData = data['results'];
-            this.ColumnOrder = [];
+        this.datasetService.getQueryData(page, AppSettings.PAGE_SIZE).pipe(takeUntil(this.ngUnsubscribe)).subscribe({
+            next: data => {
+                this.TableColumnNames = data['columnNames'];
+                this.TableData = data['results'];
+                this.ColumnOrder = [];
 
-            if (this.TableData.length === 0)
-                this.emptyResult = true;
+                if (this.TableData.length === 0)
+                    this.emptyResult = true;
 
-            for (const columnName of this.datasetService.ColumnOrder) {
-                if (this.TableColumnNames.includes(columnName)) {
-                    this.ColumnOrder.push(columnName);
+                for (const columnName of this.datasetService.ColumnOrder) {
+                    if (this.TableColumnNames.includes(columnName)) {
+                        this.ColumnOrder.push(columnName);
+                    }
                 }
-            }
 
-            this.DataReady = true;
-        },
-            error => {
+                this.DataReady = true;
+            },
+            error: (e) => {
+                console.error(e);
                 this.TableColumnNames = [];
                 this.TableData = [];
                 this.ColumnOrder = [];
-            });
+            }
+        });
     }
 
     ExportResults(format: string): void {
         // Get all the results, not just the page
 
         let filename: string;
+        this.exportDisabled = true;
 
         if (format === 'JSON')
             filename = 'results.json';
+
         else if (format === 'CSV')
             filename = 'results.csv'
         else
             throw "Unknown format, valid formats are: JSON, CSV";
 
-        this.datasetService.getExportedFile(format.toLowerCase()).subscribe(blob => {
-            saveAs(blob, filename);
+        this.datasetService.getExportedFile(format.toLowerCase()).subscribe({
+            next: (blob) => {
+                saveAs(blob, filename);
+                this.exportDisabled = false;
+            },
+            error: (e) => {
+                console.error("Error downloading file: ", e);
+                this.exportDisabled = false;
+            }
         });
     }
 
@@ -152,13 +170,7 @@ export class QueryInterfaceComponent implements OnInit {
 
         this.DataReady = false;
         this.pageNumber = page;
-        this.router.navigate([], {
-            relativeTo: this.route,
-            queryParams: {
-                page: page
-            },
-            queryParamsHandling: 'merge',
-        });
+        sessionStorage.setItem('page', page.toString())
         this.getDataFromPage(this.pageNumber);
     }
 
