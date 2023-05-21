@@ -105,7 +105,7 @@ export class QueryInterfaceComponent implements OnInit {
         this.ngUnsubscribe.next();
         this.emptyResult = false;
 
-        this.datasetService.getQueryData(page).pipe(takeUntil(this.ngUnsubscribe)).subscribe(data => {
+        this.datasetService.getQueryData(page, AppSettings.PAGE_SIZE).pipe(takeUntil(this.ngUnsubscribe)).subscribe(data => {
             this.TableColumnNames = data['columnNames'];
             this.TableData = data['results'];
             this.ColumnOrder = [];
@@ -126,6 +126,24 @@ export class QueryInterfaceComponent implements OnInit {
                 this.TableData = [];
                 this.ColumnOrder = [];
             });
+    }
+
+    ExportResults(format: string) : void {
+        // Get all the results, not just the page
+        this.datasetService.getExportedFile().subscribe(data => {
+            console.log(data);
+        });
+        
+        if(format === 'JSON')
+        {
+
+        }
+        else if(format === 'CSV')
+        {
+
+        }
+        else
+            throw "Unknown format, valid formats are: JSON, CSV";
     }
 
     changePage(page: number) {

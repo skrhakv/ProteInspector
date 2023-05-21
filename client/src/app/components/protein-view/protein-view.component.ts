@@ -38,7 +38,7 @@ export class ProteinViewComponent implements OnInit {
     public ContextTableData!: any;
     public ContextColumnOrder: string[] = [];
     public ContextDataReady: boolean = false;
-    public OnlyChains: [visible: boolean, buttonText: string] = [false, "Show chains only"];
+    public OnlyChains: [visible: boolean, buttonText: string] = [false, "Show only chains"];
     public HiddenChainTasks: Task<void>[] = [];
 
     private row!: number;
@@ -109,6 +109,8 @@ export class ProteinViewComponent implements OnInit {
                             x.ChainId === transformation["AfterChainId"]).length === 0)
                         this.VisualizedProteins.push({ PdbCode: transformation["AfterPdbCode"], ChainId: transformation["AfterChainId"], LcsStart: transformation["AfterLcsStart"], FileLocation: transformation["AfterFileLocation"] })
                 }
+
+                this.UpdateChainVisibilityButtonText();
 
                 // set corresponding length and values for the 'IsProteinVisible' array and for the 'ProteinRepresentation' array
                 this.IsProteinVisible = new Array<boolean>(this.VisualizedProteins.length);
@@ -211,7 +213,7 @@ export class ProteinViewComponent implements OnInit {
 
             // reset camera and update buttons
             this.OnlyChains[0] = false;
-            this.OnlyChains[1] = "Show chains only";
+            this.UpdateChainVisibilityButtonText();
             this.molstarService.CameraReset(this.plugin);
 
         }
@@ -220,7 +222,21 @@ export class ProteinViewComponent implements OnInit {
 
             //  update buttons
             this.OnlyChains[0] = true;
-            this.OnlyChains[1] = "Show whole structures"
+            this.OnlyChains[1] = "Show Full Structures"
+        }
+    }
+
+    private UpdateChainVisibilityButtonText(): void {
+        this.OnlyChains[1] = "Show Only Chains "
+        let first: boolean = true;
+        for (const protein of this.VisualizedProteins) {
+            if (first)
+                first = false;
+            else
+                this.OnlyChains[1] += ", ";
+
+            this.OnlyChains[1] += protein.PdbCode + protein.ChainId;
+
         }
     }
 
@@ -246,7 +262,7 @@ export class ProteinViewComponent implements OnInit {
 
     private LoadMsaViewer() {
         let ProteinSequences: ProteinSequence[] = this.molstarService.GetChainSequences(this.plugin);
-        
+
         // compute the size of the left branch of the sequence from the desired chain for each protein
         let leftBranchSizes: number[] = [];
 

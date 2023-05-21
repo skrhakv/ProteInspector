@@ -51,7 +51,7 @@
                 "beforepdbcode": {
                     "database-destination": "before_proteins.pdb_code",
                     "type": "string",
-                    "name": "Before PDB Code"
+                    "name": "Before PDB ID"
                 },
                 "beforechainid": {
                     "database-destination": "before_proteins.chain_id",
@@ -71,7 +71,7 @@
                 "afterpdbcode": {
                     "database-destination": "after_proteins.pdb_code",
                     "type": "string",
-                    "name": "After PDB Code"
+                    "name": "After PDB ID"
                 },
                 "afterchainid": {
                     "database-destination": "after_proteins.chain_id",
@@ -136,7 +136,7 @@
                 "beforepdbcode": {
                     "database-destination": "before_proteins.pdb_code",
                     "type": "string",
-                    "name": "Before PDB Code"
+                    "name": "Before PDB ID"
                 },
                 "beforechainid": {
                     "database-destination": "before_proteins.chain_id",
@@ -161,7 +161,7 @@
                 "afterpdbcode": {
                     "database-destination": "after_proteins.pdb_code",
                     "type": "string",
-                    "name": "After PDB Code"
+                    "name": "After PDB ID"
                 },
                 "afterchainid": {
                     "database-destination": "after_proteins.chain_id",
@@ -251,7 +251,7 @@
                 "beforepdbcode": {
                     "database-destination": "before_proteins.pdb_code",
                     "type": "string",
-                    "name": "Before PDB Code"
+                    "name": "Before PDB ID"
                 },
                 "beforechainid": {
                     "database-destination": "before_proteins.chain_id",
@@ -287,7 +287,7 @@
                 "afterpdbcode": {
                     "database-destination": "after_proteins.pdb_code",
                     "type": "string",
-                    "name": "After PDB Code"
+                    "name": "After PDB ID"
                 },
                 "afterchainid": {
                     "database-destination": "after_proteins.chain_id",
@@ -428,7 +428,7 @@
                 "beforepdbcode": {
                     "database-destination": "before_proteins.pdb_code",
                     "type": "string",
-                    "name": "Before PDB Code"
+                    "name": "Before PDB ID"
                 },
                 "beforechainid": {
                     "database-destination": "before_proteins.chain_id",
@@ -448,7 +448,7 @@
                 "afterpdbcode": {
                     "database-destination": "after_proteins.pdb_code",
                     "type": "string",
-                    "name": "After PDB Code"
+                    "name": "After PDB ID"
                 },
                 "afterchainid": {
                     "database-destination": "after_proteins.chain_id",
@@ -516,11 +516,11 @@
         "domain_transformations.after_snapshot": "AfterSnapshot",
         "domain_pair_transformations.before_snapshot": "BeforeSnapshot",
         "domain_pair_transformations.after_snapshot": "AfterSnapshot",
-        "before_proteins.pdb_code": "BeforePdbCode",
+        "before_proteins.pdb_code": "BeforePdbID",
         "before_proteins.chain_id": "BeforeChainId",
         "before_proteins.file_location": "BeforeFileLocation",
         "sequences.uniprot_id": "UniprotId",
-        "after_proteins.pdb_code": "AfterPdbCode",
+        "after_proteins.pdb_code": "AfterPdbID",
         "after_proteins.chain_id": "AfterChainId",
         "after_proteins.file_location": "AfterFileLocation",
         "protein_transformations_data.rmsd": "Rmsd",
@@ -565,7 +565,7 @@
     },
     "order": [
         "UniprotId",
-        "BeforePdbCode",
+        "BeforePdbID",
         "BeforeChainId",
         "BeforeDomainCathId",
         "BeforeDomainSpan",
@@ -573,7 +573,7 @@
         "BeforeDomainSpanEnd",
         "BeforeDomainCathId1",
         "BeforeDomainCathId2",
-        "AfterPdbCode",
+        "AfterPdbID",
         "AfterChainId",
         "AfterDomainCathId",
         "AfterDomainSpan",
