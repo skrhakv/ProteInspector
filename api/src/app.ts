@@ -3,6 +3,7 @@ import express from 'express';
 import { QueryExecutor } from './query-executor';
 
 const app = express();
+let converter = require('json-2-csv');
 const cors = require('cors');
 var metrics = require('../metrics.json');
 const port = 3000;
@@ -22,7 +23,7 @@ app.get('/data/specific-row', (req, res) => {
         return;
     }
 
-    let query: string = (req.query.query as any) as string;
+    let query: string = req.query.query as string;
     let row: number = Number(req.query.row as any);
     let datasetId: number = Number(req.query.datasetId as any);
 
@@ -47,7 +48,7 @@ app.get('/data/transformation-context', (req, res) => {
         return;
     }
 
-    let query: string = (req.query.query as any) as string;
+    let query: string = req.query.query as string;
     let row: number = Number(req.query.row as any);
     let datasetId: number = Number(req.query.datasetId as any);
 
@@ -74,7 +75,7 @@ app.get('/data', (req, res) => {
         return;
     }
 
-    let query: string = (req.query.query as any) as string;
+    let query: string = req.query.query as string;
     let pageNumber: number = Number(req.query.page as any);
     let pageSize: number = Number(req.query.pageSize as any);
     let datasetId: number = Number(req.query.datasetId as any);
@@ -101,7 +102,7 @@ app.get('/pages', (req, res) => {
         return;
     }
 
-    let query: any = (req.query.query as any) as string;
+    let query: string = req.query.query as string;
     let pageSize: number = Number(req.query.pageSize as any);
     let datasetId: number = Number(req.query.datasetId as any);
 
@@ -127,7 +128,7 @@ app.get('/count', (req, res) => {
         return;
     }
 
-    let query: any = (req.query.query as any) as string;
+    let query: string = req.query.query as string;
     let datasetId: number = Number(req.query.datasetId as any);
 
     let result = executor.GetResultCount(query, datasetId);
@@ -150,6 +151,42 @@ app.get('/order', (req, res) => {
     res.status(200).json(metrics["order"]);
 
 });
+
+app.get('/export', async (req, res) => {
+    if (req.query === undefined || req.query.query === undefined || req.query.datasetId === undefined ||
+        req.query.format === undefined) {
+        res.status(400).send("Failed! Provide paramaters 'query', 'format' and 'datasetId' in the URL.\n");
+        return;
+    }
+
+    let query: string = req.query.query as string;
+    let datasetId: number = Number(req.query.datasetId as any);
+    let format: string = req.query.format as string;
+
+    const resultCount = executor.GetResultCount(query, datasetId);
+    let result = executor.ParseAndExecute(query, datasetId, 0, resultCount);
+    
+    if (format === 'json') {
+        var json = JSON.stringify(result['results']);
+        var filename = 'results.json';
+        var mimetype = 'application/json';
+        res.setHeader('Content-Type', mimetype);
+        res.setHeader('Content-disposition', 'attachment; filename=' + filename);
+        res.send(json);
+    }
+    else if (format === 'csv') {
+        const csv = await converter.json2csv(result['results']);
+        var filename = 'results.csv';
+        var mimetype = 'text/csv';
+        res.setHeader('Content-Type', mimetype);
+        res.setHeader('Content-disposition', 'attachment; filename=' + filename);
+        res.send(csv);
+    }
+    else
+        res.status(400).send("Failed! Unsupported format: " + format);
+
+});
+
 
 app.get('/biological-structures/:biologicalStructure', (req, res) => {
 

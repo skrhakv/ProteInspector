@@ -48,7 +48,7 @@
                     "type": "integer",
                     "name": ""
                 },
-                "beforepdbcode": {
+                "beforepdbid": {
                     "database-destination": "before_proteins.pdb_code",
                     "type": "string",
                     "name": "Before PDB ID"
@@ -68,7 +68,7 @@
                     "type": "string",
                     "name": "Uniprot ID"
                 },
-                "afterpdbcode": {
+                "afterpdbid": {
                     "database-destination": "after_proteins.pdb_code",
                     "type": "string",
                     "name": "After PDB ID"
@@ -133,7 +133,7 @@
                     "type": "integer",
                     "name": ""
                 },
-                "beforepdbcode": {
+                "beforepdbid": {
                     "database-destination": "before_proteins.pdb_code",
                     "type": "string",
                     "name": "Before PDB ID"
@@ -158,7 +158,7 @@
                     "type": "string",
                     "name": "Before Domain CATH ID"
                 },
-                "afterpdbcode": {
+                "afterpdbid": {
                     "database-destination": "after_proteins.pdb_code",
                     "type": "string",
                     "name": "After PDB ID"
@@ -248,7 +248,7 @@
                     "type": "integer",
                     "name": ""
                 },
-                "beforepdbcode": {
+                "beforepdbid": {
                     "database-destination": "before_proteins.pdb_code",
                     "type": "string",
                     "name": "Before PDB ID"
@@ -284,7 +284,7 @@
                     "type": "string",
                     "name": "Uniprot ID"
                 },
-                "afterpdbcode": {
+                "afterpdbid": {
                     "database-destination": "after_proteins.pdb_code",
                     "type": "string",
                     "name": "After PDB ID"
@@ -425,7 +425,7 @@
                     "type": "integer",
                     "name": ""
                 },
-                "beforepdbcode": {
+                "beforepdbid": {
                     "database-destination": "before_proteins.pdb_code",
                     "type": "string",
                     "name": "Before PDB ID"
@@ -445,7 +445,7 @@
                     "type": "string",
                     "name": "Uniprot ID"
                 },
-                "afterpdbcode": {
+                "afterpdbid": {
                     "database-destination": "after_proteins.pdb_code",
                     "type": "string",
                     "name": "After PDB ID"

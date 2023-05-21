@@ -62,7 +62,7 @@ export class DatasetService {
         this.cookieService.set("dataset-id", this.SelectedDataset.dataset_id);
     }
 
-    getQueryData(page: number) {
+    getQueryData(page: number, pageSize: number) {
         const headers = new HttpHeaders({
             'Access-Control-Allow-Origin': AppSettings.API_ENDPOINT
         });
@@ -70,8 +70,23 @@ export class DatasetService {
             headers
         };
         return this.http.get<any>(AppSettings.API_ENDPOINT + `/data/?page=` + page +
-            "&pageSize=" + AppSettings.PAGE_SIZE + "&query=" + encodeURIComponent(this.currentQuery) +
+            "&pageSize=" + pageSize + "&query=" + encodeURIComponent(this.currentQuery) +
             "&datasetId=" + this.SelectedDataset.dataset_id, options);
+    }
+
+    getExportedFile(format: string) {
+        const headers = new HttpHeaders({
+            'Access-Control-Allow-Origin': AppSettings.API_ENDPOINT
+        });
+        
+        const options = {
+            headers: headers,
+            responseType: 'blob' as 'json'
+        }
+
+        return this.http.get<any>(AppSettings.API_ENDPOINT + `/export/?query=` +
+            encodeURIComponent(this.currentQuery) + "&datasetId=" + this.SelectedDataset.dataset_id +
+            "&format=" + format, options);
     }
 
     getNumberOfPages() {

@@ -4,10 +4,11 @@ import { trigger, transition, style, animate, state } from '@angular/animations'
 import { AppSettings } from 'src/app/app-settings';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntil } from 'rxjs/operators';
-import { Subject } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { FilterService } from 'src/app/services/filter.service';
 import { Metric } from 'src/app/models/metric.model';
 import { SortMetric } from 'src/app/models/sort-metric.model';
+import { saveAs } from "file-saver";
 
 @Component({
     selector: 'app-query-interface',
@@ -128,22 +129,21 @@ export class QueryInterfaceComponent implements OnInit {
             });
     }
 
-    ExportResults(format: string) : void {
+    ExportResults(format: string): void {
         // Get all the results, not just the page
-        this.datasetService.getExportedFile().subscribe(data => {
-            console.log(data);
-        });
-        
-        if(format === 'JSON')
-        {
 
-        }
-        else if(format === 'CSV')
-        {
+        let filename: string;
 
-        }
+        if (format === 'JSON')
+            filename = 'results.json';
+        else if (format === 'CSV')
+            filename = 'results.csv'
         else
             throw "Unknown format, valid formats are: JSON, CSV";
+
+        this.datasetService.getExportedFile(format.toLowerCase()).subscribe(blob => {
+            saveAs(blob, filename);
+        });
     }
 
     changePage(page: number) {
