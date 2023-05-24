@@ -80,6 +80,7 @@ export class QueryInterfaceComponent implements OnInit {
             sessionStorage.setItem('page', pageNum.toString());
         }
 
+        this.resultCount = 0;
         this.makeRequest = false;
         this.DataReady = false;
         this.pageNumber = pageNum;

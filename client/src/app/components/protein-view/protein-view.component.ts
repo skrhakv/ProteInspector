@@ -15,6 +15,7 @@ import { MolstarService } from 'src/app/services/molstar.service';
 import { StructureRepresentationRegistry } from 'molstar/lib/mol-repr/structure/registry';
 import { AppSettings } from 'src/app/app-settings';
 import { ProteinSequence } from 'src/app/models/protein-sequence.model';
+import { HighlightedDomain } from 'src/app/models/highlighted-domain.model';
 
 declare var msa: any;
 @Component({
@@ -29,10 +30,11 @@ export class ProteinViewComponent implements OnInit {
     public TableData!: any;
     public DataReady: boolean = false;
     public VisualizedProteins: Protein[] = [];
+    public highlightedDomains: HighlightedDomain[] = [];
     public IsProteinVisible: boolean[] = [];
     public ProteinRepresentation: StructureRepresentationRegistry.BuiltIn[] = [];
     public VisualizationReady: boolean = false;
-    public ShowHighlightButton: boolean = false;
+    public ShowHighlightButtons: boolean = false;
 
     public ContextTableColumnNames: string[] = [];
     public ContextTableData!: any;
@@ -41,6 +43,7 @@ export class ProteinViewComponent implements OnInit {
     public OnlyChains: [visible: boolean, buttonText: string] = [false, "Show only chains"];
     public HiddenChainTasks: Task<void>[] = [];
     public structure!: string;
+    public pageTitle!: string;
     private row!: number;
 
     constructor(
@@ -54,17 +57,28 @@ export class ProteinViewComponent implements OnInit {
 
         this.structure = this.route.snapshot.paramMap.get('structure') as string;
 
-        if (this.structure === 'proteins')
+        if (this.structure === 'proteins') {
             this.structure = 'Proteins';
-        else if (this.structure === 'domains')
+            this.pageTitle = 'Protein Transformation Details'
+        }
+        else if (this.structure === 'domains') {
             this.structure = 'Domains';
-        else if (this.structure === 'domain-pairs')
+            this.pageTitle = 'Domain Transformation Details'
+        }
+
+        else if (this.structure === 'domainpairs') {
             this.structure = 'Domain Pairs';
-        else if (this.structure === 'residues')
+            this.pageTitle = 'Domain Pair Transformation Details'
+        }
+
+        else if (this.structure === 'residues') {
             this.structure = 'Residues';
+            this.pageTitle = 'Residue Transformation Details'
+        }
+
 
         datasetService.getDatasetInfo().then(_ => {
-            datasetService.getSpecificRow(this.row, this.structure.replace(/b/gi, '')
+            datasetService.getSpecificRow(this.row, this.structure.replace(/ /gi, '')
             ).subscribe(data => {
                 this.TableColumnNames = data['columnNames'];
                 this.TableData = data['results'];
@@ -79,10 +93,10 @@ export class ProteinViewComponent implements OnInit {
                 this.DataReady = true;
             });
 
-            datasetService.getTransformationContext(this.row, this.structure.replace(/b/gi, '')).subscribe({
+            datasetService.getTransformationContext(this.row, this.structure.replace(/ /gi, '')).subscribe({
                 next: (data) => {
                     this.ContextTableColumnNames = data['columnNames'];
-                    console.log(data);
+
                     // sort by BeforeSnapshot, AfterSnapshot
                     this.ContextTableData = data['results'].sort((a: any, b: any) => {
                         if (a["BeforeSnapshot"] < b["BeforeSnapshot"])
@@ -99,10 +113,6 @@ export class ProteinViewComponent implements OnInit {
 
                     const firstRow = this.ContextTableData[0];
 
-                    // Show highlight button if there is a span to highlight
-                    if ('BeforeDomainSpanStart' in firstRow || 'BeforeDomainSpanStart1' in firstRow || 'BeforeResidueStart' in firstRow)
-                        this.ShowHighlightButton = true;
-
                     // pick data for the protein superposition and visualization
                     let lcsLength: number = firstRow["LcsLength"]
                     for (const transformation of this.ContextTableData) {
@@ -113,14 +123,19 @@ export class ProteinViewComponent implements OnInit {
                         if (this.VisualizedProteins.filter(
                             x =>
                                 x.PdbCode === transformation["BeforePdbID"] &&
-                                x.ChainId === transformation["BeforeChainId"]).length === 0)
-                            this.VisualizedProteins.push({ PdbCode: transformation["BeforePdbID"], ChainId: transformation["BeforeChainId"], LcsStart: transformation["BeforeLcsStart"], FileLocation: transformation["BeforeFileLocation"] })
+                                x.ChainId === transformation["BeforeChainId"]).length === 0) {
+                            this.VisualizedProteins.push({ PdbCode: transformation["BeforePdbID"], ChainId: transformation["BeforeChainId"], LcsStart: transformation["BeforeLcsStart"], FileLocation: transformation["BeforeFileLocation"] });
 
+                            this.updateHighlightedDomains("Before", transformation);
+                        }
                         if (this.VisualizedProteins.filter(
                             x =>
                                 x.PdbCode === transformation["AfterPdbID"] &&
-                                x.ChainId === transformation["AfterChainId"]).length === 0)
-                            this.VisualizedProteins.push({ PdbCode: transformation["AfterPdbID"], ChainId: transformation["AfterChainId"], LcsStart: transformation["AfterLcsStart"], FileLocation: transformation["AfterFileLocation"] })
+                                x.ChainId === transformation["AfterChainId"]).length === 0) {
+                            this.VisualizedProteins.push({ PdbCode: transformation["AfterPdbID"], ChainId: transformation["AfterChainId"], LcsStart: transformation["AfterLcsStart"], FileLocation: transformation["AfterFileLocation"] });
+
+                            this.updateHighlightedDomains("After", transformation);
+                        }
                     }
 
                     this.UpdateChainVisibilityButtonText();
@@ -169,29 +184,76 @@ export class ProteinViewComponent implements OnInit {
         });
     }
 
+    updateHighlightedDomains(prefix: string, transformation: Record<string, any>) {
+        if (this.structure === 'Domains') {
+            this.ShowHighlightButtons = true;
+            this.highlightedDomains.push({
+                StructureIndex: this.VisualizedProteins.length - 1,
+                PdbId: transformation[prefix + "PdbID"],
+                ChainId: transformation[prefix + "ChainId"],
+                Start: transformation[prefix + 'DomainSpanStart'],
+                End: transformation[prefix + 'DomainSpanEnd'],
+                Highlighted: false,
+                ColorLevel: 2,
+                DomainName: transformation[prefix + 'DomainCathId']
+            });
+        }
+        else if (this.structure === 'Domain Pairs') {
+            this.ShowHighlightButtons = true;
+            this.highlightedDomains.push({
+                StructureIndex: this.VisualizedProteins.length - 1,
+                PdbId: transformation[prefix + "PdbID"],
+                ChainId: transformation[prefix + "ChainId"],
+                Start: transformation[prefix + 'DomainSpanStart1'],
+                End: transformation[prefix + 'DomainSpanEnd1'],
+                Highlighted: false,
+                ColorLevel: 2,
+                DomainName: transformation[prefix + 'DomainCathId1']
+            });
+            this.highlightedDomains.push({
+                StructureIndex: this.VisualizedProteins.length - 1,
+                PdbId: transformation[prefix + "PdbID"],
+                ChainId: transformation[prefix + "ChainId"],
+                Start: transformation[prefix + 'DomainSpanStart2'],
+                End: transformation[prefix + 'DomainSpanEnd2'],
+                Highlighted: false,
+                ColorLevel: 4,
+                DomainName: transformation[prefix + 'DomainCathId2']
+
+            });
+        }
+        else if (this.structure === 'Residues') {
+            this.ShowHighlightButtons = true;
+            this.highlightedDomains.push({
+                StructureIndex: this.VisualizedProteins.length - 1,
+                PdbId: transformation[prefix + "PdbID"],
+                ChainId: transformation[prefix + "ChainId"],
+                Start: transformation[prefix + 'ResidueStart'],
+                End: transformation[prefix + 'ResidueEnd'],
+                Highlighted: false,
+                ColorLevel: 2,
+                DomainName: ''
+            });
+        }
+    }
+
+
+    getStringSpan(domain: HighlightedDomain): string {
+    return domain.Start.toString() + "-" + domain.End.toString();
+}
     get GetRepresentationTypes(): Record<StructureRepresentationRegistry.BuiltIn, string> {
         return AppSettings.REPRESENTATION_TYPES;
     }
 
-    public async ToggleHighlighting() {
-        let transformation = this.TableData;
-        if ('BeforeDomainSpanStart' in transformation) {
-            this.molstarService.Highlight(this.plugin, transformation['BeforePdbCode'], transformation['BeforeChainId'], transformation['BeforeDomainSpanStart'], transformation['BeforeDomainSpanEnd'], this.VisualizedProteins.length);
-            this.molstarService.Highlight(this.plugin, transformation['AfterPdbCode'], transformation['AfterChainId'], transformation['AfterDomainSpanStart'], transformation['AfterDomainSpanEnd'], this.VisualizedProteins.length);
-        }
-        if ('BeforeDomainSpanStart1' in transformation) {
-            this.molstarService.Highlight(this.plugin, transformation['BeforePdbCode'], transformation['BeforeChainId'], transformation['BeforeDomainSpanStart1'], transformation['BeforeDomainSpanEnd1'], this.VisualizedProteins.length);
-            this.molstarService.Highlight(this.plugin, transformation['AfterPdbCode'], transformation['AfterChainId'], transformation['AfterDomainSpanStart1'], transformation['AfterDomainSpanEnd1'], this.VisualizedProteins.length);
-        }
-        if ('BeforeDomainSpanStart2' in transformation) {
-            this.molstarService.Highlight(this.plugin, transformation['BeforePdbCode'], transformation['BeforeChainId'], transformation['BeforeDomainSpanStart2'], transformation['BeforeDomainSpanEnd2'], this.VisualizedProteins.length);
-            this.molstarService.Highlight(this.plugin, transformation['AfterPdbCode'], transformation['AfterChainId'], transformation['AfterDomainSpanStart2'], transformation['AfterDomainSpanEnd2'], this.VisualizedProteins.length);
+    public async ToggleHighlighting(index: number) {
+        this.molstarService.Highlight(this.plugin, this.highlightedDomains[index]);
+        this.highlightedDomains[index].Highlighted = !this.highlightedDomains[index].Highlighted;
+    }
 
-        }
-        if ('BeforeResidueStart' in transformation) {
-            this.molstarService.Highlight(this.plugin, transformation['BeforePdbCode'], transformation['BeforeChainId'], transformation['BeforeResidueStart'], transformation['BeforeResidueEnd'], this.VisualizedProteins.length);
-            this.molstarService.Highlight(this.plugin, transformation['AfterPdbCode'], transformation['AfterChainId'], transformation['AfterResidueStart'], transformation['AfterResidueEnd'], this.VisualizedProteins.length);
-        }
+    private async updateHighlighting()
+    {
+        for(const domain of this.highlightedDomains)
+            await this.molstarService.Highlight(this.plugin, domain, false);
     }
 
     public async ChangeRepresentation(index: number, structureRepresentationType: string) {
@@ -206,6 +268,8 @@ export class ProteinViewComponent implements OnInit {
         }
 
         this.ProteinRepresentation[index] = structureRepresentationType as StructureRepresentationRegistry.BuiltIn;
+
+        await this.updateHighlighting();        
     }
 
     public async ToggleStructureVisibility(index: number) {
@@ -239,6 +303,8 @@ export class ProteinViewComponent implements OnInit {
             this.OnlyChains[0] = true;
             this.OnlyChains[1] = "Show Full Structures"
         }
+
+        await this.updateHighlighting();
     }
 
     private UpdateChainVisibilityButtonText(): void {

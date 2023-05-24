@@ -48,7 +48,6 @@ export class FilterService {
 
     buildQuery(metrics: Metric[], sortingMetric: SortMetric): string {
         let query: string = this.buildSelectStatement();
-        let error: string;
         if (metrics.length === 0)
             return query;
 

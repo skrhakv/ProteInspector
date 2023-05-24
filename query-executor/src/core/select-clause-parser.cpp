@@ -61,9 +61,8 @@ bool SelectClauseParser::checkForAllowedGrammar(const hsql::SelectStatement *sel
     biologicalStructure = selectStatement->fromTable->name;
     toLower(biologicalStructure);
 
-    // if (biologicalStructure != PROTEINS && biologicalStructure != DOMAINS && biologicalStructure != RESIDUES && biologicalStructure != PROTEIN_PROGRESSION)
     if (!jsonDataExtractor.ValidBiologicalStructure(biologicalStructure))
-        RETURN_PARSE_ERROR("Unknown structure. Valid structures are: Proteins, Domains, Residues, and Protein-Progression")
+        RETURN_PARSE_ERROR("Unknown structure. Valid structures are: Proteins, Domains, Residues, and Domain Pairs")
 
     return true;
 }

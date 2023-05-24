@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
 import { PluginCommands } from 'molstar/lib/mol-plugin/commands';
-import { ProteinThemeProvider } from '../providers/protein-theme-provider';
+import { ProteinThemeProvider, getLighterColor } from '../providers/protein-theme-provider';
 import { Protein } from '../models/protein.model';
-import { StructureSelection } from 'molstar/lib/mol-model/structure';
-import { StructureComponentRef, StructureRef } from 'molstar/lib/mol-plugin-state/manager/structure/hierarchy-state';
+import { StructureElement, StructureSelection } from 'molstar/lib/mol-model/structure';
+import { StructureComponentRef } from 'molstar/lib/mol-plugin-state/manager/structure/hierarchy-state';
 import { Script } from 'molstar/lib/mol-script/script';
 import { StructureRepresentationPresetProvider, presetStaticComponent } from 'molstar/lib/mol-plugin-state/builder/structure/representation-preset';
 import { StructureRepresentationRegistry } from 'molstar/lib/mol-repr/structure/registry';
@@ -14,6 +14,9 @@ import { getModelEntityOptions, getChainOptions, getOperatorOptions, getStructur
 import { ProteinSequence } from '../models/protein-sequence.model';
 import { PluginStateObject as PSO } from 'molstar/lib/mol-plugin-state/objects';
 import { Structure } from 'molstar/lib/mol-model/structure';
+import { setStructureOverpaint } from 'molstar/lib/mol-plugin-state/helpers/structure-overpaint';
+import { HighlightedDomain } from '../models/highlighted-domain.model';
+
 
 @Injectable({
     providedIn: 'root'
@@ -57,7 +60,7 @@ export class MolstarService {
         }
         return ProteinSequences;
     }
-    
+
     public async CameraReset(plugin: PluginUIContext) {
         await new Promise(res => requestAnimationFrame(res));
         PluginCommands.Camera.Reset(plugin);
@@ -93,7 +96,6 @@ export class MolstarService {
         this.ApplyUniformEntityColoring(plugin);
 
         this.CameraReset(plugin);
-
     }
 
     public async ShowChainsOnly(plugin: PluginUIContext, VisualizedProteins: Protein[]) {
@@ -121,25 +123,32 @@ export class MolstarService {
         this.CameraReset(plugin);
     }
 
-    public async Highlight(plugin: PluginUIContext, pdbCode: string, chainId: string, start: number, end: number, maxIndex: number) {
-        let structureIndex = 0;
-        for (let i = 0; i < maxIndex; i++) {
-            if (plugin.managers.structure.hierarchy.current.structures[i]?.cell.obj?.data.units[0].model.entryId.toLowerCase() === pdbCode)
-                structureIndex = i;
+    public async Highlight(plugin: PluginUIContext, domain: HighlightedDomain, ToggleHighlighting = true) {
 
-        }
-        const data = plugin.managers.structure.hierarchy.current.structures[structureIndex]?.cell.obj?.data;
+        const data = plugin.managers.structure.hierarchy.current.structures[domain.StructureIndex]?.cell.obj?.data;
         if (!data) return;
+
         const selection = Script.getStructureSelection(Q => Q.struct.filter.first([
             Q.struct.generator.atomGroups({
                 "group-by": MS.struct.atomProperty.core.operatorName(),
-                'chain-test': Q.core.rel.eq([chainId, Q.struct.atomProperty.macromolecular.auth_asym_id()]),
-                'residue-test': Q.core.rel.inRange([Q.struct.atomProperty.macromolecular.label_seq_id(), start, end]),
+                'chain-test': Q.core.rel.eq([domain.ChainId, Q.struct.atomProperty.macromolecular.auth_asym_id()]),
+                'residue-test': Q.core.rel.inRange([Q.struct.atomProperty.macromolecular.label_seq_id(), domain.Start, domain.End]),
                 'entity-test': MS.core.rel.eq([MS.ammp('entityType'), 'polymer'])
             })]), data);
-        const loci = StructureSelection.toLociWithSourceUnits(selection);
 
-        plugin.managers.interactivity.lociHighlights.highlight({ loci });
+        let loci: StructureElement.Loci = StructureSelection.toLociWithSourceUnits(selection);
+
+        const s = plugin.managers.structure.hierarchy.current.structures[domain.StructureIndex];
+        const components = s.components;
+
+        let colorLevel: number;
+        if (domain.Highlighted != ToggleHighlighting)
+            colorLevel = domain.ColorLevel;
+        else colorLevel = 0;
+
+        const lociGetter = async (s: Structure) => { return loci; }
+
+        await setStructureOverpaint(plugin, components, getLighterColor(domain.StructureIndex, colorLevel), lociGetter);
     }
 
 
