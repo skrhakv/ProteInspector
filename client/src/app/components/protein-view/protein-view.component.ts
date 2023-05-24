@@ -265,7 +265,7 @@ export class ProteinViewComponent implements OnInit {
 
 
         if (this.OnlyChains[0]) {
-            this.molstarService.ShowChainsOnly(this.plugin, this.VisualizedProteins);
+            await this.molstarService.ShowChainsOnly(this.plugin, this.VisualizedProteins);
         }
 
         this.ProteinRepresentation[index] = structureRepresentationType as StructureRepresentationRegistry.BuiltIn;
@@ -298,7 +298,7 @@ export class ProteinViewComponent implements OnInit {
 
         }
         else {
-            this.molstarService.ShowChainsOnly(this.plugin, this.VisualizedProteins);
+            await this.molstarService.ShowChainsOnly(this.plugin, this.VisualizedProteins);
 
             //  update buttons
             this.OnlyChains[0] = true;
