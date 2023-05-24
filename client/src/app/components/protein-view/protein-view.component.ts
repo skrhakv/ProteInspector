@@ -16,6 +16,8 @@ import { StructureRepresentationRegistry } from 'molstar/lib/mol-repr/structure/
 import { AppSettings } from 'src/app/app-settings';
 import { ProteinSequence } from 'src/app/models/protein-sequence.model';
 import { HighlightedDomain } from 'src/app/models/highlighted-domain.model';
+import * as JSZip from 'jszip';
+import * as saveAs from 'file-saver';
 
 declare var msa: any;
 @Component({
@@ -239,8 +241,8 @@ export class ProteinViewComponent implements OnInit {
 
 
     getStringSpan(domain: HighlightedDomain): string {
-    return domain.Start.toString() + "-" + domain.End.toString();
-}
+        return domain.Start.toString() + "-" + domain.End.toString();
+    }
     get GetRepresentationTypes(): Record<StructureRepresentationRegistry.BuiltIn, string> {
         return AppSettings.REPRESENTATION_TYPES;
     }
@@ -250,9 +252,8 @@ export class ProteinViewComponent implements OnInit {
         this.highlightedDomains[index].Highlighted = !this.highlightedDomains[index].Highlighted;
     }
 
-    private async updateHighlighting()
-    {
-        for(const domain of this.highlightedDomains)
+    private async updateHighlighting() {
+        for (const domain of this.highlightedDomains)
             await this.molstarService.Highlight(this.plugin, domain, false);
     }
 
@@ -269,7 +270,7 @@ export class ProteinViewComponent implements OnInit {
 
         this.ProteinRepresentation[index] = structureRepresentationType as StructureRepresentationRegistry.BuiltIn;
 
-        await this.updateHighlighting();        
+        await this.updateHighlighting();
     }
 
     public async ToggleStructureVisibility(index: number) {
@@ -305,6 +306,23 @@ export class ProteinViewComponent implements OnInit {
         }
 
         await this.updateHighlighting();
+    }
+
+    ExportDetails(): void {
+        // create object with all the data
+        const details = {
+            "details": this.TableData,
+            "context": this.ContextTableData 
+        }
+
+        // add json with all the data to the zip
+        const jszip = new JSZip();
+        jszip.file('details.json', JSON.stringify(details));
+      
+        // generate zip
+        jszip.generateAsync({ type: 'blob' }).then(function(content: any) {
+          saveAs(content, 'details.zip');
+        });
     }
 
     private UpdateChainVisibilityButtonText(): void {

@@ -202,7 +202,6 @@
                                     *ngFor="let fileFormat of ['JSON', 'CSV']"
                                     (click)="ExportResults(fileFormat)">{{fileFormat}}</a>
                             </div>
-
                         </div>
                     </div>
                     <div class="row justify-content-center" [style.display]="!DataReady ? '' : 'none'">

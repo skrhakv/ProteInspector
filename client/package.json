@@ -27,6 +27,7 @@
         "bootstrap": "^5.2.3",
         "file-saver": "^2.0.5",
         "jquery": "^3.6.4",
+        "jszip": "^3.10.1",
         "molstar": "^3.31.4",
         "ngx-cookie-service": "^15.0.0",
         "pdbe-molstar": "^3.1.0",
