@@ -34,9 +34,12 @@ public:
                 first = false;
             }
         }
-        if(addIdExplicitly)
+        if (addIdExplicitly)
+        {
+            result += ", ";
             jsonDataExtractor.GetDefaultIdMetric(biologicalStructure, result);
-        
+        }
+
         return true;
     }
 };

@@ -13,7 +13,7 @@ bool ExpressionParser::Parse(const hsql::Expr *expression, const string biologic
     toLower(metricName);
     auto metric = metricsData["forward-metrics-mapping"][biologicalStructure]["data"][metricName];
 
-    bool isValid = operatorValidator.parseMathOperator(expression, operatorValue);
+    bool isValid = operatorValidator.parseMathOperator(expression->opType, operatorValue);
     if (!isValid)
     {
         errorMessage = operatorValidator.errorMessage;

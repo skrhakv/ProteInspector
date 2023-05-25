@@ -3,32 +3,32 @@
 #include "utils.hpp"
 #include <string>
 
-bool OperatorValidator::parseMathOperator(const hsql::Expr *expression, string &operatorResult)
+bool OperatorValidator::parseMathOperator(const hsql::OperatorType op, string &operatorResult)
 {
-    if (expression->opType == hsql::kOpEquals)
+    if (op == hsql::kOpEquals)
         operatorResult = "=";
-    else if (expression->opType == hsql::kOpNotEquals)
+    else if (op == hsql::kOpNotEquals)
         operatorResult = "!=";
-    else if (expression->opType == hsql::kOpLess)
+    else if (op == hsql::kOpLess)
         operatorResult = "<";
-    else if (expression->opType == hsql::kOpLessEq)
+    else if (op == hsql::kOpLessEq)
         operatorResult = "<=";
-    else if (expression->opType == hsql::kOpGreater)
+    else if (op == hsql::kOpGreater)
         operatorResult = ">";
-    else if (expression->opType == hsql::kOpGreaterEq)
+    else if (op == hsql::kOpGreaterEq)
         operatorResult = ">=";
-    else if (expression->opType == hsql::kOpBetween)
+    else if (op == hsql::kOpBetween)
         operatorResult = "BETWEEN";
-    else if (expression->opType == hsql::kOpPlus)
+    else if (op == hsql::kOpPlus)
         operatorResult = "+";
-    else if (expression->opType == hsql::kOpMinus)
+    else if (op == hsql::kOpMinus)
         operatorResult = "-";
-    else if (expression->opType == hsql::kOpSlash)
+    else if (op == hsql::kOpSlash)
         operatorResult = "/";
-    else if (expression->opType == hsql::kOpAsterisk)
+    else if (op == hsql::kOpAsterisk)
         operatorResult = "*";
     else
-        RETURN_PARSE_ERROR("Unrecognized Operator type: " + expression->opType)
+        RETURN_PARSE_ERROR("Unrecognized Operator type: " + op)
 
     return true;
 }

@@ -11,7 +11,7 @@ class OperatorValidator
 public:
     string errorMessage;
 
-    bool parseMathOperator(const hsql::Expr *expression, string &operatorResult);
+    bool parseMathOperator(const hsql::OperatorType op, string &operatorResult);
     bool parseLogicOperator(const hsql::OperatorType op, string &operatorResult);
     void Clear();
 };

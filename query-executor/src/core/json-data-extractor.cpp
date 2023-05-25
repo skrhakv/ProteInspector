@@ -65,9 +65,8 @@ bool JsonDataExtractor::GetDefaultIdMetric(const string biologicalStructure, str
 {
     string resultMetric = metricsData["forward-metrics-mapping"][biologicalStructure]["data"]["id"]["database-destination"];
 
-    result += ", ";
     result += resultMetric;
-    result += "AS \"id\"";
+    result += " AS \"id\"";
     return true;
 }
 

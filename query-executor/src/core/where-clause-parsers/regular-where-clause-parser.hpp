@@ -119,7 +119,7 @@ private:
             Generate(expression->expr, biologicalStructure, result);
 
             string operatorResult;
-            bool isValid = operatorValidator.parseMathOperator(expression, operatorResult);
+            bool isValid = operatorValidator.parseMathOperator(expression->opType, operatorResult);
             if (!isValid)
                 RETURN_PARSE_ERROR(jsonDataExtractor.errorMessage)
 

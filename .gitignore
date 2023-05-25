@@ -10,4 +10,6 @@
 /api/build
 /api/node_modules
 /api/dist
+
 /query-executor/example
+/query-executor/src/tests/build

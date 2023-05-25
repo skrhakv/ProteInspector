@@ -1,3 +1,6 @@
+#ifndef ExpressionParser_H
+#define ExpressionParser_H
+
 #include <string>
 #include "hsql/SQLParser.h"
 #include <nlohmann/json.hpp>
@@ -17,3 +20,5 @@ public:
     string errorMessage;
     bool Parse(const hsql::Expr *expression, const string biologicalStructure, string &result);
 };
+
+#endif
