@@ -6,17 +6,21 @@
 #include "metrics-parsers/transformation-metrics-parser.hpp"
 #include "where-clause-parsers/regular-where-clause-parser.hpp"
 #include "where-clause-parsers/wrapper-where-clause-parser.hpp"
-
+#include "limit-clause-parsers/empty-limit-clause-parser.hpp"
+#include "limit-clause-parsers/regular-limit-clause-parser.hpp"
+#include <iostream>
 using namespace std;
 
 std::pair<pqxx::result, std::string> QueryExecutor::GetTransformationContext(const std::string &query, int datasetId)
 {
     NonSelectiveMetricsParser metricsParser;
     WrapperWhereClauseParser wrapperWhereClauseParser(0, 1);
+    EmptyLimitClauseParser limitClauseParser;
 
     parser.SetWhereClauseParser(&wrapperWhereClauseParser);
     parser.SetMetricsParser(&metricsParser);
-    
+    parser.SetLimitClauseParser(&limitClauseParser);
+
     parser.Clear();
 
     bool isValid = parser.Parse(query, datasetId, 0, 1000);
@@ -33,8 +37,10 @@ std::pair<pqxx::result, std::string> QueryExecutor::ParseAndExecute(const std::s
 {
     MetricsParser *metricsParser;
     RegularWhereClauseParser regularWhereClauseParser(true);
+    RegularLimitClauseParser limitClauseParser;
 
     parser.SetWhereClauseParser(&regularWhereClauseParser);
+    parser.SetLimitClauseParser(&limitClauseParser);
 
     if (includeAllMetrics)
     {
@@ -54,17 +60,19 @@ std::pair<pqxx::result, std::string> QueryExecutor::ParseAndExecute(const std::s
     {
         return {pqxx::result(), parser.errorMessage};
     }
-
+    cout << parser.GetConvertedQuery();
     return dbClient.ExecuteQuery(parser.GetConvertedQuery());
 }
 
 std::pair<pqxx::result, std::string> QueryExecutor::GetNumberOfPages(const std::string &query, int datasetId)
 {
     CountMetricsParser metricsParser;
-    parser.SetMetricsParser(&metricsParser);
-
     RegularWhereClauseParser regularWhereClauseParser(false);
+    RegularLimitClauseParser limitClauseParser;
+
+    parser.SetMetricsParser(&metricsParser);
     parser.SetWhereClauseParser(&regularWhereClauseParser);
+    parser.SetLimitClauseParser(&limitClauseParser);
 
     parser.Clear();
 

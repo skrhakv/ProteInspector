@@ -18,12 +18,6 @@ public:
         return false;
     }
 
-    virtual void addPageLimitWithOffset(int page, int pageSize, string &result)
-    {
-        int offset = page * pageSize;
-        result += " LIMIT " + to_string(pageSize) + " OFFSET " + to_string(offset);
-    }
-
     void SetJsonDataExtractor(const JsonDataExtractor &_jsonDataExtractor)
     {
         this->jsonDataExtractor = _jsonDataExtractor;

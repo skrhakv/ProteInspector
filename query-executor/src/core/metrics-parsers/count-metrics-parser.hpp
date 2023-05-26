@@ -5,11 +5,7 @@
 
 class CountMetricsParser : public MetricsParser
 {
-    bool Parse(const hsql::SelectStatement *selectStatement, const string &biologicalStructure, string &result) override
-    {
-        result += "COUNT(*)";
-        return true;
-    }
+    bool Parse(const hsql::SelectStatement *selectStatement, const string &biologicalStructure, string &result) override;
 };
 
 #endif

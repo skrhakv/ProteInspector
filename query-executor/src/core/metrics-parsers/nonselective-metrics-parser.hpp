@@ -6,11 +6,7 @@
 class NonSelectiveMetricsParser : public MetricsParser
 {
 public:
-    bool Parse(const hsql::SelectStatement *selectStatement, const string &biologicalStructure, string &result) override
-    {
-        jsonDataExtractor.GetAllMetrics(biologicalStructure, result);
-        return true;
-    }
+    bool Parse(const hsql::SelectStatement *selectStatement, const string &biologicalStructure, string &result) override;
 };
 
 #endif

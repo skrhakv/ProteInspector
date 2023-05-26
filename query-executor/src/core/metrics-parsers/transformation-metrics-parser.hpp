@@ -5,11 +5,7 @@
 
 class TransformationMetricsParser : public MetricsParser
 {
-    bool Parse(const hsql::SelectStatement *selectStatement, const string &biologicalStructure, string &result) override
-    {
-        jsonDataExtractor.GetDefaultGroupBy(biologicalStructure, result);
-        return true;
-    }
+    bool Parse(const hsql::SelectStatement *selectStatement, const string &biologicalStructure, string &result) override;
 };
 
 #endif

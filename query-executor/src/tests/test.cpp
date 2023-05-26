@@ -7,6 +7,9 @@
 #include "../core/where-clause-parsers/wrapper-where-clause-parser.hpp"
 #include "../core/metrics-parsers/count-metrics-parser.hpp"
 #include "../core/metrics-parsers/selective-metrics-parser.hpp"
+#include "../core/limit-clause-parsers/regular-limit-clause-parser.hpp"
+#include "../core/limit-clause-parsers/empty-limit-clause-parser.hpp"
+#include "../core/order-by-parser.hpp"
 #include <iostream>
 #include <string>
 
@@ -319,6 +322,80 @@ TEST(TestSelectiveMetricsParser, BasicAssertions)
     ((MetricsParser *)&parser)->Parse((const hsql::SelectStatement *)statement, "proteins", result);
 
     EXPECT_EQ(result, "after_proteins.chain_id AS \"AfterChainId\",after_proteins.file_location AS \"AfterFileLocation\", protein_transformations.protein_transformation_id AS \"id\"");
+};
+
+TEST(TestOrderByParserAsc, BasicAssertions)
+{
+
+    hsql::SQLParserResult parsedQuery;
+
+    hsql::SQLParser::parse("SELECT * FROM PROTEINS ORDER BY id ASC", &parsedQuery);
+
+    const hsql::SQLStatement *statement = parsedQuery.getStatement(0);
+
+    JsonDataExtractor extractor;
+    OrderByParser parser(extractor);
+    string result;
+
+    parser.Parse(((const hsql::SelectStatement *)statement)->order, "proteins", result);
+
+    EXPECT_EQ(result, "protein_transformations.protein_transformation_id");
+};
+
+TEST(TestOrderByParser, BasicAssertions)
+{
+
+    hsql::SQLParserResult parsedQuery;
+
+    hsql::SQLParser::parse("SELECT * FROM PROTEINS ORDER BY id", &parsedQuery);
+
+    const hsql::SQLStatement *statement = parsedQuery.getStatement(0);
+
+    JsonDataExtractor extractor;
+    OrderByParser parser(extractor);
+    string result;
+
+    parser.Parse(((const hsql::SelectStatement *)statement)->order, "proteins", result);
+
+    EXPECT_EQ(result, "protein_transformations.protein_transformation_id");
+};
+
+TEST(TestOrderByParserDesc, BasicAssertions)
+{
+
+    hsql::SQLParserResult parsedQuery;
+
+    hsql::SQLParser::parse("SELECT * FROM PROTEINS ORDER BY id DESC", &parsedQuery);
+
+    const hsql::SQLStatement *statement = parsedQuery.getStatement(0);
+
+    JsonDataExtractor extractor;
+    OrderByParser parser(extractor);
+    string result;
+
+    parser.Parse(((const hsql::SelectStatement *)statement)->order, "proteins", result);
+
+    EXPECT_EQ(result, "protein_transformations.protein_transformation_id DESC");
+};
+
+TEST(TestRegularLimitClauseParser, BasicAssertions)
+{
+    RegularLimitClauseParser parser;
+    string result;
+
+    ((LimitClauseParser *)&parser)->Parse(0, 100, result);
+
+    EXPECT_EQ(result, " LIMIT 100 OFFSET 0");
+};
+
+TEST(TestEmptyLimitClauseParser, BasicAssertions)
+{
+    EmptyLimitClauseParser parser;
+    string result;
+
+    ((LimitClauseParser *)&parser)->Parse(0, 100, result);
+
+    EXPECT_EQ(result, "");
 };
 
 int main(int argc, char **argv)

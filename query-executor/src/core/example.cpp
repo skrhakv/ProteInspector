@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
     string query = argv[1];
     QueryExecutor executor;
     // SELECT * FROM proteins WHERE rmsd > 5 order by rmsd desc
-    auto [r, b] = executor.ParseAndExecute(query, 1, 0, 100, true);
+    auto [r, b] = executor.ParseAndExecute(query, 1, 0, 100, false);
     // executor.GetNumberOfPages(query, 1);
     // executor.GetTransformationContext(query, 2, 0, 1);
 

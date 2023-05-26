@@ -4,15 +4,22 @@
 #include "utils.hpp"
 #include "select-clause-parser.hpp"
 #include <iostream>
+
 void SelectClauseParser::SetMetricsParser(MetricsParser *_metricsParser)
 {
     this->metricsParser = _metricsParser;
     this->metricsParser->SetJsonDataExtractor(jsonDataExtractor);
 }
+
 void SelectClauseParser::SetWhereClauseParser(WhereClauseParser *_whereClauseParser)
 {
     this->whereClauseParser = _whereClauseParser;
     this->whereClauseParser->SetJsonDataExtractor(jsonDataExtractor);
+}
+
+void SelectClauseParser::SetLimitClauseParser(LimitClauseParser *_limitClauseParser)
+{
+    this->limitClauseParser = _limitClauseParser;
 }
 
 bool SelectClauseParser::Parse(const hsql::SelectStatement *selectStatement, int datasetId, int page, int pageSize)
@@ -38,7 +45,7 @@ bool SelectClauseParser::Parse(const hsql::SelectStatement *selectStatement, int
     if (!isValid)
         RETURN_PARSE_ERROR(whereClauseParser->errorMessage)
 
-    whereClauseParser->addPageLimitWithOffset(page, pageSize, convertedQuery);
+    limitClauseParser->Parse(page, pageSize, convertedQuery);
 
     return true;
 }
@@ -71,10 +78,10 @@ bool SelectClauseParser::checkFromKeyword(const string query)
     std::istringstream strm(query);
     std::string s;
 
-    while ( strm >> s )
+    while (strm >> s)
     {
         toLower(s);
-        if(s == "from")
+        if (s == "from")
             return true;
     }
     return false;
@@ -105,6 +112,7 @@ bool SelectClauseParser::Parse(const string query, int datasetId, int page, int 
 
         bool isValid = Parse((const hsql::SelectStatement *)statement, datasetId, page, pageSize);
         convertedQuery += ";";
+        
         return isValid;
     }
     else

@@ -7,7 +7,7 @@
 #include "operator-validator.hpp"
 #include "metrics-parsers/metrics-parser.hpp"
 #include "where-clause-parsers/where-clause-parser.hpp"
-
+#include "limit-clause-parsers/limit-clause-parser.hpp"
 using namespace std;
 
 class SelectClauseParser
@@ -18,6 +18,7 @@ private:
     OperatorValidator operatorValidator;
     MetricsParser *metricsParser;
     WhereClauseParser *whereClauseParser;
+    LimitClauseParser *limitClauseParser;
     string convertedQuery;
 
     bool checkForAllowedGrammar(const hsql::SelectStatement *selectStatement);
@@ -27,6 +28,7 @@ public:
     string errorMessage;
     void SetMetricsParser(MetricsParser *_metricsParser);
     void SetWhereClauseParser(WhereClauseParser *_whereClauseParser);
+    void SetLimitClauseParser(LimitClauseParser *_limitClauseParser);
 
     bool Parse(const string query, int datasetId, int page = 0, int pageSize = 100);
     bool Parse(const hsql::SelectStatement *selectStatement, int datasetId, int page = 0, int pageSize = 100);

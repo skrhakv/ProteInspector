@@ -29,6 +29,15 @@ add_executable(
   ../core/json-reader.cpp
   ../core/expression-parser.cpp
   ../core/select-clause-parser.cpp
+  ../core/order-by-parser.cpp
+  ../core/limit-clause-parsers/empty-limit-clause-parser.cpp
+  ../core/limit-clause-parsers/regular-limit-clause-parser.cpp
+  ../core/where-clause-parsers/regular-where-clause-parser.cpp
+  ../core/where-clause-parsers/wrapper-where-clause-parser.cpp
+  ../core/metrics-parsers/count-metrics-parser.cpp
+  ../core/metrics-parsers/nonselective-metrics-parser.cpp
+  ../core/metrics-parsers/selective-metrics-parser.cpp
+  ../core/metrics-parsers/transformation-metrics-parser.cpp
 )
 target_link_libraries(
   query_executor_test
