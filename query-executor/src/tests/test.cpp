@@ -4,6 +4,7 @@
 #include "../core/json-data-extractor.hpp"
 #include "../core/expression-parser.hpp"
 #include "../core/where-clause-parsers/regular-where-clause-parser.hpp"
+#include "../core/where-clause-parsers/wrapper-where-clause-parser.hpp"
 #include "../core/metrics-parsers/count-metrics-parser.hpp"
 #include "../core/metrics-parsers/selective-metrics-parser.hpp"
 #include <iostream>
@@ -11,61 +12,108 @@
 
 using namespace std;
 
-TEST(OperatorValidatorLogicOperatorTest, BasicAssertions)
+TEST(AndLogicOperatorTest, BasicAssertions)
 {
     OperatorValidator o;
     string a;
     o.parseLogicOperator(hsql::OperatorType::kOpAnd, a);
     EXPECT_EQ(a, "AND");
+};
 
+TEST(OrLogicOperatorTest, BasicAssertions)
+{
+    OperatorValidator o;
     string b;
     o.parseLogicOperator(hsql::OperatorType::kOpOr, b);
     EXPECT_EQ(b, "OR");
 };
 
-TEST(OperatorValidatorMathOperatorTest, BasicAssertions)
+TEST(EqualMathOperatorTest, BasicAssertions)
 {
     OperatorValidator o;
     string a;
     o.parseMathOperator(hsql::OperatorType::kOpEquals, a);
     EXPECT_EQ(a, "=");
-    a = "";
+};
 
+TEST(NotEqualMathOperatorTest, BasicAssertions)
+{
+    OperatorValidator o;
+    string a;
     o.parseMathOperator(hsql::OperatorType::kOpNotEquals, a);
     EXPECT_EQ(a, "!=");
-    a = "";
+};
 
+TEST(LessThanMathOperatorTest, BasicAssertions)
+{
+    OperatorValidator o;
+    string a;
     o.parseMathOperator(hsql::OperatorType::kOpLess, a);
     EXPECT_EQ(a, "<");
-    a = "";
+};
 
-    o.parseMathOperator(hsql::OperatorType::kOpGreater, a);
-    EXPECT_EQ(a, ">");
-    a = "";
-
-    o.parseMathOperator(hsql::OperatorType::kOpGreaterEq, a);
-    EXPECT_EQ(a, ">=");
-    a = "";
-
+TEST(LessThanEqualMathOperatorTest, BasicAssertions)
+{
+    OperatorValidator o;
+    string a;
     o.parseMathOperator(hsql::OperatorType::kOpLessEq, a);
     EXPECT_EQ(a, "<=");
-    a = "";
+};
 
+TEST(GreaterThanMathOperatorTest, BasicAssertions)
+{
+    OperatorValidator o;
+    string a;
+    o.parseMathOperator(hsql::OperatorType::kOpGreater, a);
+    EXPECT_EQ(a, ">");
+};
+
+TEST(GreaterThanEqualMathOperatorTest, BasicAssertions)
+{
+    OperatorValidator o;
+    string a;
+    o.parseMathOperator(hsql::OperatorType::kOpGreaterEq, a);
+    EXPECT_EQ(a, ">=");
+};
+
+TEST(PlusMathOperatorTest, BasicAssertions)
+{
+    OperatorValidator o;
+    string a;
     o.parseMathOperator(hsql::OperatorType::kOpPlus, a);
     EXPECT_EQ(a, "+");
-    a = "";
+};
 
+TEST(MinusMathOperatorTest, BasicAssertions)
+{
+    OperatorValidator o;
+    string a;
     o.parseMathOperator(hsql::OperatorType::kOpMinus, a);
     EXPECT_EQ(a, "-");
-    a = "";
+};
 
+TEST(AsteriskMathOperatorTest, BasicAssertions)
+{
+    OperatorValidator o;
+    string a;
     o.parseMathOperator(hsql::OperatorType::kOpAsterisk, a);
     EXPECT_EQ(a, "*");
-    a = "";
+};
 
+TEST(SlashMathOperatorTest, BasicAssertions)
+{
+    OperatorValidator o;
+    string a;
     o.parseMathOperator(hsql::OperatorType::kOpSlash, a);
     EXPECT_EQ(a, "/");
-    a = "";
+};
+
+TEST(UnsupportedMathOperatorTest, BasicAssertions)
+{
+    OperatorValidator o;
+    string a;
+    bool x = o.parseMathOperator(hsql::OperatorType::kOpLike, a);
+    EXPECT_FALSE(x);
 };
 
 TEST(TestUtilsToLower, BasicAssertions)
@@ -75,20 +123,56 @@ TEST(TestUtilsToLower, BasicAssertions)
     EXPECT_EQ(a, "hello world");
 };
 
-TEST(TestBiologicalStructuresValidation, BasicAssertions)
+TEST(TestProteinsBiologicalStructuresValidation, BasicAssertions)
 {
     JsonDataExtractor extractor;
     bool x = extractor.ValidBiologicalStructure("proteins");
     EXPECT_TRUE(x);
+};
 
-    x = extractor.ValidBiologicalStructure("domains");
+TEST(TestDomainsBiologicalStructuresValidation, BasicAssertions)
+{
+    JsonDataExtractor extractor;
+    bool x = extractor.ValidBiologicalStructure("domains");
     EXPECT_TRUE(x);
+};
 
-    x = extractor.ValidBiologicalStructure("residues");
+TEST(TestResiduesBiologicalStructuresValidation, BasicAssertions)
+{
+    JsonDataExtractor extractor;
+    bool x = extractor.ValidBiologicalStructure("residues");
     EXPECT_TRUE(x);
+};
 
-    x = extractor.ValidBiologicalStructure("xxxx");
+TEST(TestUnsupportedBiologicalStructuresValidation, BasicAssertions)
+{
+    JsonDataExtractor extractor;
+    bool x = extractor.ValidBiologicalStructure("xxx");
     EXPECT_FALSE(x);
+};
+
+TEST(TestLiteralParsing, BasicAssertions)
+{
+    JsonDataExtractor extractor;
+    string a;
+    extractor.ParseValue(hsql::Expr::makeLiteral((int64_t)6), "proteins", a);
+    EXPECT_EQ(a, "6");
+};
+
+TEST(TestFloatParsing, BasicAssertions)
+{
+    JsonDataExtractor extractor;
+    string a;
+    extractor.ParseValue(hsql::Expr::makeLiteral((double)6.5), "proteins", a);
+    EXPECT_EQ(a.substr(0, 3), "6.5");
+};
+
+TEST(TestStringParsing, BasicAssertions)
+{
+    JsonDataExtractor extractor;
+    string a;
+    extractor.ParseValue(hsql::Expr::makeColumnRef("id"), "proteins", a);
+    EXPECT_EQ(a, "protein_transformations.protein_transformation_id");
 };
 
 TEST(TestQueryMetricValidation, BasicAssertions)
@@ -145,7 +229,7 @@ TEST(TestDefaultGroupByGetter, BasicAssertions)
     EXPECT_EQ(result, "protein_transformations.transformation_id");
 };
 
-TEST(TestExpressionParser, BasicAssertions)
+TEST(TestLiteralExpressionParser, BasicAssertions)
 {
     ExpressionParser parser;
     hsql::Expr *e1 = hsql::Expr::makeColumnRef("id");
@@ -157,18 +241,23 @@ TEST(TestExpressionParser, BasicAssertions)
     parser.Parse(e, "proteins", result);
 
     EXPECT_EQ(result, "protein_transformations.protein_transformation_id = 6");
+};
 
-    e1 = hsql::Expr::makeColumnRef("beforepdbid");
-    e2 = hsql::Expr::makeColumnRef("5b02");
-    e = hsql::Expr::makeOpBinary(e1, hsql::OperatorType::kOpEquals, e2);
-    result = "";
+TEST(TestStringExpressionParser, BasicAssertions)
+{
+    ExpressionParser parser;
+
+    hsql::Expr *e1 = hsql::Expr::makeColumnRef("beforepdbid");
+    hsql::Expr *e2 = hsql::Expr::makeColumnRef("5b02");
+    hsql::Expr *e = hsql::Expr::makeOpBinary(e1, hsql::OperatorType::kOpEquals, e2);
+    string result;
 
     parser.Parse(e, "proteins", result);
 
     EXPECT_EQ(result, "before_proteins.pdb_code = '5b02'");
 };
 
-TEST(TestWhereClauseParser, BasicAssertions)
+TEST(TestRegularWhereClauseParser, BasicAssertions)
 {
     hsql::SQLParserResult parsedQuery;
 
@@ -182,6 +271,22 @@ TEST(TestWhereClauseParser, BasicAssertions)
     parser.Parse((const hsql::SelectStatement *)statement, "proteins", 1, result);
 
     EXPECT_EQ(result, " WHERE (protein_transformations.protein_transformation_id = 6) AND transformations.dataset_id=1");
+};
+
+TEST(TestWrapperWhereClauseParser, BasicAssertions)
+{
+    hsql::SQLParserResult parsedQuery;
+
+    hsql::SQLParser::parse("SELECT * FROM PROTEINS WHERE id = 6", &parsedQuery);
+
+    const hsql::SQLStatement *statement = parsedQuery.getStatement(0);
+
+    WrapperWhereClauseParser parser(0, 100);
+    string result;
+
+    parser.Parse((const hsql::SelectStatement *)statement, "proteins", 1, result);
+
+    EXPECT_EQ(result.substr(0, 86), " WHERE transformations.dataset_id=1 AND protein_transformations.transformation_id IN (");
 };
 
 TEST(TestCountMetricsParser, BasicAssertions)

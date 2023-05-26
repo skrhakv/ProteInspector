@@ -28,6 +28,7 @@ add_executable(
   ../core/json-data-extractor.cpp
   ../core/json-reader.cpp
   ../core/expression-parser.cpp
+  ../core/select-clause-parser.cpp
 )
 target_link_libraries(
   query_executor_test

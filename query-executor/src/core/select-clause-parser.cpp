@@ -31,7 +31,7 @@ bool SelectClauseParser::Parse(const hsql::SelectStatement *selectStatement, int
     }
     convertedQuery += " FROM ";
     string fromClauseAndJoins;
-    jsonDataExtractor.GetTableAndLeftJoins(biologicalStructure, fromClauseAndJoins);
+    jsonDataExtractor.GetTableAndJoins(biologicalStructure, fromClauseAndJoins);
     convertedQuery += fromClauseAndJoins;
 
     isValid = whereClauseParser->Parse(selectStatement, biologicalStructure, datasetId, convertedQuery);

@@ -24,7 +24,7 @@ public:
     bool ParseValue(const hsql::Expr *expression, const string biologicalStructure, string &result);
     bool ValidateQueryMetric(hsql::Expr *expression, const string biologicalStructure, bool addAlias, string &result);
     bool GetAllMetrics(const string biologicalStructure, string &result);
-    bool GetTableAndLeftJoins(const string biologicalStructure, string &result);
+    bool GetTableAndJoins(const string biologicalStructure, string &result);
     bool GetDatasetIdMetric(const string biologicalStructure, int datasetId, string &result);
     bool GetDefaultOrder(const string biologicalStructure, string &result);
     bool GetDefaultGroupBy(const string biologicalStructure, string &result);

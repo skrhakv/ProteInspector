@@ -33,7 +33,7 @@ bool JsonDataExtractor::ParseValue(const hsql::Expr *expression, const string bi
             result += expression->name;
     }
     else if (expression->isType(hsql::kExprLiteralFloat))
-        result += to_string(expression->expr2->fval);
+        result += to_string(expression->fval);
     else
         RETURN_PARSE_ERROR("Unknown type: " + expression->type)
     return true;
@@ -117,7 +117,7 @@ bool JsonDataExtractor::GetAllMetrics(const string biologicalStructure, string &
     }
     return true;
 }
-bool JsonDataExtractor::GetTableAndLeftJoins(const string biologicalStructure, string &result)
+bool JsonDataExtractor::GetTableAndJoins(const string biologicalStructure, string &result)
 {
     auto metrics = metricsData["tables"][biologicalStructure];
 
