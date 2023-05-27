@@ -22,7 +22,7 @@ void SelectClauseParser::SetLimitClauseParser(LimitClauseParser *_limitClausePar
     this->limitClauseParser = _limitClauseParser;
 }
 
-bool SelectClauseParser::Parse(const hsql::SelectStatement *selectStatement, int datasetId, int page, int pageSize)
+bool SelectClauseParser::Parse(const hsql::SelectStatement *selectStatement, int datasetId)
 {
     bool isValid = checkForAllowedGrammar((const hsql::SelectStatement *)selectStatement);
     if (!isValid)
@@ -45,7 +45,7 @@ bool SelectClauseParser::Parse(const hsql::SelectStatement *selectStatement, int
     if (!isValid)
         RETURN_PARSE_ERROR(whereClauseParser->errorMessage)
 
-    limitClauseParser->Parse(page, pageSize, convertedQuery);
+    convertedQuery += limitClauseParser->Parse();
 
     return true;
 }
@@ -87,7 +87,7 @@ bool SelectClauseParser::checkFromKeyword(const string query)
     return false;
 }
 
-bool SelectClauseParser::Parse(const string query, int datasetId, int page, int pageSize)
+bool SelectClauseParser::Parse(const string query, int datasetId)
 {
     // unfortunately the library segfaults when you forget the 'FROM' keyword in the query,
     // so we have to check that manually:
@@ -110,7 +110,7 @@ bool SelectClauseParser::Parse(const string query, int datasetId, int page, int 
         if (!(statement->is(hsql::StatementType::kStmtSelect)))
             RETURN_PARSE_ERROR("Only SELECT statements are supported.")
 
-        bool isValid = Parse((const hsql::SelectStatement *)statement, datasetId, page, pageSize);
+        bool isValid = Parse((const hsql::SelectStatement *)statement, datasetId);
         convertedQuery += ";";
         
         return isValid;

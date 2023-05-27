@@ -1,7 +1,7 @@
 #include "regular-limit-clause-parser.hpp"
 
-void RegularLimitClauseParser::Parse(int page, int pageSize, string &result)
+string RegularLimitClauseParser::Parse()
 {
     int offset = page * pageSize;
-    result += " LIMIT " + to_string(pageSize) + " OFFSET " + to_string(offset);
+    return " LIMIT " + to_string(pageSize) + " OFFSET " + to_string(offset);
 }

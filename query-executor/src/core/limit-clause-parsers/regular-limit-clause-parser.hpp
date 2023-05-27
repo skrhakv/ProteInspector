@@ -3,8 +3,13 @@
 
 #include "limit-clause-parser.hpp"
 
-class RegularLimitClauseParser : public LimitClauseParser {
-    void Parse(int page, int pageSize, string &result) override;
+class RegularLimitClauseParser : public LimitClauseParser
+{
+    int page, pageSize;
+    string Parse() override;
+
+public:
+    RegularLimitClauseParser(int _page, int _pageSize) : page(_page), pageSize(_pageSize) {}
 };
 
 #endif

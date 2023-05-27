@@ -8,9 +8,9 @@ using namespace std;
 class LimitClauseParser
 {
 public:
-    virtual void Parse(int page, int pageSize, string &result)
+    virtual string Parse()
     {
-        return;
+        return "";
     }
 };
 

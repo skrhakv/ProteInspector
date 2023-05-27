@@ -5,7 +5,7 @@ bool WrapperWhereClauseParser::Parse(const hsql::SelectStatement *selectStatemen
     {
         TransformationMetricsParser transformationMetricsParser;
         RegularWhereClauseParser regularWhereClauseParser(true);
-        RegularLimitClauseParser limitClauseParser;
+        RegularLimitClauseParser limitClauseParser(page, pageSize);
 
         parser.SetMetricsParser(&transformationMetricsParser);
         parser.SetWhereClauseParser(&regularWhereClauseParser);
@@ -19,7 +19,7 @@ bool WrapperWhereClauseParser::Parse(const hsql::SelectStatement *selectStatemen
         jsonDataExtractor.GetDefaultGroupBy(biologicalStructure, result);
         result += " IN (";
 
-        bool isValid = parser.Parse(selectStatement, datasetId, page, pageSize);
+        bool isValid = parser.Parse(selectStatement, datasetId);
         if (!isValid)
             RETURN_PARSE_ERROR(parser.errorMessage);
 

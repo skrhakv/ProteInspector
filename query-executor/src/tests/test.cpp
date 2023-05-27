@@ -380,10 +380,8 @@ TEST(TestOrderByParserDesc, BasicAssertions)
 
 TEST(TestRegularLimitClauseParser, BasicAssertions)
 {
-    RegularLimitClauseParser parser;
-    string result;
-
-    ((LimitClauseParser *)&parser)->Parse(0, 100, result);
+    RegularLimitClauseParser parser(0, 100);
+    string result = ((LimitClauseParser *)&parser)->Parse();
 
     EXPECT_EQ(result, " LIMIT 100 OFFSET 0");
 };
@@ -391,9 +389,7 @@ TEST(TestRegularLimitClauseParser, BasicAssertions)
 TEST(TestEmptyLimitClauseParser, BasicAssertions)
 {
     EmptyLimitClauseParser parser;
-    string result;
-
-    ((LimitClauseParser *)&parser)->Parse(0, 100, result);
+    string result = ((LimitClauseParser *)&parser)->Parse();
 
     EXPECT_EQ(result, "");
 };

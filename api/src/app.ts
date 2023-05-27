@@ -138,6 +138,7 @@ app.get('/export', async (req, res) => {
     let datasetId: number = Number(req.query.datasetId as any);
     let format: string = req.query.format as string;
 
+    // TODO: Do something about this? Maybe something like if the pageSize == 0 then use emptyLimitClauseParser?
     const resultCount = executor.GetResultCount(query, datasetId);
     let result = executor.ParseAndExecute(query, datasetId, 0, resultCount);
     
