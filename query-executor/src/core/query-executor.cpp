@@ -37,25 +37,29 @@ std::pair<pqxx::result, std::string> QueryExecutor::ParseAndExecute(const std::s
 {
     MetricsParser *metricsParser;
     RegularWhereClauseParser regularWhereClauseParser(true);
-    RegularLimitClauseParser limitClauseParser(page, pageSize);
+    LimitClauseParser *limitClauseParser;
 
-    parser.SetWhereClauseParser(&regularWhereClauseParser);
-    parser.SetLimitClauseParser(&limitClauseParser);
+    if (page == 0 && pageSize == 0)
+        limitClauseParser = new EmptyLimitClauseParser();
+    else
+        limitClauseParser = new RegularLimitClauseParser(page, pageSize);
 
     if (includeAllMetrics)
-    {
         metricsParser = new NonSelectiveMetricsParser();
-        parser.SetMetricsParser(metricsParser);
-    }
     else
-    {
         metricsParser = new SelectiveMetricsParser();
-        parser.SetMetricsParser(metricsParser);
-    }
+
+    parser.SetWhereClauseParser(&regularWhereClauseParser);
+    parser.SetLimitClauseParser(limitClauseParser);
+    parser.SetMetricsParser(metricsParser);
+
     parser.Clear();
 
     bool isValid = parser.Parse(query, datasetId);
+
+    delete limitClauseParser;
     delete metricsParser;
+
     if (!isValid)
     {
         return {pqxx::result(), parser.errorMessage};
