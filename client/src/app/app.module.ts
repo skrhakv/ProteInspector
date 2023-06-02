@@ -16,6 +16,7 @@ import { DatasetSelectorComponent } from './components/dataset-selector/dataset-
 import { ProteinViewComponent } from './components/protein-view/protein-view.component';
 import { FilterService } from './services/filter.service';
 import { AboutComponent } from './components/about/about.component';
+import { ResultTableComponent } from './components/result-table/result-table.component';
 
 @NgModule({
     declarations: [
@@ -25,7 +26,8 @@ import { AboutComponent } from './components/about/about.component';
         QueryInterfaceComponent,
         DatasetSelectorComponent,
         ProteinViewComponent,
-        AboutComponent
+        AboutComponent,
+        ResultTableComponent
     ],
     imports: [
         BrowserModule,

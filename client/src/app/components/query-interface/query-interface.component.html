@@ -6,9 +6,9 @@
             <div class="input-group rounded">
                 <textarea class="form-control rounded" placeholder="Type Query" aria-label="Search"
                     aria-describedby="search-addon" [(ngModel)]="query"
-                    (keydown.enter)="onEnterDownInTextArea($event)"></textarea>
+                    (keydown.enter)="onEnterDownInCustomQueryTextbox($event)"></textarea>
                 <span class="input-group-text border-0" id="search-addon">
-                    <a class="btn btn-default btn-sm" (click)="sendManualQuery()">
+                    <a class="btn btn-default btn-sm" (click)="submitCustomQuery()">
                         <i class="fa fa-search"></i>
                     </a> </span>
             </div>
@@ -71,7 +71,7 @@
                             </select>
                             <input type="text" class="form-control w-75" placeholder="{{item.name}}"
                                 [(ngModel)]="item.value" (change)="metricInputChanged()"
-                                (keydown.enter)="submitFilterQuery()">
+                                (keydown.enter)="submitRegularQuery()">
                             <span class="input-group-text clickable-link" id="basic-addon1" (click)="removeMetric(i)">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                     class="bi bi-x" viewBox="0 0 16 16">
@@ -109,180 +109,16 @@
                         </div>
                     </div>
                     <div class="input-group rounded clickable-link mt-3 p-3 justify-content-center"
-                        (click)="submitFilterQuery()">
+                        (click)="submitRegularQuery()">
                         <span class="input-group-text border-0" id="search-addon">
                             Search
-                            <a class="btn btn-default btn-sm" (click)="sendQuery()">
+                            <a class="btn btn-default btn-sm">
                                 <i class="fa fa-search"></i>
                             </a> </span>
                     </div>
                 </div>
             </div>
-            <div *ngIf="emptyResult">
-                <div class="alert alert-warning text-center" role="alert">
-                    The server returned an empty list.
-                </div>
-            </div>
-            <div>
-                <div class="container"
-                    [style.display]="TableData.length > 0 && TableColumnNames.length > 0 ? 'block' : 'none'">
-                    <hr />
-                    <div class="row">
-                        <div class="col-3">
-                            <p class="mt-2 mx-5 fw-light">Number of Results: {{resultCount}}</p>
-                        </div>
-                        <div class="col-6">
-                            <nav aria-label="Page navigation example">
-                                <ul class="pagination">
-                                    <li class="page-item" [ngClass]="{'disabled': pageNumber <= 0 || !DataReady}">
-                                        <a class="page-link clickable-link" aria-label="First" (click)="changePage(0)">
-                                            <span aria-hidden="true">&laquo;&laquo;</span>
-                                            <span class="sr-only"></span>
-                                        </a>
-                                    </li>
-                                    <li class="page-item" [ngClass]="{'disabled': pageNumber <= 0 || !DataReady}">
-                                        <a class="page-link clickable-link" aria-label="Previous"
-                                            (click)="changePage(pageNumber - 1)">
-                                            <span aria-hidden="true">&laquo;</span>
-                                            <span class="sr-only"></span>
-                                        </a>
-                                    </li>
-                                    <li *ngIf="pageNumber - 2 >= 0" class="page-item"
-                                        [ngClass]="{'disabled': !DataReady}">
-                                        <a class="page-link clickable-link"
-                                            (click)="changePage(pageNumber - 2)">{{pageNumber -
-                                            1}}</a>
-                                    </li>
-                                    <li *ngIf="pageNumber - 1 >= 0" class="page-item"
-                                        [ngClass]="{'disabled': !DataReady}">
-                                        <a class="page-link clickable-link"
-                                            (click)="changePage(pageNumber - 1)">{{pageNumber}}</a>
-                                    </li>
-                                    <li class="page-item active"><a class="page-link">{{pageNumber + 1}}</a></li>
-                                    <li *ngIf="pageNumber + 1 <= numberOfPages - 1" class="page-item"
-                                        [ngClass]="{'disabled': !DataReady}">
-                                        <a class="page-link clickable-link"
-                                            (click)="changePage(pageNumber + 1)">{{pageNumber
-                                            + 2}}</a>
-                                    </li>
-                                    <li *ngIf="pageNumber + 2 <= numberOfPages - 1" class="page-item"
-                                        [ngClass]="{'disabled': !DataReady}">
-                                        <a class="page-link clickable-link"
-                                            (click)="changePage(pageNumber + 2)">{{pageNumber
-                                            + 3}}</a>
-                                    </li>
-
-                                    <li class="page-item"
-                                        [ngClass]="{'disabled': pageNumber >= numberOfPages - 1 || !DataReady}">
-                                        <a class="page-link clickable-link" aria-label="Next"
-                                            (click)="changePage(pageNumber + 1)">
-                                            <span aria-hidden=" true">&raquo;</span>
-                                            <span class="sr-only"></span>
-                                        </a>
-                                    </li>
-                                    <li class="page-item"
-                                        [ngClass]="{'disabled': pageNumber >= numberOfPages - 1|| !DataReady}">
-                                        <a class="page-link clickable-link" aria-label="Last"
-                                            (click)="changePage(numberOfPages - 1)">
-                                            <span aria-hidden="true">&raquo;&raquo;</span>
-                                            <span class="sr-only"></span>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </nav>
-                        </div>
-                        <div class="col-3">
-                            <button id="ChangeTypeGroupDrop" type="button"
-                                class="btn btn-outline-success dropdown-toggle" data-bs-toggle="dropdown"
-                                aria-haspopup="true" aria-expanded="false" [disabled]="!DataReady || exportDisabled">
-                                Export Results
-                            </button>
-                            <div class="dropdown-menu" aria-labelledby="ChangeTypeGroupDrop">
-                                <a class="dropdown-item" [ngClass]="!DataReady || exportDisabled ? 'disabled' : ''"
-                                    *ngFor="let fileFormat of ['JSON', 'CSV']"
-                                    (click)="ExportResults(fileFormat)">{{fileFormat}}</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row justify-content-center" [style.display]="!DataReady ? '' : 'none'">
-                        <div class="spinner-border " role="status">
-                        </div>
-                    </div>
-                    <div class="container" [style.display]="DataReady ? 'block' : 'none'">
-                        <div class="row">
-                            <h5 class="text-center">Results</h5>
-                            <div class="table-responsive" style="transform: rotateX(180deg);">
-                                <table class="table table-hover" style="transform: rotateX(180deg);">
-                                    <thead id="fixed-thead" class="bg-white my-1">
-                                        <tr>
-                                            <th scope="col">#</th>
-                                            <th scope="col" *ngFor="let name of ColumnOrder">{{name}}</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr class="clickable-link" *ngFor="let row of TableData; index as i"
-                                            routerLink="/detail/{{structure}}/{{row.Id}}">
-                                            <th scope="row">{{(i + 1) + (pageNumber * pageSize)}}</th>
-                                            <td *ngFor="let name of ColumnOrder">{{row[name]}}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <nav aria-label="Page navigation example">
-                                <ul class="pagination">
-                                    <li class="page-item" [ngClass]="{'disabled': pageNumber <= 0}">
-                                        <a class="page-link clickable-link" aria-label="First" (click)="changePage(0)">
-                                            <span aria-hidden="true">&laquo;&laquo;</span>
-                                            <span class="sr-only"></span>
-                                        </a>
-                                    </li>
-                                    <li class="page-item" [ngClass]="{'disabled': pageNumber <= 0}">
-                                        <a class="page-link clickable-link" aria-label="Previous"
-                                            (click)="changePage(pageNumber - 1)">
-                                            <span aria-hidden="true">&laquo;</span>
-                                            <span class="sr-only"></span>
-                                        </a>
-                                    </li>
-                                    <li *ngIf="pageNumber - 2 >= 0" class="page-item"><a
-                                            class="page-link clickable-link"
-                                            (click)="changePage(pageNumber - 2)">{{pageNumber -
-                                            1}}</a></li>
-                                    <li *ngIf="pageNumber - 1 >= 0" class="page-item"><a
-                                            class="page-link clickable-link"
-                                            (click)="changePage(pageNumber - 1)">{{pageNumber}}</a>
-                                    </li>
-                                    <li class="page-item active"><a class="page-link">{{pageNumber + 1}}</a></li>
-                                    <li *ngIf="pageNumber + 1 <= numberOfPages - 1" class="page-item"><a
-                                            class="page-link clickable-link"
-                                            (click)="changePage(pageNumber + 1)">{{pageNumber
-                                            + 2}}</a></li>
-                                    <li *ngIf="pageNumber + 2 <= numberOfPages - 1" class="page-item"><a
-                                            class="page-link clickable-link"
-                                            (click)="changePage(pageNumber + 2)">{{pageNumber
-                                            + 3}}</a></li>
-
-                                    <li class="page-item" [ngClass]="{'disabled': pageNumber >= numberOfPages - 1}">
-                                        <a class="page-link clickable-link" aria-label="Next"
-                                            (click)="changePage(pageNumber + 1)">
-                                            <span aria-hidden=" true">&raquo;</span>
-                                            <span class="sr-only"></span>
-                                        </a>
-                                    </li>
-                                    <li class="page-item" [ngClass]="{'disabled': pageNumber >= numberOfPages - 1}">
-                                        <a class="page-link clickable-link" aria-label="Last"
-                                            (click)="changePage(numberOfPages - 1)">
-                                            <span aria-hidden="true">&raquo;&raquo;</span>
-                                            <span class="sr-only"></span>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </nav>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <app-result-table [structure]="structure" [query]="finishedQuery"></app-result-table>
         </div>
     </div>
 </div>

@@ -2,8 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AppSettings } from '../app-settings';
 import { Dataset } from '../models/dataset';
-import { firstValueFrom, of } from 'rxjs';
-import { CookieService } from 'ngx-cookie-service';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
@@ -14,7 +13,7 @@ export class DatasetService {
     public ColumnOrder: string[] = [];
     public currentQuery = "";
 
-    constructor(private http: HttpClient, private cookieService: CookieService) {
+    constructor(private http: HttpClient) {
         this.getDatasetInfo();
         this.getOrderInfo();
     }
@@ -40,10 +39,11 @@ export class DatasetService {
         };
         let datasetsResult = await firstValueFrom(this.http.get<any>(AppSettings.API_ENDPOINT + `/datasets-info`, options));
         this.datasets = datasetsResult['results'];
-        if (this.datasets.length > 0) {
 
-            if (this.cookieService.check('dataset-id')) {
-                let dataset = this.datasets.find(x => x.dataset_id === this.cookieService.get('dataset-id'));
+        if (this.datasets.length > 0) {
+            let datasetId: string | null = sessionStorage.getItem('dataset-id');
+            if (datasetId) {
+                let dataset = this.datasets.find(x => x.dataset_id === datasetId);
                 if (dataset !== undefined)
                     this.SelectedDataset = dataset;
                 else
@@ -59,7 +59,7 @@ export class DatasetService {
 
     selectDataset(dataset: Dataset) {
         this.SelectedDataset = dataset;
-        this.cookieService.set("dataset-id", this.SelectedDataset.dataset_id);
+        sessionStorage.setItem("dataset-id", this.SelectedDataset.dataset_id);
     }
 
     getQueryData(page: number, pageSize: number) {
