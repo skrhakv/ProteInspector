@@ -18,6 +18,7 @@ import { FilterService } from './services/filter.service';
 import { AboutComponent } from './components/about/about.component';
 import { ResultTableComponent } from './components/result-table/result-table.component';
 import { PaginationComponent } from './components/pagination/pagination.component';
+import { ProteinVisualizationComponent } from './components/protein-visualization/protein-visualization.component';
 
 @NgModule({
     declarations: [
@@ -29,7 +30,8 @@ import { PaginationComponent } from './components/pagination/pagination.componen
         DetailViewComponent,
         AboutComponent,
         ResultTableComponent,
-        PaginationComponent
+        PaginationComponent,
+        ProteinVisualizationComponent
     ],
     imports: [
         BrowserModule,

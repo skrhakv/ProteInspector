@@ -27,8 +27,9 @@ export class SuperpositionService {
 
     constructor(private molstarService: MolstarService) { }
 
-    public GenerateMolstarVisualisation(plugin: PluginUIContext, proteinsToVisualize: Protein[], lcsLength: number, callback: Function) {
+    public GenerateMolstarVisualisation(plugin: PluginUIContext, proteinsToVisualize: Protein[], callback: Function) {
         plugin.dataTransaction(async () => {
+            console.log(proteinsToVisualize)
             // load each structure
             for (const protein of proteinsToVisualize) {
                 await this.loadStructure(plugin, `${protein.FileLocation}${protein.PdbCode}.cif`, 'mmcif', false);
@@ -42,7 +43,7 @@ export class SuperpositionService {
                     Q.struct.generator.atomGroups({
                         "group-by": MS.struct.atomProperty.core.operatorName(),
                         'chain-test': Q.core.rel.eq([protein.ChainId, Q.struct.atomProperty.macromolecular.auth_asym_id()]),
-                        'residue-test': Q.core.rel.inRange([Q.struct.atomProperty.macromolecular.label_seq_id(), protein.LcsStart, protein.LcsStart + lcsLength]),
+                        'residue-test': Q.core.rel.inRange([Q.struct.atomProperty.macromolecular.label_seq_id(), protein.LcsStart, protein.LcsStart + protein.LcsLength]),
                         'entity-test': MS.core.rel.eq([MS.ammp('entityType'), 'polymer'])
                     })]), data);
                 const loci = StructureSelection.toLociWithSourceUnits(selection);
