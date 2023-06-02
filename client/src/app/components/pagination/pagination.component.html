@@ -1,0 +1,49 @@
+<nav aria-label="Page navigation example">
+    <ul class="pagination">
+        <li class="page-item" [ngClass]="{'disabled': page <= 0 || disabled}">
+            <a class="page-link clickable-link" aria-label="First" (click)="updatePagination(0)">
+                <span aria-hidden="true">&laquo;&laquo;</span>
+                <span class="sr-only"></span>
+            </a>
+        </li>
+        <li class="page-item" [ngClass]="{'disabled': page <= 0 || disabled}">
+            <a class="page-link clickable-link" aria-label="Previous"
+                (click)="updatePagination(page - 1)">
+                <span aria-hidden="true">&laquo;</span>
+                <span class="sr-only"></span>
+            </a>
+        </li>
+        <li *ngIf="page - 2 >= 0" class="page-item" [ngClass]="{'disabled': disabled}">
+            <a class="page-link clickable-link" (click)="updatePagination(page - 2)">{{page -
+                1}}</a>
+        </li>
+        <li *ngIf="page - 1 >= 0" class="page-item" [ngClass]="{'disabled': disabled}">
+            <a class="page-link clickable-link" (click)="updatePagination(page - 1)">{{page}}</a>
+        </li>
+        <li class="page-item active"><a class="page-link">{{page + 1}}</a></li>
+        <li *ngIf="page + 1 <= pageCount - 1" class="page-item"
+            [ngClass]="{'disabled': disabled}">
+            <a class="page-link clickable-link" (click)="updatePagination(page + 1)">{{page
+                + 2}}</a>
+        </li>
+        <li *ngIf="page + 2 <= pageCount - 1" class="page-item"
+            [ngClass]="{'disabled': disabled}">
+            <a class="page-link clickable-link" (click)="updatePagination(page + 2)">{{page
+                + 3}}</a>
+        </li>
+
+        <li class="page-item" [ngClass]="{'disabled': page >= pageCount - 1 || disabled}">
+            <a class="page-link clickable-link" aria-label="Next" (click)="updatePagination(page + 1)">
+                <span aria-hidden=" true">&raquo;</span>
+                <span class="sr-only"></span>
+            </a>
+        </li>
+        <li class="page-item" [ngClass]="{'disabled': page >= pageCount - 1|| disabled}">
+            <a class="page-link clickable-link" aria-label="Last"
+                (click)="updatePagination(pageCount - 1)">
+                <span aria-hidden="true">&raquo;&raquo;</span>
+                <span class="sr-only"></span>
+            </a>
+        </li>
+    </ul>
+</nav>

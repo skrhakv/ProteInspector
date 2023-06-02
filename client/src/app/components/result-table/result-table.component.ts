@@ -28,7 +28,7 @@ export class ResultTableComponent implements OnInit {
     public ColumnOrder: string[] = [];
 
     public pageNumber: number = 0;
-    public numberOfPages: number = 0;
+    public pageCount: number = 0;
     public resultCount: number = 0;
     public DataReady: boolean = true;
     public exportDisabled: boolean = false;
@@ -74,14 +74,14 @@ export class ResultTableComponent implements OnInit {
         this.datasetService.getNumberOfResults().pipe(takeUntil(this.ngUnsubscribe)).subscribe(data => {
             this.resultCount = data;
         });
-        this.datasetService.getNumberOfPages().pipe(takeUntil(this.ngUnsubscribe)).subscribe(data => {
-            this.numberOfPages = data;
+        this.datasetService.getPageCount().pipe(takeUntil(this.ngUnsubscribe)).subscribe(data => {
+            this.pageCount = data;
         });
 
     }
 
     ExportResults(format: string): void {
-        // Get all the results, not just the page
+        // Export all the results, not just the page
 
         let filename: string;
         this.exportDisabled = true;
@@ -106,8 +106,8 @@ export class ResultTableComponent implements OnInit {
         });
     }
 
-    changePage(page: number) {
-        if (page >= this.numberOfPages || page < 0)
+    onPaginationChanged(page: number) {
+        if (page >= this.pageCount || page < 0)
             return;
 
         this.DataReady = false;

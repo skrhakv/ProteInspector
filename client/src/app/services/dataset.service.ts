@@ -89,7 +89,7 @@ export class DatasetService {
             "&format=" + format, options);
     }
 
-    getNumberOfPages() {
+    getPageCount() {
         const headers = new HttpHeaders({
             'Access-Control-Allow-Origin': AppSettings.API_ENDPOINT
         });
