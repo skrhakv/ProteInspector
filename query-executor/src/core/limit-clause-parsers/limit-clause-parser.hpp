@@ -8,6 +8,8 @@ using namespace std;
 class LimitClauseParser
 {
 public:
+    virtual ~LimitClauseParser() {}
+
     virtual string Parse()
     {
         return "";

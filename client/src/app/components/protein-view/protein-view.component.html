@@ -74,7 +74,7 @@
                         *ngFor="let domain of highlightedDomains ; let i = index" (click)="ToggleHighlighting(i)">
                         {{domain.Highlighted ? "Disable Highlight" : "Highlight"}}
                         {{structure === 'Residues' ? "Residues" : "Domain"}}
-                        {{structure === 'Residues' ? getStringSpan(domain) : domain.DomainName}}
+                        {{structure === 'Residues' ? getStringSpan(domain) : domain.DomainName}} from Protein {{domain.PdbId + domain.ChainId}}
                         {{structure === 'Residues' ? "" : "from Protein "}}
                         {{structure === 'Residues' ? "" : domain.PdbId + domain.ChainId}}
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
