@@ -35,7 +35,7 @@ export class ResultTableComponent implements OnInit {
 
     constructor(
         private datasetService: DatasetService
-    ) {        
+    ) {
         this.pageSize = AppSettings.PAGE_SIZE;
 
         let query: string | null = sessionStorage.getItem('query');
@@ -47,12 +47,13 @@ export class ResultTableComponent implements OnInit {
                 
                 // typescript complains if I don't double-check O.o
                 this.query = query !== null ? query : '';
-                if(query !== '')
+                if (query !== '')
                     this.sendQuery(false, parsedpage);
 
                 this.makeRequests = true;
             });
         }
+        else this.makeRequests = true;
     }
 
     ngOnChanges(changes: SimpleChanges) {

@@ -31,6 +31,7 @@ export class QueryInterfaceComponent {
     ) {
         let queryFromSessionStorage: string | null = sessionStorage.getItem('query');
         this.query = queryFromSessionStorage !== null ? queryFromSessionStorage : '';
+        this.structure = this.getStructure();
     }
 
     updateQueryAttributes() {

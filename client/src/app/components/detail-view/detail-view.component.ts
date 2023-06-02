@@ -21,11 +21,11 @@ import * as saveAs from 'file-saver';
 
 declare var msa: any;
 @Component({
-    selector: 'app-protein-view',
-    templateUrl: './protein-view.component.html',
-    styleUrls: ['./protein-view.component.scss']
+    selector: 'app-detail-view',
+    templateUrl: './detail-view.component.html',
+    styleUrls: ['./detail-view.component.scss']
 })
-export class ProteinViewComponent implements OnInit {
+export class DetailViewComponent implements OnInit {
     private plugin!: PluginUIContext;
     public TableColumnNames: string[] = [];
     public ColumnOrder: string[] = [];

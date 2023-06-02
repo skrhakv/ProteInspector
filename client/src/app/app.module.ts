@@ -13,7 +13,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule } from '@angular/forms';
 import { QueryInterfaceComponent } from './components/query-interface/query-interface.component';
 import { DatasetSelectorComponent } from './components/dataset-selector/dataset-selector.component';
-import { ProteinViewComponent } from './components/protein-view/protein-view.component';
+import { DetailViewComponent } from './components/detail-view/detail-view.component';
 import { FilterService } from './services/filter.service';
 import { AboutComponent } from './components/about/about.component';
 import { ResultTableComponent } from './components/result-table/result-table.component';
@@ -26,7 +26,7 @@ import { PaginationComponent } from './components/pagination/pagination.componen
         HomeComponent,
         QueryInterfaceComponent,
         DatasetSelectorComponent,
-        ProteinViewComponent,
+        DetailViewComponent,
         AboutComponent,
         ResultTableComponent,
         PaginationComponent
