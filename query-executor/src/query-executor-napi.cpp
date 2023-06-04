@@ -180,7 +180,7 @@ Napi::Value QueryExecutorNapi::GetResultCount(const Napi::CallbackInfo &info)
     pqxx::result result;
     try
     {
-        tie(result, error) = qExecutor->GetNumberOfPages(query, datasetId);
+        tie(result, error) = qExecutor->GetNumberOfResults(query, datasetId);
     }
     catch (const std::exception &e)
     {
@@ -211,7 +211,7 @@ Napi::Value QueryExecutorNapi::GetNumberOfPages(const Napi::CallbackInfo &info)
     pqxx::result result;
     try
     {
-        tie(result, error) = qExecutor->GetNumberOfPages(query, datasetId);
+        tie(result, error) = qExecutor->GetNumberOfResults(query, datasetId);
     }
     catch (const std::exception &e)
     {

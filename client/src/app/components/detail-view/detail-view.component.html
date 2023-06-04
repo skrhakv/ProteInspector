@@ -30,32 +30,44 @@
         </table>
     </div>
 </div>
-<app-protein-visualization [structure]="structure" (export)="ExportDetails()"></app-protein-visualization>
+<app-protein-visualization (export)="ExportDetails()"></app-protein-visualization>
 <div class="container">
     <div class="row mt-5" *ngIf="ContextDataReady">
-        <h1 class="text-center">Transformation Context</h1>
-        <div class="row mt-3 table-responsive">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th scope="col" *ngFor="let name of ContextColumnOrder">{{name}}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="clickable-link" *ngFor="let row of ContextTableData; index as i">
-                        <td *ngFor="let name of ContextColumnOrder">
-                            <ng-template [ngIf]="externalLinkService.HasExternalLink(name)" [ngIfElse]="elseBlock">
-                                <a href="{{externalLinkService.GetExternalLink(name, row[name])}}" target="_blank"
-                                    class="link-dark" data-toggle="tooltip" data-placement="top"
-                                    title="Link to external database: {{externalLinkService.GetExternalLink(name, row[name])}}">{{row[name]}}</a>
-                            </ng-template>
-                            <ng-template #elseBlock>
-                                {{row[name]}}
-                            </ng-template>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+        <h1 class="text-center">Structure Context</h1>
+        <div class="container">
+            <div class="row" *ngFor="let biologicalStructure of ContextStructureHeadingMapping">
+                <div *ngIf="ContextTableData[biologicalStructure['key']].length > 0" class="border p-5">
+                    <h5 class="text-center text-muted">{{biologicalStructure['name']}}</h5>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col" *ngFor="let name of ContextColumnOrder[biologicalStructure['key']]">
+                                        {{name}}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr
+                                    *ngFor="let row of ContextTableData[biologicalStructure['key']]; index as i">
+                                    <td *ngFor="let name of ContextColumnOrder[biologicalStructure['key']]">
+                                        <ng-template [ngIf]="externalLinkService.HasExternalLink(name)"
+                                            [ngIfElse]="elseBlock">
+                                            <a href="{{externalLinkService.GetExternalLink(name, row[name])}}"
+                                                target="_blank" class="link-dark" data-toggle="tooltip"
+                                                data-placement="top"
+                                                title="Link to external database: {{externalLinkService.GetExternalLink(name, row[name])}}">{{row[name]}}</a>
+                                        </ng-template>
+                                        <ng-template #elseBlock>
+                                            {{row[name]}}
+                                        </ng-template>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

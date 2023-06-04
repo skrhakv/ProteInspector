@@ -126,15 +126,15 @@ export class DatasetService {
             "&datasetId=" + this.SelectedDataset.dataset_id, options);
     }
 
-    getTransformationContext(id: number, structure: string) {
+    getTransformationContext(id: number, biologicalStructure: string) {
         const headers = new HttpHeaders({
             'Access-Control-Allow-Origin': AppSettings.API_ENDPOINT
         });
         const options = {
             headers
         };
-        return this.http.get<any>(AppSettings.API_ENDPOINT + `/data/transformation-context/?query=`
-         + encodeURIComponent(`SELECT * FROM ` + structure + ` WHERE id=` + id) + 
-         "&datasetId=" + this.SelectedDataset.dataset_id, options);
+        return this.http.get<any>(AppSettings.API_ENDPOINT +
+            `/data/transformation-context/?id=${id}&biologicalStructure=${biologicalStructure}&datasetId=${this.SelectedDataset.dataset_id}`
+            , options);
     }
 }

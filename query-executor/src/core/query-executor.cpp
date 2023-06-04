@@ -68,7 +68,7 @@ std::pair<pqxx::result, std::string> QueryExecutor::ParseAndExecute(const std::s
     return dbClient.ExecuteQuery(parser.GetConvertedQuery());
 }
 
-std::pair<pqxx::result, std::string> QueryExecutor::GetNumberOfPages(const std::string &query, int datasetId)
+std::pair<pqxx::result, std::string> QueryExecutor::GetNumberOfResults(const std::string &query, int datasetId)
 {
     CountMetricsParser metricsParser;
     RegularWhereClauseParser regularWhereClauseParser(false);

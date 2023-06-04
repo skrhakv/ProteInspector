@@ -52,7 +52,10 @@ export const ProteinThemeProvider: ColorTheme.Provider<typeof ProteinThemeParams
     isApplicable: (ctx: ThemeDataContext) => true,
 };
 
-export function getLighterColor(index: number, lightenLevel: number): Color
-{
+export function getLighterColor(index: number, lightenLevel: number): Color {
     return Color.lighten(colors[index], lightenLevel);
+}
+
+export function getColorHex(index: number): string {
+    return Color.toHexStyle(colors[index]);
 }

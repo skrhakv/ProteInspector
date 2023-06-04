@@ -7,7 +7,7 @@ import { StructureRepresentationRegistry } from 'molstar/lib/mol-repr/structure/
 import { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
 import { DefaultPluginUISpec } from 'molstar/lib/mol-plugin-ui/spec';
 import { createPluginUI } from 'molstar/lib/mol-plugin-ui/react18';
-import { ProteinThemeProvider } from 'src/app/providers/protein-theme-provider';
+import { ProteinThemeProvider, getColorHex } from 'src/app/providers/protein-theme-provider';
 import { AppSettings } from 'src/app/app-settings';
 import { ProteinSequence } from 'src/app/models/protein-sequence.model';
 import { SuperpositionService } from 'src/app/services/superposition.service';
@@ -20,9 +20,8 @@ declare var msa: any;
     styleUrls: ['./protein-visualization.component.scss']
 })
 export class ProteinVisualizationComponent implements OnInit {
-    @Input() structure!: string;
     @Output() export = new EventEmitter<void>();
-    
+
     private plugin!: PluginUIContext;
     public proteins: Protein[] = [];
     public highlightedDomains: HighlightedDomain[] = [];
@@ -30,7 +29,7 @@ export class ProteinVisualizationComponent implements OnInit {
     public VisualizationReady: boolean = false;
     public ShowHighlightButtons: boolean = false;
     public IsProteinVisible: boolean[] = [];
-    public OnlyChains: [visible: boolean, buttonText: string] = [false, "Show only chains"];
+    public OnlyChains: [visible: boolean, buttonText: string] = [false, "Show Chains"];
     public ProteinRepresentation: StructureRepresentationRegistry.BuiltIn[] = [];
 
     constructor(
@@ -39,9 +38,9 @@ export class ProteinVisualizationComponent implements OnInit {
     ) { }
 
     public updateVisualization(proteins: Protein[], highlightedDomains: HighlightedDomain[]) {
-        console.log("hereee");
         this.proteins = proteins;
         this.highlightedDomains = highlightedDomains;
+
         this.UpdateChainVisibilityButtonText();
 
         // set corresponding length and values for the 'IsProteinVisible' array and for the 'ProteinRepresentation' array
@@ -62,7 +61,7 @@ export class ProteinVisualizationComponent implements OnInit {
         this.ShowHighlightButtons = true;
     }
 
-    public onExportButtonClicked(){
+    public onExportButtonClicked() {
         this.export.emit();
     }
 
@@ -90,6 +89,17 @@ export class ProteinVisualizationComponent implements OnInit {
         this.ProteinRepresentation[index] = structureRepresentationType as StructureRepresentationRegistry.BuiltIn;
 
         await this.updateHighlighting();
+    }
+
+    getButtonStyles(index: number): Record<string, string> {
+        let proteinColor = getColorHex(index);
+
+        return {
+            '--register-button--color': 'white',
+            '--register-button--background-color': proteinColor,
+            '--register-button--hover-color': proteinColor,
+            '--register-button--hover-background-color': 'white',
+        };
     }
 
     public async ToggleStructureVisibility(index: number) {
@@ -128,7 +138,7 @@ export class ProteinVisualizationComponent implements OnInit {
     }
 
     private UpdateChainVisibilityButtonText(): void {
-        this.OnlyChains[1] = "Show Only Chains "
+        this.OnlyChains[1] = "Show Chains "
         let first: boolean = true;
         for (const protein of this.proteins) {
             if (first)
@@ -240,6 +250,10 @@ export class ProteinVisualizationComponent implements OnInit {
         };
 
         var m = msa(opts);
+
+        // set CSS height of the MSA viewer
+        m.g.zoomer.set("alignmentHeight", 50 + (15 * labels.length));
+
         m.render();
     }
 }

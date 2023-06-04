@@ -29,7 +29,6 @@ export class SuperpositionService {
 
     public GenerateMolstarVisualisation(plugin: PluginUIContext, proteinsToVisualize: Protein[], callback: Function) {
         plugin.dataTransaction(async () => {
-            console.log(proteinsToVisualize)
             // load each structure
             for (const protein of proteinsToVisualize) {
                 await this.loadStructure(plugin, `${protein.FileLocation}${protein.PdbCode}.cif`, 'mmcif', false);
@@ -67,19 +66,26 @@ export class SuperpositionService {
     private async loadStructure(plugin: PluginContext, url: string, format: BuiltInTrajectoryFormat, isBinary?: boolean) {
         try {
             const data = await plugin.builders.data.download({ url: Asset.Url(url), isBinary: isBinary });
-            
+
             const trajectory = await plugin.builders.structure.parseTrajectory(data, format);
             const model = await plugin.builders.structure.createModel(trajectory);
             const structure = await plugin.builders.structure.createStructure(model, { name: 'model', params: {} });
             const polymer = await plugin.builders.structure.tryCreateComponentStatic(structure, 'polymer');
+            const ligand = await plugin.builders.structure.tryCreateComponentStatic(structure, 'ligand');
 
             if (polymer) {
                 await plugin.builders.structure.representation.addRepresentation(polymer, {
                     type: 'cartoon'
                 });
             }
-            await plugin.builders.structure.insertStructureProperties(structure);
 
+            if (ligand) {
+                await plugin.builders.structure.representation.addRepresentation(ligand, {
+                    type: 'ball-and-stick'
+                });
+            }
+
+            await plugin.builders.structure.insertStructureProperties(structure);
 
             return { data, trajectory, model, structure };
         } catch (e) {

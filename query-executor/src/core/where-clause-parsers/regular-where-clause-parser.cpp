@@ -18,20 +18,20 @@ bool RegularWhereClauseParser::Parse(const hsql::SelectStatement *selectStatemen
         result += " WHERE ";
         jsonDataExtractor.GetDatasetIdMetric(biologicalStructure, datasetId, result);
     }
-    if (selectStatement->order)
+    if (orderBy)
     {
-        string orderByClause, defaultOrder;
-        bool isValid = orderByParser.Parse(selectStatement->order, biologicalStructure, orderByClause) && jsonDataExtractor.GetDefaultOrder(biologicalStructure, defaultOrder);
-        if (!isValid)
-            RETURN_PARSE_ERROR(errorMessage)
+        if (selectStatement->order)
+        {
+            string orderByClause, defaultOrder;
+            bool isValid = orderByParser.Parse(selectStatement->order, biologicalStructure, orderByClause) && jsonDataExtractor.GetDefaultOrder(biologicalStructure, defaultOrder);
+            if (!isValid)
+                RETURN_PARSE_ERROR(errorMessage)
 
-        result += " ORDER BY " + orderByClause;
-        result += ", ";
-        result += defaultOrder;
-    }
-    else
-    {
-        if (orderBy)
+            result += " ORDER BY " + orderByClause;
+            result += ", ";
+            result += defaultOrder;
+        }
+        else
         {
             string defaultOrder;
             jsonDataExtractor.GetDefaultOrder(biologicalStructure, defaultOrder);

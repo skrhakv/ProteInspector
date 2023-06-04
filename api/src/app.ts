@@ -18,27 +18,40 @@ app.get('/datasets-info', (req, res) => {
 });
 
 
-app.get('/data/transformation-context', (req, res) => {
-    if (req.query === undefined  || req.query.query === undefined || req.query.datasetId === undefined) {
-        res.status(400).send("Failed! Provide paramaters 'query' and 'datasetId' in the URL.\n");
+app.get('/data/transformation-context', async (req, res) => {
+    if (req.query === undefined || req.query.id === undefined || req.query.datasetId === undefined
+        || req.query.biologicalStructure === undefined) {
+        res.status(400).send("Failed! Provide paramaters 'id', 'biologicalStructure' and 'datasetId' in the URL.\n");
         return;
     }
 
-    let query: string = req.query.query as string;
+    let id: string = req.query.id as string;
+    let biologicalStructure: string = req.query.biologicalStructure as string;
     let datasetId: number = Number(req.query.datasetId as any);
 
-    let result = executor.GetTransformationContext(query, datasetId);
+    // get the transformation ID from the database
+    let transformationId = executor.ParseAndExecute(
+        `SELECT TransformationId FROM ${biologicalStructure} WHERE id=${id}`,
+        datasetId)['results'][0]['TransformationId'];
 
-    if (typeof result === 'string') {
-        res.setHeader('Content-Type', 'application/json');
-        console.error(result);
-        res.status(400).json(result);
-        return;
+    let getQuery: (structure: string) => string = (structure: string) => `SELECT * FROM ${structure} WHERE TransformationId=${transformationId}`
+
+    // run query to the database for the transformation context from each biological structure
+    let [proteins, domains, domainPairs, residues] = await Promise.all([
+        executor.GetTransformationContext(getQuery("proteins"), datasetId),
+        executor.GetTransformationContext(getQuery("domains"), datasetId),
+        executor.GetTransformationContext(getQuery("domainPairs"), datasetId),
+        executor.GetTransformationContext(getQuery("residues"), datasetId)]);
+
+    let result = {
+        "proteins": proteins,
+        "domains": domains,
+        "domainPairs": domainPairs,
+        "residues": residues
     }
-    else {
-        res.setHeader('Content-Type', 'application/json');
-        res.status(200).json(result);
-    }
+
+    res.setHeader('Content-Type', 'application/json');
+    res.status(200).json(result);
 });
 
 // curl -X GET -H "Content---verbose type: application/json"  "http://localhost:3000/data/?page=0&query=select%20*%20from%20proteins%20where%20afterpdbcode=%221btw%22&pageSize=100&datasetId=1" | json_pp -json_opt pretty,canonical
@@ -139,7 +152,7 @@ app.get('/export', async (req, res) => {
     let format: string = req.query.format as string;
 
     let result = executor.ParseAndExecute(query, datasetId);
-    
+
     if (format === 'json') {
         var json = JSON.stringify(result['results']);
         var filename = 'results.json';

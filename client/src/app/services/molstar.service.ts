@@ -92,6 +92,13 @@ export class MolstarService {
         builder.buildRepresentation(update, ref, { type: atomicType });
         await update.commit({ revertOnError: true });
 
+        const ligand = await plugin.builders.structure.tryCreateComponentStatic(structureCell, 'ligand');
+        if (ligand) {
+            await plugin.builders.structure.representation.addRepresentation(ligand, {
+                type: 'ball-and-stick'
+            });
+        }
+        
         // apply coloring
         this.ApplyUniformEntityColoring(plugin);
 
@@ -125,7 +132,7 @@ export class MolstarService {
 
     public async Highlight(plugin: PluginUIContext, domain: HighlightedDomain, ToggleHighlighting = true) {
 
-        const data = plugin.managers.structure.hierarchy.current.structures[domain.StructureIndex]?.cell.obj?.data;
+        const data = plugin.managers.structure.hierarchy.current.structures[domain.ProteinIndex]?.cell.obj?.data;
         if (!data) return;
 
         const selection = Script.getStructureSelection(Q => Q.struct.filter.first([
@@ -138,7 +145,7 @@ export class MolstarService {
 
         let loci: StructureElement.Loci = StructureSelection.toLociWithSourceUnits(selection);
 
-        const s = plugin.managers.structure.hierarchy.current.structures[domain.StructureIndex];
+        const s = plugin.managers.structure.hierarchy.current.structures[domain.ProteinIndex];
         const components = s.components;
 
         let colorLevel: number;
@@ -148,7 +155,7 @@ export class MolstarService {
 
         const lociGetter = async (s: Structure) => { return loci; }
 
-        await setStructureOverpaint(plugin, components, getLighterColor(domain.StructureIndex, colorLevel), lociGetter);
+        await setStructureOverpaint(plugin, components, getLighterColor(domain.ProteinIndex, colorLevel), lociGetter);
     }
 
 

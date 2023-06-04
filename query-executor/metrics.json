@@ -28,7 +28,12 @@
     "forward-metrics-mapping": {
         "proteins": {
             "data": {
-                "id" : {
+                "transformationid": {
+                    "database-destination": "protein_transformations.transformation_id",
+                    "type": "integer",
+                    "name": ""
+                },
+                "id": {
                     "database-destination": "protein_transformations.protein_transformation_id",
                     "type": "integer",
                     "name": ""
@@ -83,15 +88,15 @@
                     "type": "string",
                     "name": ""
                 },
-                "rmsd": {
+                "proteinrmsd": {
                     "database-destination": "protein_transformations_data.rmsd",
                     "type": "float",
-                    "name": "RMSD"
+                    "name": "Protein RMSD"
                 },
-                "comparesecondarystructure": {
+                "secondarystructureidentity": {
                     "database-destination": "protein_transformations_data.compare_secondary_structure",
                     "type": "float",
-                    "name": "Compare Secondary Structure"
+                    "name": "Secondary Structure Identity"
                 },
                 "i1": {
                     "database-destination": "protein_lcs_data.i1",
@@ -113,7 +118,12 @@
         },
         "domains": {
             "data": {
-                "id" : {
+                "transformationid": {
+                    "database-destination": "domain_transformations.transformation_id",
+                    "type": "integer",
+                    "name": ""
+                },
+                "id": {
                     "database-destination": "domain_transformations.domain_transformation_id",
                     "type": "integer",
                     "name": ""
@@ -178,15 +188,15 @@
                     "type": "string",
                     "name": "After Domain CATH ID"
                 },
-                "rmsd": {
+                "domainrmsd": {
                     "database-destination": "domain_transformations_data.rmsd",
                     "type": "float",
-                    "name": "RMSD"
+                    "name": "Domain RMSD"
                 },
-                "comparesecondarystructure": {
+                "secondarystructureidentity": {
                     "database-destination": "domain_transformations_data.compare_secondary_structure",
                     "type": "float",
-                    "name": "Compare Secondary Structure"
+                    "name": "Secondary Structure Identity"
                 },
                 "beforedomainspanstart": {
                     "database-destination": "(before_domains.domain_span).span_start",
@@ -228,7 +238,12 @@
         },
         "domainpairs": {
             "data": {
-                "id" : {
+                "transformationid": {
+                    "database-destination": "domain_pair_transformations.transformation_id",
+                    "type": "integer",
+                    "name": ""
+                },
+                "id": {
                     "database-destination": "domain_pair_transformations.domain_pair_transformation_id",
                     "type": "integer",
                     "name": ""
@@ -355,10 +370,10 @@
                     "type": "integer",
                     "name": "After Domain Span Start 2"
                 },
-                "rmsd": {
+                "domainpairrmsd": {
                     "database-destination": "domain_pair_transformations_data.rmsd",
                     "type": "float",
-                    "name": "RMSD"
+                    "name": "Domain Pair RMSD"
                 },
                 "hingeangle": {
                     "database-destination": "domain_pair_transformations_data.hinge_angle",
@@ -405,7 +420,12 @@
         },
         "residues": {
             "data": {
-                "id" : {
+                "transformationid": {
+                    "database-destination": "protein_transformations.transformation_id",
+                    "type": "integer",
+                    "name": ""
+                },
+                "id": {
                     "database-destination": "residue_labels.label_id",
                     "type": "integer",
                     "name": ""
@@ -506,6 +526,9 @@
     },
     "backward-metrics-mapping": {
         "residue_labels.label_id": "Id",
+        "protein_transformations.transformation_id": "TransformationId",
+        "domain_transformations.transformation_id": "TransformationId",
+        "domain_pair_transformations.transformation_id": "TransformationId",
         "domain_pair_transformations.domain_pair_transformation_id": "Id",
         "domain_transformations.domain_transformation_id": "Id",
         "protein_transformations.protein_transformation_id": "Id",
@@ -523,12 +546,12 @@
         "after_proteins.pdb_code": "AfterPdbID",
         "after_proteins.chain_id": "AfterChainId",
         "after_proteins.file_location": "AfterFileLocation",
-        "protein_transformations_data.rmsd": "Rmsd",
-        "protein_transformations_data.compare_secondary_structure": "CompareSecondaryStructure",
+        "protein_transformations_data.rmsd": "ProteinRmsd",
+        "protein_transformations_data.compare_secondary_structure": "SecondaryStructureIdentity",
         "before_domains.cath_id": "BeforeDomainCathId",
         "after_domains.cath_id": "AfterDomainCathId",
-        "domain_transformations_data.rmsd": "Rmsd",
-        "domain_transformations_data.compare_secondary_structure": "CompareSecondaryStructure",
+        "domain_transformations_data.rmsd": "DomainRmsd",
+        "domain_transformations_data.compare_secondary_structure": "SecondaryStructureIdentity",
         "after_domains.domain_span": "AfterDomainSpan",
         "before_domains.domain_span": "BeforeDomainSpan",
         "(after_domains.domain_span).span_start": "AfterDomainSpanStart",
@@ -547,7 +570,7 @@
         "(before_domains1.domain_span).span_end": "BeforeDomainSpanEnd1",
         "(before_domains2.domain_span).span_start": "BeforeDomainSpanStart2",
         "(before_domains2.domain_span).span_end": "BeforeDomainSpanEnd2",
-        "domain_pair_transformations_data.rmsd": "Rmsd",
+        "domain_pair_transformations_data.rmsd": "DomainPairRmsd",
         "domain_pair_transformations_data.hinge_angle": "HingeAngle",
         "domain_pair_transformations_data.hinge_translation_in_axis": "HingeTranslationInAxis",
         "domain_pair_transformations_data.hinge_translation_overall": "HingeTranslationOverall",
@@ -581,8 +604,10 @@
         "AfterDomainSpanEnd",
         "AfterDomainCathId1",
         "AfterDomainCathId2",
-        "Rmsd",
-        "CompareSecondaryStructure",
+        "ProteinRmsd",
+        "DomainRmsd",
+        "DomainPairRmsd",
+        "SecondaryStructureIdentity",
         "HingeAngle",
         "HingeTranslationInAxis",
         "HingeTranslationOverall",
