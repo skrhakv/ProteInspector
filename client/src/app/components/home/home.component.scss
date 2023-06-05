@@ -1,3 +1,9 @@
 .sticky-top {
     top: 6em;
 }
+
+@media (max-width : 770px) {
+    #main-row {
+        flex-direction: row-reverse !important;
+    }
+}

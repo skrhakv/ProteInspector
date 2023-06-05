@@ -1,9 +1,9 @@
 <div class="container-fluid">
-    <div>
-        <div class="row my-4" id="pfv"></div>
+    <div id="pfv-parent">
+        <div class="row" id="pfv"></div>
     </div>
-    <div class="row">
-        <div class="col-2">
+    <div class="row" id="button-panel-row">
+        <div class="col-lg-2" id="button-panel">
             <div class="container">
                 <div class="row">
                     <button type="button" class="btn btn-outline-dark" [disabled]="!VisualizationReady"
@@ -66,7 +66,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-10">
+        <div class="col-lg-10">
             <div id='molstar-viewer'>
             </div>
         </div>
