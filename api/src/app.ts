@@ -31,7 +31,12 @@ app.get('/data/transformation-context', async (req, res) => {
 
     // get the transformation ID from the database
     let transformation = executor.ParseAndExecute(`SELECT TransformationId FROM ${biologicalStructure} WHERE id=${id}`, datasetId)['results'];
-    if(transformation.length) return;
+    if(transformation.length === 0) 
+    {
+        console.log(transformation)
+        res.status(400).send("Failed! Bad transformation-context request.\n");
+        return;
+    };
 
     let transformationId = transformation[0]['TransformationId'];
 
