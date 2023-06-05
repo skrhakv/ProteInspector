@@ -11,8 +11,7 @@ import { ProteinThemeProvider, getColorHex } from 'src/app/providers/protein-the
 import { AppSettings } from 'src/app/app-settings';
 import { ProteinSequence } from 'src/app/models/protein-sequence.model';
 import { SuperpositionService } from 'src/app/services/superposition.service';
-
-declare var msa: any;
+import { RcsbFv, RcsbFvDisplayConfigInterface, RcsbFvDisplayTypes, RcsbFvTrackDataElementInterface } from '@rcsb/rcsb-saguaro';
 
 @Component({
     selector: 'app-protein-visualization',
@@ -31,6 +30,10 @@ export class ProteinVisualizationComponent implements OnInit {
     public IsProteinVisible: boolean[] = [];
     public OnlyChains: [visible: boolean, buttonText: string] = [false, "Show Chains"];
     public ProteinRepresentation: StructureRepresentationRegistry.BuiltIn[] = [];
+
+    // MSA data
+    private ProteinSequences: ProteinSequence[] = [];
+    private leftAlignmentShifts: number[] = [];
 
     constructor(
         private molstarService: MolstarService,
@@ -66,13 +69,13 @@ export class ProteinVisualizationComponent implements OnInit {
     }
 
     public async ToggleHighlighting(index: number) {
-        this.molstarService.Highlight(this.plugin, this.highlightedDomains[index]);
+        this.molstarService.HighlightDomains(this.plugin, this.highlightedDomains[index]);
         this.highlightedDomains[index].Highlighted = !this.highlightedDomains[index].Highlighted;
     }
 
     private async updateHighlighting() {
         for (const domain of this.highlightedDomains)
-            await this.molstarService.Highlight(this.plugin, domain, false);
+            await this.molstarService.HighlightDomains(this.plugin, domain, false);
     }
 
     public async ChangeRepresentation(index: number, structureRepresentationType: string) {
@@ -180,26 +183,24 @@ export class ProteinVisualizationComponent implements OnInit {
     }
 
     private LoadMsaViewer() {
-        let ProteinSequences: ProteinSequence[] = this.molstarService.GetChainSequences(this.plugin);
+        this.ProteinSequences = this.molstarService.GetChainSequences(this.plugin);
 
-        // compute the size of the left branch of the sequence from the desired chain for each protein
-        let leftBranchSizes: number[] = [];
-
+        // compute the size of the left shift of the sequence for each protein
         for (let i = 0; i < this.proteins.length; i++) {
             let leftBranchSize: number = 0;
 
             // get index of the relevant chain
-            let indexOfRelevantChain: number = ProteinSequences[i].ChainSequences.findIndex(x => x.ChainId === this.proteins[i].ChainId);
+            let indexOfRelevantChain: number = this.ProteinSequences[i].ChainSequences.findIndex(x => x.ChainId === this.proteins[i].ChainId);
 
             // compute how long is the left branch
             for (let ii = 0; ii < indexOfRelevantChain; ii++) {
-                leftBranchSize += ProteinSequences[i].ChainSequences[ii].Sequence.length;
+                leftBranchSize += this.ProteinSequences[i].ChainSequences[ii].Sequence.length;
             }
 
             // add the additional alignment from the database
             leftBranchSize += Number(this.proteins[i].LcsStart);
 
-            leftBranchSizes.push(leftBranchSize);
+            this.leftAlignmentShifts.push(leftBranchSize);
         }
 
         // get labels of the structures
@@ -222,38 +223,112 @@ export class ProteinVisualizationComponent implements OnInit {
             labels.push(label);
         }
 
-        let longestLeftBranch = Math.max(...leftBranchSizes);
-        let fasta: string = "";
+        let longestLeftBranch = Math.max(...this.leftAlignmentShifts);
 
-        for (let i = 0; i < ProteinSequences.length; i++) {
+        // define data for the MSA browser
+        let proteinsData: RcsbFvDisplayConfigInterface[][] = [];
+        let maxLength: number = 0;
 
-            let shift = longestLeftBranch - leftBranchSizes[i];
+        for (let i = 0; i < this.ProteinSequences.length; i++) {
 
-            // add label and appropriate shift
-            fasta += ">" + labels[i] + "\n" + (" ".repeat(shift));
+            // where the chain begins (index position in the sequence)
+            let length: number = longestLeftBranch - this.leftAlignmentShifts[i];
+            let chains: RcsbFvDisplayConfigInterface[] = []
 
-            // after the shifting add the sequences 
-            for (const ChainSequence of ProteinSequences[i].ChainSequences) {
-                fasta += ChainSequence.Sequence;
+            //  add the individual sequences to the fasta data 
+            for (const ChainSequence of this.ProteinSequences[i].ChainSequences) {
+
+                let begin = length;
+
+                //define data for callback
+                let proteinSequence:ProteinSequence = this.ProteinSequences[i];
+                let chainId = ChainSequence.ChainId;
+                
+                // append the chain data 
+                chains.push({
+                    displayType: RcsbFvDisplayTypes.SEQUENCE,
+                    displayColor: "#000000",
+                    displayId: "compositeSeqeunce" + begin,
+                    displayData: [{
+                        begin: begin,
+                        value: ChainSequence.Sequence,
+                        description: [`Chain ID: ${ChainSequence.ChainId}`]
+                    }],
+                    elementEnterCallBack: ((d?: RcsbFvTrackDataElementInterface) => 
+                    { 
+                        if (!d) return;
+                        const position = d?.begin - begin;
+                        this.highlightResidue(proteinSequence, chainId, position); }),
+                });
+
+                // move the index for the next chain
+                length += ChainSequence.Sequence.length
             }
-            fasta += "\n";
+
+            // add the data
+            proteinsData.push(chains);
+
+            // looking for the longest sequence (needed later when defining the MSA browser)
+            maxLength = maxLength > (longestLeftBranch - this.leftAlignmentShifts[i] + length)
+                ? maxLength
+                : (longestLeftBranch - this.leftAlignmentShifts[i] + length);
+
         }
 
-        var opts = {
-            el: document.getElementById("msa-viewer"),
-            seqs: msa.io.fasta.parse(fasta),
-            vis: {
-                conserv: false,
-                overviewbox: false,
-                labelId: false
-            }
+        // define each row in the MSA browser
+        let rcsbInput: Array<any> = [];
+
+        for (let i = 0; i < this.ProteinSequences.length; i++) {
+            rcsbInput[i] = {
+                trackId: "compositeSequence" + i,
+                trackHeight: 30,
+                trackColor: "#F9F9F9",
+                displayType: "composite",
+                rowTitle: labels[i],
+                displayConfig: proteinsData[i]
+            };
+        }
+
+        // define and add the 'SUPERPOSITION ALIGNMENT' row to the MSA browser
+        if (this.proteins.length > 0) {
+            rcsbInput.push({
+                trackId: "blockTrack",
+                trackHeight: 20,
+                trackColor: "#F9F9F9",
+                displayType: "block",
+                displayColor: "#FF0000",
+                rowTitle: "SUPERPOSITION ALIGNMENT",
+                trackData: [{
+                    begin: longestLeftBranch,
+                    end: longestLeftBranch + this.proteins[0].LcsLength
+                }]
+            });
+        }
+
+        const boardConfigData = {
+            length: maxLength,
+            trackWidth: 1300,
+            includeAxis: true,
+            includeTooltip: true,
+            highlightHoverElement: true,
+            hideInnerBorder: true,
+            hideRowGlow: false,
+            elementLeaveCallBack: ((d?: RcsbFvTrackDataElementInterface) => { this.clearResidueHighlighting(); })
         };
 
-        var m = msa(opts);
+        const elementId = "pfv";
+        const pfv = new RcsbFv({
+            rowConfigData: rcsbInput,
+            boardConfigData: boardConfigData,
+            elementId
+        });
+    }
 
-        // set CSS height of the MSA viewer
-        m.g.zoomer.set("alignmentHeight", 50 + (15 * labels.length));
+    highlightResidue(proteinSequence: ProteinSequence, chainID: string, position: number): void {
+        this.molstarService.HighlightResidue(this.plugin, proteinSequence, chainID, position);
+    }
 
-        m.render();
+    clearResidueHighlighting(): void {
+        this.molstarService.ClearResidueHighlighting(this.plugin);
     }
 }

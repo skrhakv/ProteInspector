@@ -30,9 +30,10 @@ app.get('/data/transformation-context', async (req, res) => {
     let datasetId: number = Number(req.query.datasetId as any);
 
     // get the transformation ID from the database
-    let transformationId = executor.ParseAndExecute(
-        `SELECT TransformationId FROM ${biologicalStructure} WHERE id=${id}`,
-        datasetId)['results'][0]['TransformationId'];
+    let transformation = executor.ParseAndExecute(`SELECT TransformationId FROM ${biologicalStructure} WHERE id=${id}`, datasetId)['results'];
+    if(transformation.length) return;
+
+    let transformationId = transformation[0]['TransformationId'];
 
     let getQuery: (structure: string) => string = (structure: string) => `SELECT * FROM ${structure} WHERE TransformationId=${transformationId}`
 

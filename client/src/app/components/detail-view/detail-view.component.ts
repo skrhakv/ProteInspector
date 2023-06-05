@@ -58,21 +58,18 @@ export class DetailViewComponent {
         this.structure = this.route.snapshot.paramMap.get('structure') as string;
 
         if (this.structure === 'proteins') {
-            this.structure = 'Proteins';
             this.pageTitle = 'Protein Transformation Details'
         }
         else if (this.structure === 'domains') {
-            this.structure = 'Domains';
             this.pageTitle = 'Domain Transformation Details'
         }
 
         else if (this.structure === 'domainpairs') {
-            this.structure = 'Domain Pairs';
+            this.structure = 'domainPairs';
             this.pageTitle = 'Domain Pair Transformation Details'
         }
 
         else if (this.structure === 'residues') {
-            this.structure = 'Residues';
             this.pageTitle = 'Residue Transformation Details'
         }
 
@@ -136,9 +133,9 @@ export class DetailViewComponent {
                                 this.VisualizedProteins.push({
                                     PdbCode: transformation["BeforePdbID"] as string,
                                     ChainId: transformation["BeforeChainId"] as string,
-                                    LcsStart: transformation["BeforeLcsStart"] as unknown as number,
+                                    LcsStart: Number(transformation["BeforeLcsStart"]),
                                     FileLocation: transformation["BeforeFileLocation"] as string,
-                                    LcsLength: transformation["LcsLength"] as unknown as number
+                                    LcsLength: Number(transformation["LcsLength"])
                                 });
                             }
                             this.updateHighlightedDomains("Before", transformation, biologicalStructure);
@@ -150,9 +147,9 @@ export class DetailViewComponent {
                                 this.VisualizedProteins.push({
                                     PdbCode: transformation["AfterPdbID"] as string,
                                     ChainId: transformation["AfterChainId"] as string,
-                                    LcsStart: transformation["AfterLcsStart"] as unknown as number,
+                                    LcsStart: Number(transformation["AfterLcsStart"]),
                                     FileLocation: transformation["AfterFileLocation"] as string,
-                                    LcsLength: transformation["LcsLength"] as unknown as number
+                                    LcsLength: Number(transformation["LcsLength"])
                                 });
                             }
                             this.updateHighlightedDomains("After", transformation, biologicalStructure);
@@ -186,18 +183,19 @@ export class DetailViewComponent {
 
     updateHighlightedDomains(prefix: string, transformation: Record<string, any>, structure: string) {
         const index: number = this.VisualizedProteins.findIndex(
-            protein => 
-            protein.PdbCode === transformation[prefix + "PdbID"] &&
-            protein.ChainId === transformation[prefix + "ChainId"]);
-        
-        if (this.highlightedDomains.filter(
-            x =>
-                x.PdbId === transformation[prefix + "PdbID"] &&
-                x.ChainId === transformation[prefix + "ChainId"] &&
-                x.Start === transformation[prefix + 'DomainSpanStart'] &&
-                x.End === transformation[prefix + 'DomainSpanEnd']).length !== 0)
+            protein =>
+                protein.PdbCode === transformation[prefix + "PdbID"] &&
+                protein.ChainId === transformation[prefix + "ChainId"]);
+
+        if (structure === 'domains' || structure === 'residues')
+            if (this.highlightedDomains.filter(
+                x =>
+                    x.PdbId === transformation[prefix + "PdbID"] &&
+                    x.ChainId === transformation[prefix + "ChainId"] &&
+                    x.Start === transformation[prefix + 'DomainSpanStart'] &&
+                    x.End === transformation[prefix + 'DomainSpanEnd']).length !== 0)
                 return;
-        
+
         if (structure === 'domains') {
             this.highlightedDomains.push({
                 PdbId: transformation[prefix + "PdbID"],
@@ -212,29 +210,42 @@ export class DetailViewComponent {
             });
         }
         else if (structure === 'domainPairs') {
-            this.highlightedDomains.push({
-                PdbId: transformation[prefix + "PdbID"],
-                ChainId: transformation[prefix + "ChainId"],
-                Start: transformation[prefix + 'DomainSpanStart1'],
-                End: transformation[prefix + 'DomainSpanEnd1'],
-                Highlighted: false,
-                ColorLevel: 2,
-                DomainName: transformation[prefix + 'DomainCathId1'],
-                IsResidueSpan: false,
-                ProteinIndex: index
-            });
-            this.highlightedDomains.push({
-                PdbId: transformation[prefix + "PdbID"],
-                ChainId: transformation[prefix + "ChainId"],
-                Start: transformation[prefix + 'DomainSpanStart2'],
-                End: transformation[prefix + 'DomainSpanEnd2'],
-                Highlighted: false,
-                ColorLevel: 4,
-                DomainName: transformation[prefix + 'DomainCathId2'],
-                IsResidueSpan: false,
-                ProteinIndex: index
+            if (this.highlightedDomains.filter(
+                x =>
+                    x.PdbId === transformation[prefix + "PdbID"] &&
+                    x.ChainId === transformation[prefix + "ChainId"] &&
+                    x.Start === transformation[prefix + 'DomainSpanStart1'] &&
+                    x.End === transformation[prefix + 'DomainSpanEnd1']).length === 0)
+                this.highlightedDomains.push({
+                    PdbId: transformation[prefix + "PdbID"],
+                    ChainId: transformation[prefix + "ChainId"],
+                    Start: transformation[prefix + 'DomainSpanStart1'],
+                    End: transformation[prefix + 'DomainSpanEnd1'],
+                    Highlighted: false,
+                    ColorLevel: 2,
+                    DomainName: transformation[prefix + 'DomainCathId1'],
+                    IsResidueSpan: false,
+                    ProteinIndex: index
+                });
+            if (this.highlightedDomains.filter(
+                x =>
+                    x.PdbId === transformation[prefix + "PdbID"] &&
+                    x.ChainId === transformation[prefix + "ChainId"] &&
+                    x.Start === transformation[prefix + 'DomainSpanStart2'] &&
+                    x.End === transformation[prefix + 'DomainSpanEnd2']).length === 0)
 
-            });
+                this.highlightedDomains.push({
+                    PdbId: transformation[prefix + "PdbID"],
+                    ChainId: transformation[prefix + "ChainId"],
+                    Start: transformation[prefix + 'DomainSpanStart2'],
+                    End: transformation[prefix + 'DomainSpanEnd2'],
+                    Highlighted: false,
+                    ColorLevel: 4,
+                    DomainName: transformation[prefix + 'DomainCathId2'],
+                    IsResidueSpan: false,
+                    ProteinIndex: index
+
+                });
         }
         else if (structure === 'residues') {
             this.highlightedDomains.push({

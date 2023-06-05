@@ -98,7 +98,7 @@ export class MolstarService {
                 type: 'ball-and-stick'
             });
         }
-        
+
         // apply coloring
         this.ApplyUniformEntityColoring(plugin);
 
@@ -130,7 +130,28 @@ export class MolstarService {
         this.CameraReset(plugin);
     }
 
-    public async Highlight(plugin: PluginUIContext, domain: HighlightedDomain, ToggleHighlighting = true) {
+    public HighlightResidue(plugin: PluginUIContext, proteinSequence: ProteinSequence, chainID: string, position: number) {
+        const data = plugin.managers.structure.hierarchy.current.structures[proteinSequence.ProteinIndex]?.cell.obj?.data;
+        if (!data) return;
+
+        const selection = Script.getStructureSelection(Q => Q.struct.filter.first([
+            Q.struct.generator.atomGroups({
+                "group-by": MS.struct.atomProperty.core.operatorName(),
+                'chain-test': Q.core.rel.eq([chainID, Q.struct.atomProperty.macromolecular.auth_asym_id()]),
+                'residue-test': Q.core.rel.eq([Q.struct.atomProperty.macromolecular.label_seq_id(), position + 1, position + 1]),
+                'entity-test': MS.core.rel.eq([MS.ammp('entityType'), 'polymer'])
+            })]), data);
+
+        let loci: StructureElement.Loci = StructureSelection.toLociWithSourceUnits(selection);
+
+        plugin.managers.interactivity.lociHighlights.highlightOnly({ loci });
+    }
+
+    public ClearResidueHighlighting(plugin: PluginUIContext) {
+        plugin.managers.interactivity.lociHighlights.clearHighlights();
+    }
+
+    public async HighlightDomains(plugin: PluginUIContext, domain: HighlightedDomain, ToggleHighlighting = true) {
 
         const data = plugin.managers.structure.hierarchy.current.structures[domain.ProteinIndex]?.cell.obj?.data;
         if (!data) return;
@@ -174,22 +195,20 @@ export class MolstarService {
         return sequenceToString
     }
 
-    private parseChainId(auth_asym_id_label_asym_id_combined: string): string {
+    private parseChainId(authAsymIdLabelAsymIdCombined: string): string {
         // sometimes the chain ID is in the format of "X [auth Y]", we want to retrieve the "Y" only
 
-        // 'auth_asym_id_label_asym_id_combined': snake case because that is used globally in the mmcif files
+        let index: number = authAsymIdLabelAsymIdCombined.indexOf("[");
+        if (index === -1) return authAsymIdLabelAsymIdCombined;
 
-        let index: number = auth_asym_id_label_asym_id_combined.indexOf("[");
-        if (index === -1) return auth_asym_id_label_asym_id_combined;
-
-        let indexEnd: number = auth_asym_id_label_asym_id_combined.indexOf("]");
-        let authSubstring: string = auth_asym_id_label_asym_id_combined.substring(index + 1, indexEnd);
+        let indexEnd: number = authAsymIdLabelAsymIdCombined.indexOf("]");
+        let authSubstring: string = authAsymIdLabelAsymIdCombined.substring(index + 1, indexEnd);
         let tokens: string[] = authSubstring.split(' ');
         if (tokens[0] === "auth")
             return tokens[1]
         else {
-            console.error("Unknown format of chain id: ", auth_asym_id_label_asym_id_combined);
-            return auth_asym_id_label_asym_id_combined;
+            console.error("Unknown format of chain id: ", authAsymIdLabelAsymIdCombined);
+            return authAsymIdLabelAsymIdCombined;
         }
     }
 
