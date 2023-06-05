@@ -15,9 +15,11 @@ private:
     int pageSize = 0;
 
 public:
-    WrapperWhereClauseParser(int _page, int _pageSize) : page(_page), pageSize(_pageSize) {}
+    WrapperWhereClauseParser(int _page, int _pageSize) : page(_page), pageSize(_pageSize) {
+        includeDatasetId = false;
+    }
 
-    bool Parse(const hsql::SelectStatement *selectStatement, const string &biologicalStructure, int datasetId, string &result) override;
+    bool Parse(const hsql::SelectStatement *selectStatement, const string &biologicalStructure, string &result) override;
 };
 
 #endif

@@ -140,18 +140,17 @@ Napi::Value QueryExecutorNapi::GetTransformationContext(const Napi::CallbackInfo
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
 
-    if (info.Length() != 2)
+    if (info.Length() != 1)
     {
-        Napi::TypeError::New(env, "Wrong number of parameters: expected parameters are (string query, int datasetId)").ThrowAsJavaScriptException();
+        Napi::TypeError::New(env, "Wrong number of parameters: expected parameters are (string query)").ThrowAsJavaScriptException();
     }
 
     std::string query{info[0].As<Napi::String>().Utf8Value()}, error;
-    int datasetId{info[1].As<Napi::Number>().Int32Value()};
 
     pqxx::result result;
     try
     {
-        tie(result, error) = qExecutor->GetTransformationContext(query, datasetId);
+        tie(result, error) = qExecutor->GetTransformationContext(query);
     }
     catch (const std::exception &e)
     {
@@ -231,26 +230,38 @@ Napi::Value QueryExecutorNapi::ParseAndExecute(const Napi::CallbackInfo &info)
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
 
-    if (info.Length() != 4 && info.Length() != 2)
+    if (info.Length() < 1 || info.Length() > 4)
     {
         Napi::TypeError::New(env, "Wrong number of parameters: expected parameters are (string query, int datasetId, int pageNumber, int pageSize)").ThrowAsJavaScriptException();
     }
 
     std::string query{info[0].As<Napi::String>().Utf8Value()}, error;
-    int datasetId{info[1].As<Napi::Number>().Int32Value()};
 
     pqxx::result result;
     try
     {
-        if (info.Length() == 4)
+        if (info.Length() == 1)
+            tie(result, error) = qExecutor->ParseAndExecute(query);
+        if (info.Length() == 2)
         {
-            int page{info[2].As<Napi::Number>().Int32Value()};
-            int pageSize{info[3].As<Napi::Number>().Int32Value()};
-            
+            int datasetId{info[1].As<Napi::Number>().Int32Value()};
+            tie(result, error) = qExecutor->ParseAndExecute(query, datasetId);
+        }
+        else if (info.Length() == 3)
+        {
+            int page{info[1].As<Napi::Number>().Int32Value()};
+            int pageSize{info[2].As<Napi::Number>().Int32Value()};
+
+            tie(result, error) = qExecutor->ParseAndExecute(query, page, pageSize);
+        }
+        else if (info.Length() == 4)
+        {
+            int page{info[1].As<Napi::Number>().Int32Value()};
+            int pageSize{info[2].As<Napi::Number>().Int32Value()};
+            int datasetId{info[3].As<Napi::Number>().Int32Value()};
+
             tie(result, error) = qExecutor->ParseAndExecute(query, datasetId, page, pageSize);
         }
-        else if (info.Length() == 2)
-            tie(result, error) = qExecutor->ParseAndExecute(query, datasetId);
     }
     catch (const std::exception &e)
     {

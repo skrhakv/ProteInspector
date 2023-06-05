@@ -122,8 +122,8 @@ export class DatasetService {
             headers
         };
         return this.http.get<any>(AppSettings.API_ENDPOINT + `/data/?page=` + 0 +
-            "&pageSize=" + 100 + "&query=" + encodeURIComponent(`SELECT * FROM ` + structure + ` WHERE id=` + id) +
-            "&datasetId=" + this.SelectedDataset.dataset_id, options);
+            "&pageSize=" + 100 + "&query=" + encodeURIComponent(`SELECT * FROM ` + structure + ` WHERE id=` + id)
+            , options);
     }
 
     getTransformationContext(id: number, biologicalStructure: string) {

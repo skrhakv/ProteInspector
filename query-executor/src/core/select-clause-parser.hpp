@@ -30,8 +30,8 @@ public:
     void SetWhereClauseParser(WhereClauseParser *_whereClauseParser);
     void SetLimitClauseParser(LimitClauseParser *_limitClauseParser);
 
-    bool Parse(const string query, int datasetId);
-    bool Parse(const hsql::SelectStatement *selectStatement, int datasetId);
+    bool Parse(const string query);
+    bool Parse(const hsql::SelectStatement *selectStatement);
 
     string GetConvertedQuery();
     void Clear();

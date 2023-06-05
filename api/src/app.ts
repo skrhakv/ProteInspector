@@ -19,20 +19,17 @@ app.get('/datasets-info', (req, res) => {
 
 
 app.get('/data/transformation-context', async (req, res) => {
-    if (req.query === undefined || req.query.id === undefined || req.query.datasetId === undefined
-        || req.query.biologicalStructure === undefined) {
-        res.status(400).send("Failed! Provide paramaters 'id', 'biologicalStructure' and 'datasetId' in the URL.\n");
+    if (req.query === undefined || req.query.id === undefined || req.query.biologicalStructure === undefined) {
+        res.status(400).send("Failed! Provide paramaters 'id', 'biologicalStructure' in the URL.\n");
         return;
     }
 
     let id: string = req.query.id as string;
     let biologicalStructure: string = req.query.biologicalStructure as string;
-    let datasetId: number = Number(req.query.datasetId as any);
 
     // get the transformation ID from the database
-    let transformation = executor.ParseAndExecute(`SELECT TransformationId FROM ${biologicalStructure} WHERE id=${id}`, datasetId)['results'];
-    if(transformation.length === 0) 
-    {
+    let transformation = executor.ParseAndExecute(`SELECT TransformationId FROM ${biologicalStructure} WHERE id=${id}`)['results'];
+    if (transformation.length === 0) {
         console.log(transformation)
         res.status(400).send("Failed! Bad transformation-context request.\n");
         return;
@@ -44,10 +41,10 @@ app.get('/data/transformation-context', async (req, res) => {
 
     // run query to the database for the transformation context from each biological structure
     let [proteins, domains, domainPairs, residues] = await Promise.all([
-        executor.GetTransformationContext(getQuery("proteins"), datasetId),
-        executor.GetTransformationContext(getQuery("domains"), datasetId),
-        executor.GetTransformationContext(getQuery("domainPairs"), datasetId),
-        executor.GetTransformationContext(getQuery("residues"), datasetId)]);
+        executor.GetTransformationContext(getQuery("proteins")),
+        executor.GetTransformationContext(getQuery("domains")),
+        executor.GetTransformationContext(getQuery("domainPairs")),
+        executor.GetTransformationContext(getQuery("residues"))]);
 
     let result = {
         "proteins": proteins,
@@ -64,18 +61,22 @@ app.get('/data/transformation-context', async (req, res) => {
 app.get('/data', (req, res) => {
 
     if (req.query === undefined || req.query.page === undefined || req.query.query === undefined
-        || req.query.pageSize === undefined || req.query.datasetId === undefined) {
-        res.status(400).send("Failed! Provide paramaters 'query', 'pageSize', 'datasetId' and 'page' in the URL.\n");
+        || req.query.pageSize === undefined) {
+        res.status(400).send("Failed! Provide paramaters 'query', 'pageSize' and 'page' in the URL.\n");
         return;
     }
 
     let query: string = req.query.query as string;
     let pageNumber: number = Number(req.query.page as any);
     let pageSize: number = Number(req.query.pageSize as any);
-    let datasetId: number = Number(req.query.datasetId as any);
 
-    let result = executor.ParseAndExecute(query, datasetId, pageNumber, pageSize);
-
+    let result;
+    if (req.query.datasetId === undefined)
+        result = executor.ParseAndExecute(query, pageNumber, pageSize);
+    else { 
+        let datasetId: number = Number(req.query.datasetId as any);
+        result = executor.ParseAndExecute(query, pageNumber, pageSize, datasetId);
+    }
     if (typeof result === 'string') {
         res.setHeader('Content-Type', 'application/json');
         console.error(result);

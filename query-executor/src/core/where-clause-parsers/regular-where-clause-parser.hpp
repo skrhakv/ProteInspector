@@ -13,7 +13,11 @@ class RegularWhereClauseParser : public WhereClauseParser
 public:
 
     RegularWhereClauseParser(bool _orderBy) : orderBy(_orderBy), orderByParser(jsonDataExtractor) {}
-    bool Parse(const hsql::SelectStatement *selectStatement, const string &biologicalStructure, int datasetId, string &result) override;
+    RegularWhereClauseParser(bool _orderBy, int _datasetId) : orderBy(_orderBy), orderByParser(jsonDataExtractor) {
+        includeDatasetId = true;
+        datasetId = _datasetId;
+    }
+    bool Parse(const hsql::SelectStatement *selectStatement, const string &biologicalStructure, string &result) override;
 };
 
 #endif

@@ -9,11 +9,12 @@ protected:
     JsonDataExtractor jsonDataExtractor;
     OperatorValidator operatorValidator;
     ExpressionParser expressionParser;
-
+    int datasetId = -1;
+    bool includeDatasetId = false;
 public:
     virtual ~WhereClauseParser() {}
     string errorMessage;
-    virtual bool Parse(const hsql::SelectStatement *selectStatement, const string &biologicalStructure, int datasetId, string &result)
+    virtual bool Parse(const hsql::SelectStatement *selectStatement, const string &biologicalStructure, string &result)
     {
         return false;
     }

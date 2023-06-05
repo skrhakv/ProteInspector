@@ -1,7 +1,7 @@
 #include "regular-where-clause-parser.hpp"
 #include "../utils.hpp"
 
-bool RegularWhereClauseParser::Parse(const hsql::SelectStatement *selectStatement, const string &biologicalStructure, int datasetId, string &result)
+bool RegularWhereClauseParser::Parse(const hsql::SelectStatement *selectStatement, const string &biologicalStructure, string &result)
 {
     if (selectStatement->whereClause)
     {
@@ -10,13 +10,19 @@ bool RegularWhereClauseParser::Parse(const hsql::SelectStatement *selectStatemen
         if (!isValid)
             RETURN_PARSE_ERROR(errorMessage)
 
-        result += " AND ";
-        jsonDataExtractor.GetDatasetIdMetric(biologicalStructure, datasetId, result);
+        if (includeDatasetId)
+        {
+            result += " AND ";
+            jsonDataExtractor.GetDatasetIdMetric(biologicalStructure, datasetId, result);
+        }
     }
     else
     {
-        result += " WHERE ";
-        jsonDataExtractor.GetDatasetIdMetric(biologicalStructure, datasetId, result);
+        if (includeDatasetId)
+        {
+            result += " WHERE ";
+            jsonDataExtractor.GetDatasetIdMetric(biologicalStructure, datasetId, result);
+        }
     }
     if (orderBy)
     {

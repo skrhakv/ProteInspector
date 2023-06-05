@@ -22,7 +22,7 @@ void SelectClauseParser::SetLimitClauseParser(LimitClauseParser *_limitClausePar
     this->limitClauseParser = _limitClauseParser;
 }
 
-bool SelectClauseParser::Parse(const hsql::SelectStatement *selectStatement, int datasetId)
+bool SelectClauseParser::Parse(const hsql::SelectStatement *selectStatement)
 {
     bool isValid = checkForAllowedGrammar((const hsql::SelectStatement *)selectStatement);
     if (!isValid)
@@ -41,7 +41,7 @@ bool SelectClauseParser::Parse(const hsql::SelectStatement *selectStatement, int
     jsonDataExtractor.GetTableAndJoins(biologicalStructure, fromClauseAndJoins);
     convertedQuery += fromClauseAndJoins;
 
-    isValid = whereClauseParser->Parse(selectStatement, biologicalStructure, datasetId, convertedQuery);
+    isValid = whereClauseParser->Parse(selectStatement, biologicalStructure, convertedQuery);
     if (!isValid)
         RETURN_PARSE_ERROR(whereClauseParser->errorMessage)
 
@@ -87,7 +87,7 @@ bool SelectClauseParser::checkFromKeyword(const string query)
     return false;
 }
 
-bool SelectClauseParser::Parse(const string query, int datasetId)
+bool SelectClauseParser::Parse(const string query)
 {
     // unfortunately the library segfaults when you forget the 'FROM' keyword in the query,
     // so we have to check that manually:
@@ -110,7 +110,7 @@ bool SelectClauseParser::Parse(const string query, int datasetId)
         if (!(statement->is(hsql::StatementType::kStmtSelect)))
             RETURN_PARSE_ERROR("Only SELECT statements are supported.")
 
-        bool isValid = Parse((const hsql::SelectStatement *)statement, datasetId);
+        bool isValid = Parse((const hsql::SelectStatement *)statement);
         convertedQuery += ";";
         
         return isValid;

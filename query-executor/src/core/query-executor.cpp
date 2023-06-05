@@ -11,7 +11,7 @@
 
 using namespace std;
 
-std::pair<pqxx::result, std::string> QueryExecutor::GetTransformationContext(const std::string &query, int datasetId)
+std::pair<pqxx::result, std::string> QueryExecutor::GetTransformationContext(const std::string &query)
 {
     NonSelectiveMetricsParser metricsParser;
     WrapperWhereClauseParser wrapperWhereClauseParser(0, 1);
@@ -21,28 +21,53 @@ std::pair<pqxx::result, std::string> QueryExecutor::GetTransformationContext(con
     parser.SetMetricsParser(&metricsParser);
     parser.SetLimitClauseParser(&limitClauseParser);
 
-    parser.Clear();
+    return ParseAndExecuteImpl(query);
+}
 
-    bool isValid = parser.Parse(query, datasetId);
+std::pair<pqxx::result, std::string> QueryExecutor::ParseAndExecute(const std::string &query)
+{
+    EmptyLimitClauseParser limitClauseParser;
+    SelectiveMetricsParser metricsParser;
+    RegularWhereClauseParser regularWhereClauseParser(true);
 
-    if (!isValid)
-    {
-        return {pqxx::result(), parser.errorMessage};
-    }
+    parser.SetWhereClauseParser(&regularWhereClauseParser);
+    parser.SetLimitClauseParser(&limitClauseParser);
+    parser.SetMetricsParser(&metricsParser);
 
-    return dbClient.ExecuteQuery(parser.GetConvertedQuery());
+    return ParseAndExecuteImpl(query);
+}
+
+std::pair<pqxx::result, std::string> QueryExecutor::ParseAndExecute(const std::string &query, int datasetId)
+{
+    EmptyLimitClauseParser limitClauseParser;
+    SelectiveMetricsParser metricsParser;
+    RegularWhereClauseParser regularWhereClauseParser(true, datasetId);
+
+    parser.SetWhereClauseParser(&regularWhereClauseParser);
+    parser.SetLimitClauseParser(&limitClauseParser);
+    parser.SetMetricsParser(&metricsParser);
+
+    return ParseAndExecuteImpl(query);
+}
+
+std::pair<pqxx::result, std::string> QueryExecutor::ParseAndExecute(const std::string &query, int page, int pageSize)
+{
+    RegularLimitClauseParser limitClauseParser(page, pageSize);
+    SelectiveMetricsParser metricsParser;
+    RegularWhereClauseParser regularWhereClauseParser(true);
+
+    parser.SetWhereClauseParser(&regularWhereClauseParser);
+    parser.SetLimitClauseParser(&limitClauseParser);
+    parser.SetMetricsParser(&metricsParser);
+
+    return ParseAndExecuteImpl(query);
 }
 
 std::pair<pqxx::result, std::string> QueryExecutor::ParseAndExecute(const std::string &query, int datasetId, int page, int pageSize, bool includeAllMetrics)
 {
+    RegularLimitClauseParser limitClauseParser(page, pageSize);
     MetricsParser *metricsParser;
-    RegularWhereClauseParser regularWhereClauseParser(true);
-    LimitClauseParser *limitClauseParser;
-
-    if (page == 0 && pageSize == 0)
-        limitClauseParser = new EmptyLimitClauseParser();
-    else
-        limitClauseParser = new RegularLimitClauseParser(page, pageSize);
+    RegularWhereClauseParser regularWhereClauseParser(true, datasetId);
 
     if (includeAllMetrics)
         metricsParser = new NonSelectiveMetricsParser();
@@ -50,15 +75,21 @@ std::pair<pqxx::result, std::string> QueryExecutor::ParseAndExecute(const std::s
         metricsParser = new SelectiveMetricsParser();
 
     parser.SetWhereClauseParser(&regularWhereClauseParser);
-    parser.SetLimitClauseParser(limitClauseParser);
+    parser.SetLimitClauseParser(&limitClauseParser);
     parser.SetMetricsParser(metricsParser);
 
+    auto result = ParseAndExecuteImpl(query);
+
+    delete metricsParser;
+
+    return result;
+}
+
+std::pair<pqxx::result, std::string> QueryExecutor::ParseAndExecuteImpl(const std::string &query)
+{
     parser.Clear();
 
-    bool isValid = parser.Parse(query, datasetId);
-
-    delete limitClauseParser;
-    delete metricsParser;
+    bool isValid = parser.Parse(query);
 
     if (!isValid)
     {
@@ -71,23 +102,14 @@ std::pair<pqxx::result, std::string> QueryExecutor::ParseAndExecute(const std::s
 std::pair<pqxx::result, std::string> QueryExecutor::GetNumberOfResults(const std::string &query, int datasetId)
 {
     CountMetricsParser metricsParser;
-    RegularWhereClauseParser regularWhereClauseParser(false);
+    RegularWhereClauseParser regularWhereClauseParser(false, datasetId);
     RegularLimitClauseParser limitClauseParser(0, 100);
 
     parser.SetMetricsParser(&metricsParser);
     parser.SetWhereClauseParser(&regularWhereClauseParser);
     parser.SetLimitClauseParser(&limitClauseParser);
 
-    parser.Clear();
-
-    bool isValid = parser.Parse(query, datasetId);
-
-    if (!isValid)
-    {
-        return {pqxx::result(), parser.errorMessage};
-    }
-
-    return dbClient.ExecuteQuery(parser.GetConvertedQuery());
+    return ParseAndExecuteImpl(query);
 }
 
 std::pair<pqxx::result, std::string> QueryExecutor::GetDatasetsInfo()
