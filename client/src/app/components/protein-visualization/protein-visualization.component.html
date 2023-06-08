@@ -39,7 +39,8 @@
                         <button type="button" class="btn btn-outline-success custom-btn-color"
                             [disabled]="!VisualizationReady" *ngFor="let domain of highlightedDomains ; let i = index"
                             (click)="ToggleHighlighting(i)" [ngStyle]='getButtonStyles(domain.ProteinIndex)'>
-                            {{domain.IsResidueSpan ? "Residues " + getStringSpan(domain) : domain.DomainName}}
+                            {{domain.IsResidueSpan ? domain.DomainName + " " + getStringSpan(domain) :
+                            domain.DomainName}}
                             ({{domain.PdbId + domain.ChainId}})
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                 class="bi bi-eye" viewBox="0 0 16 16" *ngIf="!domain.Highlighted">

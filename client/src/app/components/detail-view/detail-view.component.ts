@@ -8,6 +8,7 @@ import { HighlightedDomain } from 'src/app/models/highlighted-domain.model';
 import * as JSZip from 'jszip';
 import * as saveAs from 'file-saver';
 import { ProteinVisualizationComponent } from '../protein-visualization/protein-visualization.component';
+import { PymolService } from 'src/app/services/pymol.service';
 
 @Component({
     selector: 'app-detail-view',
@@ -51,6 +52,7 @@ export class DetailViewComponent {
     constructor(
         public datasetService: DatasetService,
         public externalLinkService: ExternalLinkService,
+        private pymolService: PymolService,
         private route: ActivatedRoute) {
 
         this.id = parseInt(this.route.snapshot.paramMap.get('id') as string);
@@ -244,7 +246,6 @@ export class DetailViewComponent {
                     DomainName: transformation[prefix + 'DomainCathId2'],
                     IsResidueSpan: false,
                     ProteinIndex: index
-
                 });
         }
         else if (structure === 'residues') {
@@ -255,7 +256,7 @@ export class DetailViewComponent {
                 End: transformation[prefix + 'ResidueEnd'],
                 Highlighted: false,
                 ColorLevel: 2,
-                DomainName: '',
+                DomainName: transformation['Label'],
                 IsResidueSpan: true,
                 ProteinIndex: index
             });
@@ -281,10 +282,11 @@ export class DetailViewComponent {
             }
         }
 
-        // add json with all the data to the zip
+        // add json with all the data to the zip and generate pymol script
         const jszip = new JSZip();
         jszip.file('details.json', JSON.stringify(details));
-
+        jszip.file('pymol-script.py', this.pymolService.GeneratePymolScript(this.VisualizedProteins, this.highlightedDomains))
+        
         // generate zip
         jszip.generateAsync({ type: 'blob' }).then(function (content: any) {
             saveAs(content, 'details.zip');
