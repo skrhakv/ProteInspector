@@ -8,16 +8,16 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 export class PaginationComponent {
     @Output() pagination = new EventEmitter<number>();
     @Input() disabled = true;
-    @Input() pageCount: number = 0;
+    @Input() pageCount = 0;
 
-    public page: number = 0;
+    public page = 0;
 
     constructor()
     {
-        let pageFromSession: string | null = sessionStorage.getItem('page');
+        const pageFromSession: string | null = sessionStorage.getItem('page');
         if(pageFromSession)
         {
-            let parsedPage: number = parseInt(pageFromSession);
+            const parsedPage: number = parseInt(pageFromSession);
             this.updatePagination(parsedPage);
         }
     }

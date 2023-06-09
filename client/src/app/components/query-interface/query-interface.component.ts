@@ -18,18 +18,18 @@ import { SortMetric } from 'src/app/models/sort-metric.model';
     ],
 })
 export class QueryInterfaceComponent {
-    public query: string = "";
-    public finishedQuery: string = "";
+    public query = "";
+    public finishedQuery = "";
     
     public metricsOrder: string[] = []
-    public isBiologicalStructureSelected: boolean = false;
+    public isBiologicalStructureSelected = false;
     public DropdownMetricItems: Metric[] = [];
     public SortingMetric: SortMetric = new SortMetric();
     public structure!: string;
     constructor(
         public filterService: FilterService
     ) {
-        let queryFromSessionStorage: string | null = sessionStorage.getItem('query');
+        const queryFromSessionStorage: string | null = sessionStorage.getItem('query');
         this.query = queryFromSessionStorage !== null ? queryFromSessionStorage : '';
         this.structure = this.getStructure();
     }
@@ -52,7 +52,7 @@ export class QueryInterfaceComponent {
     }
 
     private getStructure(): string {
-        let tokens: string[] = this.query.toLowerCase().split(' ');
+        const tokens: string[] = this.query.toLowerCase().split(' ');
         if (tokens.includes('proteins'))
             return 'proteins';
         if (tokens.includes('domains'))
@@ -65,12 +65,12 @@ export class QueryInterfaceComponent {
     }
 
     selectBiologicalStructureType(event: any) {
-        let biologicalStructureType = event.target.value;
+        const biologicalStructureType = event.target.value;
         this.DropdownMetricItems = [];
         this.metricsOrder = [];
         this.isBiologicalStructureSelected = false;
 
-        let [query, request] = this.filterService.selectBiologicalStructureType(biologicalStructureType);
+        const [query, request] = this.filterService.selectBiologicalStructureType(biologicalStructureType);
 
         this.query = query;
         request.subscribe(data => {
@@ -87,8 +87,8 @@ export class QueryInterfaceComponent {
     }
 
     specifyMetricName(dropdownMetricItemsIndex: number, event: any) {
-        let metric = event.target.value;
-        let type: string = this.filterService.AvailableMetrics[metric]["type"];
+        const metric = event.target.value;
+        const type: string = this.filterService.AvailableMetrics[metric]["type"];
 
         if (dropdownMetricItemsIndex < 0 || dropdownMetricItemsIndex > this.DropdownMetricItems.length)
             throw "Index out of scope";
@@ -102,7 +102,7 @@ export class QueryInterfaceComponent {
     }
 
     specifySortingMetric(event: any) {
-        let metric = event.target.value;
+        const metric = event.target.value;
         this.SortingMetric.name = metric;
 
         this.buildFilterQuery();
@@ -116,8 +116,8 @@ export class QueryInterfaceComponent {
     }
 
     buildFilterQuery() {
-        let q = this.filterService.buildQuery(this.DropdownMetricItems, this.SortingMetric);
-        this.query = q;
+        const buildedQuery = this.filterService.buildQuery(this.DropdownMetricItems, this.SortingMetric);
+        this.query = buildedQuery;
     }
 
     metricInputChanged() {

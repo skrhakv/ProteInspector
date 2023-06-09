@@ -18,9 +18,9 @@
                         href="https://github.com/skrhakv/ProteInspector/wiki/ProteInspector"
                         target="_blank">Documentation</a></li>
             </ul>
-            <div class="ms-auto" *ngIf="datasetService.SelectedDataset !== undefined">
+            <div class="ms-auto" *ngIf="backendCommunicationService.SelectedDataset !== undefined">
                 <span class="navbar-text mx-4">
-                    Selected dataset: {{datasetService.SelectedDataset.dataset_name}}
+                    Selected dataset: {{backendCommunicationService.SelectedDataset.dataset_name}}
                 </span>
             </div>
         </div>

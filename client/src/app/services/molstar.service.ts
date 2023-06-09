@@ -23,29 +23,27 @@ import { HighlightedDomain } from '../models/highlighted-domain.model';
 })
 export class MolstarService {
 
-    constructor() { }
-
     public GetChainSequences(plugin: PluginUIContext): ProteinSequence[] {
-        let ProteinSequences: ProteinSequence[] = [];
+        const ProteinSequences: ProteinSequence[] = [];
         // get the sequences from Mol*
         const structureOptions = getStructureOptions(plugin.state.data);
 
         // get sequence of each chain for each visualized structure 
         for (const [index, structureRef] of structureOptions.options.entries()) {
-            let proteinSequence: ProteinSequence = {
+            const proteinSequence: ProteinSequence = {
                 ProteinIndex: index,
                 ChainSequences: []
             };
 
             // get the sequence for each chain 
             const structure = this.getStructure(structureRef[0], plugin);
-            let modelEntityId = getModelEntityOptions(structure);
-            let chainGroupIds = getChainOptions(structure, modelEntityId[0][0]);
+            const modelEntityId = getModelEntityOptions(structure);
+            const chainGroupIds = getChainOptions(structure, modelEntityId[0][0]);
             for (const chainGroupId of chainGroupIds) {
-                let chainId: string = this.parseChainId(chainGroupId[1]);
+                const chainId: string = this.parseChainId(chainGroupId[1]);
 
-                let operatorKey = getOperatorOptions(structure, modelEntityId[0][0], chainGroupId[0]);
-                let sequence: string = this.ArrayLikeToString((getSequenceWrapper({
+                const operatorKey = getOperatorOptions(structure, modelEntityId[0][0], chainGroupId[0]);
+                const sequence: string = this.ArrayLikeToString((getSequenceWrapper({
                     structure,
                     modelEntityId: modelEntityId[0][0],
                     chainGroupId: chainGroupId[0],
@@ -78,9 +76,9 @@ export class MolstarService {
         // remove previous representation
         await plugin.managers.structure.component.removeRepresentations(plugin.managers.structure.hierarchy.current.structures[index].components);
 
-        let { update, builder, typeParams } = StructureRepresentationPresetProvider.reprBuilder(plugin, {});
-        builder = plugin.builders.structure.representation;
-        let atomicType: StructureRepresentationRegistry.BuiltIn = structureRepresentationType;
+        const { update, builder, typeParams } = StructureRepresentationPresetProvider.reprBuilder(plugin, {});
+        const nbuilder = plugin.builders.structure.representation;
+        const atomicType: StructureRepresentationRegistry.BuiltIn = structureRepresentationType;
 
         // get reference of the coresponding structure
         const structureCell = StateObjectRef.resolveAndCheck(plugin.state.data, plugin.managers.structure.hierarchy.current.structures[index].cell.transform.ref);
@@ -89,7 +87,7 @@ export class MolstarService {
         const ref = await presetStaticComponent(plugin, structureCell, 'polymer');
 
         // build & commit the representation
-        builder.buildRepresentation(update, ref, { type: atomicType });
+        nbuilder.buildRepresentation(update, ref, { type: atomicType });
         await update.commit({ revertOnError: true });
 
         const ligand = await plugin.builders.structure.tryCreateComponentStatic(structureCell, 'ligand');
@@ -142,7 +140,7 @@ export class MolstarService {
                 'entity-test': MS.core.rel.eq([MS.ammp('entityType'), 'polymer'])
             })]), data);
 
-        let loci: StructureElement.Loci = StructureSelection.toLociWithSourceUnits(selection);
+        const loci: StructureElement.Loci = StructureSelection.toLociWithSourceUnits(selection);
 
         plugin.managers.interactivity.lociHighlights.highlightOnly({ loci });
     }
@@ -164,7 +162,7 @@ export class MolstarService {
                 'entity-test': MS.core.rel.eq([MS.ammp('entityType'), 'polymer'])
             })]), data);
 
-        let loci: StructureElement.Loci = StructureSelection.toLociWithSourceUnits(selection);
+        const loci: StructureElement.Loci = StructureSelection.toLociWithSourceUnits(selection);
 
         const s = plugin.managers.structure.hierarchy.current.structures[domain.ProteinIndex];
         const components = s.components;
@@ -188,7 +186,7 @@ export class MolstarService {
     }
 
     private ArrayLikeToString(sequence: ArrayLike<string>): string {
-        let sequenceToString: string = "";
+        let sequenceToString = "";
         for (let i = 0; i < sequence.length; i++) {
             sequenceToString += sequence[i];
         }
@@ -198,12 +196,12 @@ export class MolstarService {
     private parseChainId(authAsymIdLabelAsymIdCombined: string): string {
         // sometimes the chain ID is in the format of "X [auth Y]", we want to retrieve the "Y" only
 
-        let index: number = authAsymIdLabelAsymIdCombined.indexOf("[");
+        const index: number = authAsymIdLabelAsymIdCombined.indexOf("[");
         if (index === -1) return authAsymIdLabelAsymIdCombined;
 
-        let indexEnd: number = authAsymIdLabelAsymIdCombined.indexOf("]");
-        let authSubstring: string = authAsymIdLabelAsymIdCombined.substring(index + 1, indexEnd);
-        let tokens: string[] = authSubstring.split(' ');
+        const indexEnd: number = authAsymIdLabelAsymIdCombined.indexOf("]");
+        const authSubstring: string = authAsymIdLabelAsymIdCombined.substring(index + 1, indexEnd);
+        const tokens: string[] = authSubstring.split(' ');
         if (tokens[0] === "auth")
             return tokens[1]
         else {

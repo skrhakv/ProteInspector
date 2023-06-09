@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { trigger, transition, style, animate, state } from '@angular/animations';
-import { DatasetService } from 'src/app/services/dataset.service';
+import { BackendCommunicationService } from 'src/app/services/backend-communication.service';
 import { Dataset } from 'src/app/models/dataset';
 import { Router } from '@angular/router';
 
@@ -17,10 +17,10 @@ import { Router } from '@angular/router';
     ],
 })
 export class DatasetSelectorComponent {
-    constructor(public datasetService: DatasetService, private router: Router) {
+    constructor(public backendCommunicationService: BackendCommunicationService, private router: Router) {
     }
     selectDataset(dataset: Dataset) {
-        this.datasetService.selectDataset(dataset);
+        this.backendCommunicationService.selectDataset(dataset);
         setTimeout(() => {
             this.router.navigate(["/search"]);
         }, 600);

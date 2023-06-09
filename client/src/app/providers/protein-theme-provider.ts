@@ -30,7 +30,7 @@ function ProteinTheme(
     props: PD.Values<typeof ProteinThemeParams>
 ): ColorTheme<typeof ProteinThemeParams> {
 
-    let color: Color = colors[props.value % colors.length];
+    const color: Color = colors[props.value % colors.length];
     return {
         factory: ProteinTheme,
         granularity: 'vertex',

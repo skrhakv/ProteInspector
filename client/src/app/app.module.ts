@@ -5,7 +5,7 @@ import { CookieService } from 'ngx-cookie-service';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { NavbarLayoutComponent } from './components/navbar-layout/navbar-layout.component';
-import { DatasetService } from './services/dataset.service';
+import { BackendCommunicationService } from './services/backend-communication.service';
 
 import { HttpClientModule } from '@angular/common/http';
 import { HomeComponent } from './components/home/home.component';
@@ -41,7 +41,7 @@ import { ProteinVisualizationComponent } from './components/protein-visualizatio
         FormsModule
     ],
     providers: [
-        DatasetService,
+        BackendCommunicationService,
         CookieService,
         FilterService
     ],

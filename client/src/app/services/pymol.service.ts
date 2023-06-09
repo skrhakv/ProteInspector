@@ -11,8 +11,6 @@ type NumberMetricGetter = (p: Protein) => number;
 })
 export class PymolService {
 
-    constructor() { }
-
     public GeneratePymolScript(visualizedProteins: Protein[], highlightedDomains: HighlightedDomain[]): string {
         let result: string = this.addGenericHeader();
 
@@ -26,19 +24,19 @@ export class PymolService {
     }
 
     private processSpanArray(domains: HighlightedDomain[], proteinCount: number, appendResidues: boolean) {
-        let result: string = "";
+        let result = "";
 
-        let outerFirst: boolean = true;
+        let outerFirst = true;
         for (let i = 0; i < proteinCount; i++) {
             if (!outerFirst)
                 result += ',';
             result += "[";
-            let first: boolean = true;
+            let first = true;
             const iDomains = domains.filter(d => { return d.ProteinIndex === i && d.IsResidueSpan === appendResidues });
             for (const domain of iDomains) {
                 if (!first)
                     result += ',';
-                result += `[\"${domain.DomainName}\", ${domain.Start}, ${domain.End}]`;
+                result += `["${domain.DomainName}", ${domain.Start}, ${domain.End}]`;
 
                 first = false;
             }
@@ -51,7 +49,7 @@ export class PymolService {
     }
 
     private addResidues(domains: HighlightedDomain[], proteinCount: number): string {
-        let result: string = "\nresidue_labels = [";
+        let result = "\nresidue_labels = [";
 
         result += this.processSpanArray(domains, proteinCount, true);
 
@@ -61,7 +59,7 @@ export class PymolService {
     }
 
     private addDomains(domains: HighlightedDomain[], proteinCount: number): string {
-        let result: string = "\ndomain_spans = [";
+        let result = "\ndomain_spans = [";
 
         result += this.processSpanArray(domains, proteinCount, false);
 
@@ -70,16 +68,16 @@ export class PymolService {
         return result;
     }
 
-    private generatePythonArray(proteins: Protein[], metricGetter: NumberMetricGetter | StringMetricGetter, isNumberGetter: boolean = false): string {
-        let result: string = "["
-        let first: boolean = true;
+    private generatePythonArray(proteins: Protein[], metricGetter: NumberMetricGetter | StringMetricGetter, isNumberGetter = false): string {
+        let result = "["
+        let first = true;
         for (const protein of proteins) {
             if (!first)
                 result += ",";
             if (isNumberGetter)
                 result += `${metricGetter(protein)}`;
             else
-                result += `\"${metricGetter(protein)}\"`;
+                result += `"${metricGetter(protein)}"`;
 
             first = false;
         }
@@ -89,7 +87,7 @@ export class PymolService {
     }
 
     private addProteins(proteins: Protein[]): string {
-        let result: string = "\nproteins = ";
+        let result = "\nproteins = ";
         result += this.generatePythonArray(proteins, (p: Protein) => { return p.PdbCode });
 
         result += "\nchains = ";

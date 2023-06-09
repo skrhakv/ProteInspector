@@ -5,7 +5,7 @@
             <p class="lead">
                 Please select dataset:
             </p>
-            <div *ngFor="let dataset of datasetService.datasets">
+            <div *ngFor="let dataset of backendCommunicationService.datasets">
                 <div class="card my-2">
                     <div class="card-body">
                         <h5 class="text-center card-title">{{dataset.dataset_name}}</h5>

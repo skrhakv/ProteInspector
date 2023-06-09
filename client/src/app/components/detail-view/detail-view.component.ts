@@ -1,6 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { DatasetService } from 'src/app/services/dataset.service';
+import { BackendCommunicationService } from 'src/app/services/backend-communication.service';
 import { ExternalLinkService } from 'src/app/services/external-link.service';
 import { Protein } from 'src/app/models/protein.model';
 
@@ -23,13 +23,13 @@ export class DetailViewComponent {
 
     public TableColumnNames: string[] = [];
     public ColumnOrder: string[] = [];
-    public TableData!: any;
-    public DataReady: boolean = false;
+    public TableData!: Record<string, string>;
+    public DataReady = false;
 
     public ContextTableColumnNames!: Record<string, string[]>;
     public ContextTableData!: Record<string, Record<string, string>[]>;
     public ContextColumnOrder: Record<string, string[]> = { "proteins": [], "domains": [], "domainPairs": [], "residues": [] };
-    public ContextDataReady: boolean = false;
+    public ContextDataReady = false;
     public ContextStructureHeadingMapping: Record<string, string>[] = [
         {
             "key": "proteins",
@@ -50,7 +50,7 @@ export class DetailViewComponent {
     private id!: number;
 
     constructor(
-        public datasetService: DatasetService,
+        public backendCommunicationService: BackendCommunicationService,
         public externalLinkService: ExternalLinkService,
         private pymolService: PymolService,
         private route: ActivatedRoute) {
@@ -76,26 +76,26 @@ export class DetailViewComponent {
         }
 
 
-        datasetService.getDatasetInfo().then(_ => {
-            datasetService.getSpecificRow(this.id, this.structure.replace(/ /gi, '')
+        backendCommunicationService.getDatasetInfo().then(_ => {
+            backendCommunicationService.getSpecificRow(this.id, this.structure.replace(/ /gi, '')
             ).subscribe(data => {
                 this.TableColumnNames = data['columnNames'];
-                this.TableData = data['results'];
+                const tableData = data['results'];
 
-                // only show columns from the this.datasetService.ColumnOrder in this order:
-                for (const columnName of this.datasetService.ColumnOrder) {
+                // only show columns from the this.backendCommunicationService.ColumnOrder in this order:
+                for (const columnName of this.backendCommunicationService.ColumnOrder) {
                     if (this.TableColumnNames.includes(columnName)) {
                         this.ColumnOrder.push(columnName);
                     }
                 }
-                this.TableData = this.TableData[0];
+                this.TableData = tableData[0];
                 this.DataReady = true;
             });
 
-            datasetService.getTransformationContext(this.id, this.structure).subscribe({
+            backendCommunicationService.getTransformationContext(this.id, this.structure).subscribe({
                 next: (data) => {
-                    let contextTableColumnNames = structuredClone(data);
-                    let contextTableData = data;
+                    const contextTableColumnNames = structuredClone(data);
+                    const contextTableData = data;
 
                     Object.keys(contextTableColumnNames).forEach((key: any) => {
                         delete contextTableColumnNames[key]['results'];
@@ -160,10 +160,10 @@ export class DetailViewComponent {
                     // Update visualization
                     this.visualization.updateVisualization(this.VisualizedProteins, this.highlightedDomains);
 
-                    // only show columns from the this.datasetService.ColumnOrder in this order:
+                    // only show columns from the this.backendCommunicationService.ColumnOrder in this order:
 
                     for (const biologicalStructure in this.ContextTableData) {
-                        for (const columnName of this.datasetService.ColumnOrder) {
+                        for (const columnName of this.backendCommunicationService.ColumnOrder) {
                             if (this.ContextTableColumnNames[biologicalStructure].includes(columnName)) {
                                 this.ContextColumnOrder[biologicalStructure].push(columnName);
                             }
@@ -275,8 +275,8 @@ export class DetailViewComponent {
         details["details"]["BeforeFileLocation"] += details["details"]["BeforePdbID"] + ".cif";
         details["details"]["AfterFileLocation"] += details["details"]["AfterPdbID"] + ".cif";
 
-        for (let biologicalStructure in details["context"]) {
-            for (let transformation of details["context"][biologicalStructure]) {
+        for (const biologicalStructure in details["context"]) {
+            for (const transformation of details["context"][biologicalStructure]) {
                 transformation["BeforeFileLocation"] += transformation["BeforePdbID"] + ".cif";
                 transformation["AfterFileLocation"] += transformation["AfterPdbID"] + ".cif";
             }

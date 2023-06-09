@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { DatasetService } from './dataset.service';
+import { BackendCommunicationService } from './backend-communication.service';
 
 describe('DatasetInfoService', () => {
-    let service: DatasetService;
+    let service: BackendCommunicationService;
 
     beforeEach(() => {
         TestBed.configureTestingModule({});
-        service = TestBed.inject(DatasetService);
+        service = TestBed.inject(BackendCommunicationService);
     });
 
     it('should be created', () => {

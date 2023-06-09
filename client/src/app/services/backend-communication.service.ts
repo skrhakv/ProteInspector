@@ -7,7 +7,7 @@ import { firstValueFrom } from 'rxjs';
 @Injectable({
     providedIn: 'root'
 })
-export class DatasetService {
+export class BackendCommunicationService {
     public datasets: Dataset[] = [];
     public SelectedDataset!: Dataset;
     public ColumnOrder: string[] = [];
@@ -37,13 +37,13 @@ export class DatasetService {
         const options = {
             headers
         };
-        let datasetsResult = await firstValueFrom(this.http.get<any>(AppSettings.API_ENDPOINT + `/datasets-info`, options));
+        const datasetsResult = await firstValueFrom(this.http.get<any>(AppSettings.API_ENDPOINT + `/datasets-info`, options));
         this.datasets = datasetsResult['results'];
 
         if (this.datasets.length > 0) {
-            let datasetId: string | null = sessionStorage.getItem('dataset-id');
+            const datasetId: string | null = sessionStorage.getItem('dataset-id');
             if (datasetId) {
-                let dataset = this.datasets.find(x => x.dataset_id === datasetId);
+                const dataset = this.datasets.find(x => x.dataset_id === datasetId);
                 if (dataset !== undefined)
                     this.SelectedDataset = dataset;
                 else

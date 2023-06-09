@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { HighlightedDomain } from 'src/app/models/highlighted-domain.model';
 import { Protein } from 'src/app/models/protein.model';
 import { MolstarService } from 'src/app/services/molstar.service';
@@ -25,8 +25,8 @@ export class ProteinVisualizationComponent implements OnInit {
     public proteins: Protein[] = [];
     public highlightedDomains: HighlightedDomain[] = [];
 
-    public VisualizationReady: boolean = false;
-    public ShowHighlightButtons: boolean = false;
+    public VisualizationReady = false;
+    public ShowHighlightButtons = false;
     public IsProteinVisible: boolean[] = [];
     public OnlyChains: [visible: boolean, buttonText: string] = [false, "Show Chains"];
     public ProteinRepresentation: StructureRepresentationRegistry.BuiltIn[] = [];
@@ -54,7 +54,7 @@ export class ProteinVisualizationComponent implements OnInit {
         this.ProteinRepresentation.fill('cartoon');
 
         // disable the buttons until the visualization is ready using callback
-        let callback = () => {
+        const callback = () => {
             this.VisualizationReady = true;
             this.LoadMsaViewer();
         }
@@ -95,7 +95,7 @@ export class ProteinVisualizationComponent implements OnInit {
     }
 
     getButtonStyles(index: number): Record<string, string> {
-        let proteinColor = getColorHex(index);
+        const proteinColor = getColorHex(index);
 
         return {
             '--register-button--color': 'white',
@@ -142,7 +142,7 @@ export class ProteinVisualizationComponent implements OnInit {
 
     private UpdateChainVisibilityButtonText(): void {
         this.OnlyChains[1] = "Show Chains "
-        let first: boolean = true;
+        let first = true;
         for (const protein of this.proteins) {
             if (first)
                 first = false;
@@ -187,10 +187,10 @@ export class ProteinVisualizationComponent implements OnInit {
 
         // compute the size of the left shift of the sequence for each protein
         for (let i = 0; i < this.proteins.length; i++) {
-            let leftBranchSize: number = 0;
+            let leftBranchSize = 0;
 
             // get index of the relevant chain
-            let indexOfRelevantChain: number = this.ProteinSequences[i].ChainSequences.findIndex(x => x.ChainId === this.proteins[i].ChainId);
+            const indexOfRelevantChain: number = this.ProteinSequences[i].ChainSequences.findIndex(x => x.ChainId === this.proteins[i].ChainId);
 
             // compute how long is the left branch
             for (let ii = 0; ii < indexOfRelevantChain; ii++) {
@@ -204,15 +204,15 @@ export class ProteinVisualizationComponent implements OnInit {
         }
 
         // get labels of the structures
-        let labels: string[] = [];
+        const labels: string[] = [];
 
-        for (let structure of this.plugin.managers.structure.hierarchy.current.structures) {
-            let label: string = "", entryId: string = "";
+        for (const structure of this.plugin.managers.structure.hierarchy.current.structures) {
+            let label = "", entryId = "";
 
-            if (!structure.cell.obj?.data.units)
+            if (!structure.cell.obj || !structure.cell.obj.data.units)
                 return;
 
-            for (let unit of structure.cell.obj?.data.units) {
+            for (const unit of structure.cell.obj.data.units) {
                 label = unit.model.label;
                 entryId = unit.model.entryId;
             }
@@ -223,26 +223,26 @@ export class ProteinVisualizationComponent implements OnInit {
             labels.push(label);
         }
 
-        let longestLeftBranch = Math.max(...this.leftAlignmentShifts);
+        const longestLeftBranch = Math.max(...this.leftAlignmentShifts);
 
         // define data for the MSA browser
-        let proteinsData: RcsbFvDisplayConfigInterface[][] = [];
-        let maxLength: number = 0;
+        const proteinsData: RcsbFvDisplayConfigInterface[][] = [];
+        let maxLength = 0;
 
         for (let i = 0; i < this.ProteinSequences.length; i++) {
 
             // where the chain begins (index position in the sequence)
             let length: number = longestLeftBranch - this.leftAlignmentShifts[i];
-            let chains: RcsbFvDisplayConfigInterface[] = []
+            const chains: RcsbFvDisplayConfigInterface[] = []
 
             //  add the individual sequences to the fasta data 
             for (const ChainSequence of this.ProteinSequences[i].ChainSequences) {
 
-                let begin = length;
+                const begin = length;
 
                 //define data for callback
-                let proteinSequence:ProteinSequence = this.ProteinSequences[i];
-                let chainId = ChainSequence.ChainId;
+                const proteinSequence:ProteinSequence = this.ProteinSequences[i];
+                const chainId = ChainSequence.ChainId;
                 
                 // append the chain data 
                 chains.push({
@@ -276,7 +276,7 @@ export class ProteinVisualizationComponent implements OnInit {
         }
 
         // define each row in the MSA browser
-        let rcsbInput: Array<any> = [];
+        const rcsbInput: Array<any> = [];
 
         for (let i = 0; i < this.ProteinSequences.length; i++) {
             rcsbInput[i] = {
@@ -313,11 +313,11 @@ export class ProteinVisualizationComponent implements OnInit {
             highlightHoverElement: true,
             hideInnerBorder: true,
             hideRowGlow: false,
-            elementLeaveCallBack: ((d?: RcsbFvTrackDataElementInterface) => { this.clearResidueHighlighting(); })
+            elementLeaveCallBack: (() => { this.clearResidueHighlighting(); })
         };
 
         const elementId = "pfv";
-        const pfv = new RcsbFv({
+        new RcsbFv({
             rowConfigData: rcsbInput,
             boardConfigData: boardConfigData,
             elementId

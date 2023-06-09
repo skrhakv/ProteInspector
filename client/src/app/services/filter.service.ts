@@ -32,7 +32,7 @@ export class FilterService {
 
     selectBiologicalStructureType(biologicalStructureType: string): [string, Observable<any>] {
         this.selectedBiologicalStructureType = biologicalStructureType;
-        let query: string = this.buildSelectStatement();
+        const query: string = this.buildSelectStatement();
 
         const headers = new HttpHeaders({
             'Access-Control-Allow-Origin': AppSettings.API_ENDPOINT
@@ -41,7 +41,7 @@ export class FilterService {
             headers
         };
 
-        let request = this.http.get<any>(AppSettings.API_ENDPOINT + `/biological-structures/` + biologicalStructureType, options);
+        const request = this.http.get<any>(AppSettings.API_ENDPOINT + `/biological-structures/` + biologicalStructureType, options);
 
         return [query, request];
     }
@@ -51,9 +51,9 @@ export class FilterService {
         if (metrics.length === 0)
             return query;
 
-        let first: boolean = true;
+        let first = true;
 
-        for (let metric of metrics) {
+        for (const metric of metrics) {
             if (!this.validString(metric.name))
                 continue;
 
