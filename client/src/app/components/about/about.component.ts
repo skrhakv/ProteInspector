@@ -10,8 +10,8 @@ import { Router } from '@angular/router';
         trigger('animation', [
             state('void', style({ opacity: 0, })),
             state('*', style({ opacity: 1, })),
-            transition(':enter', animate(`600ms ease-out`)),
-            transition(':leave', animate(`600ms ease-in`))
+            transition(':enter', animate('600ms ease-out')),
+            transition(':leave', animate('600ms ease-in'))
         ])
     ],
 })
@@ -21,7 +21,7 @@ export class AboutComponent {
 
     clickIntroductionButton() {
         setTimeout(() => {
-            this.router.navigate(["/search"]);
+            this.router.navigate(['/search']);
         }, 600);
     }
 }

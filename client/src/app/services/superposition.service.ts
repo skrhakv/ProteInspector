@@ -4,7 +4,7 @@ import { BuiltInTrajectoryFormat } from 'molstar/lib/mol-plugin-state/formats/tr
 import { Script } from 'molstar/lib/mol-script/script';
 import { MolScriptBuilder as MS } from 'molstar/lib/mol-script/language/builder';
 import { QueryContext, Structure, StructureElement, StructureProperties, StructureSelection } from 'molstar/lib/mol-model/structure';
-import { LociEntry } from 'molstar/lib/mol-plugin-ui/structure/superposition'
+import { LociEntry } from 'molstar/lib/mol-plugin-ui/structure/superposition';
 import { StructureSelectionQueries } from 'molstar/lib/mol-plugin-state/helpers/structure-selection-query';
 import { PluginStateObject } from 'molstar/lib/mol-plugin-state/objects';
 import { StateObjectRef } from 'molstar/lib/mol-state';
@@ -40,7 +40,7 @@ export class SuperpositionService {
             if (!data) return;
             const selection = Script.getStructureSelection(Q => Q.struct.filter.first([
                 Q.struct.generator.atomGroups({
-                    "group-by": MS.struct.atomProperty.core.operatorName(),
+                    'group-by': MS.struct.atomProperty.core.operatorName(),
                     'chain-test': Q.core.rel.eq([protein.ChainId, Q.struct.atomProperty.macromolecular.auth_asym_id()]),
                     'residue-test': Q.core.rel.inRange([Q.struct.atomProperty.macromolecular.label_seq_id(), protein.LcsStart, protein.LcsStart + protein.LcsLength]),
                     'entity-test': MS.core.rel.eq([MS.ammp('entityType'), 'polymer'])

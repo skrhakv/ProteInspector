@@ -24,15 +24,15 @@ export class PymolService {
     }
 
     private processSpanArray(domains: HighlightedDomain[], proteinCount: number, appendResidues: boolean) {
-        let result = "";
+        let result = '';
 
         let outerFirst = true;
         for (let i = 0; i < proteinCount; i++) {
             if (!outerFirst)
                 result += ',';
-            result += "[";
+            result += '[';
             let first = true;
-            const iDomains = domains.filter(d => { return d.ProteinIndex === i && d.IsResidueSpan === appendResidues });
+            const iDomains = domains.filter(d => { return d.ProteinIndex === i && d.IsResidueSpan === appendResidues; });
             for (const domain of iDomains) {
                 if (!first)
                     result += ',';
@@ -40,7 +40,7 @@ export class PymolService {
 
                 first = false;
             }
-            result += "]";
+            result += ']';
 
             outerFirst = false;
         }
@@ -49,31 +49,31 @@ export class PymolService {
     }
 
     private addResidues(domains: HighlightedDomain[], proteinCount: number): string {
-        let result = "\nresidue_labels = [";
+        let result = '\nresidue_labels = [';
 
         result += this.processSpanArray(domains, proteinCount, true);
 
-        result += "]";
+        result += ']';
 
         return result;
     }
 
     private addDomains(domains: HighlightedDomain[], proteinCount: number): string {
-        let result = "\ndomain_spans = [";
+        let result = '\ndomain_spans = [';
 
         result += this.processSpanArray(domains, proteinCount, false);
 
-        result += "]";
+        result += ']';
 
         return result;
     }
 
     private generatePythonArray(proteins: Protein[], metricGetter: NumberMetricGetter | StringMetricGetter, isNumberGetter = false): string {
-        let result = "["
+        let result = '[';
         let first = true;
         for (const protein of proteins) {
             if (!first)
-                result += ",";
+                result += ',';
             if (isNumberGetter)
                 result += `${metricGetter(protein)}`;
             else
@@ -81,23 +81,23 @@ export class PymolService {
 
             first = false;
         }
-        result += "]\n";
+        result += ']\n';
 
         return result;
     }
 
     private addProteins(proteins: Protein[]): string {
-        let result = "\nproteins = ";
-        result += this.generatePythonArray(proteins, (p: Protein) => { return p.PdbCode });
+        let result = '\nproteins = ';
+        result += this.generatePythonArray(proteins, (p: Protein) => { return p.PdbCode; });
 
-        result += "\nchains = ";
-        result += this.generatePythonArray(proteins, (p: Protein) => { return p.ChainId });
+        result += '\nchains = ';
+        result += this.generatePythonArray(proteins, (p: Protein) => { return p.ChainId; });
 
-        result += "\nprotein_file_location = ";
-        result += this.generatePythonArray(proteins, (p: Protein) => { return p.FileLocation + p.PdbCode + ".cif" });
+        result += '\nprotein_file_location = ';
+        result += this.generatePythonArray(proteins, (p: Protein) => { return p.FileLocation + p.PdbCode + '.cif'; });
 
-        result += "\nsuperposition_alignment_start = ";
-        result += this.generatePythonArray(proteins, (p: Protein) => { return p.LcsStart }, true);
+        result += '\nsuperposition_alignment_start = ';
+        result += this.generatePythonArray(proteins, (p: Protein) => { return p.LcsStart; }, true);
 
         result += `\nsuperposition_alignment_length = ${proteins[0].LcsLength}\n`;
 
@@ -148,7 +148,7 @@ for i in range(len(residue_labels)):
           cmd.group('residues', label) 
 
 cmd.reset()
-`
+`;
     }
     private addGenericHeader(): string {
         return `
@@ -324,6 +324,6 @@ cmd.extend("optAlign", optAlign)
 
 
 cmd.delete('all')
-`
+`;
     }
 }

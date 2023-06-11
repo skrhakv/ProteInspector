@@ -3,7 +3,7 @@ import { AppSettings } from 'src/app/app-settings';
 import { BackendCommunicationService } from 'src/app/services/backend-communication.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { saveAs } from "file-saver";
+import { saveAs } from 'file-saver';
 
 @Component({
     selector: 'app-result-table',
@@ -91,9 +91,9 @@ export class ResultTableComponent implements OnInit, OnChanges {
             filename = 'results.json';
 
         else if (format === 'CSV')
-            filename = 'results.csv'
+            filename = 'results.csv';
         else
-            throw "Unknown format, valid formats are: JSON, CSV";
+            throw 'Unknown format, valid formats are: JSON, CSV';
 
         this.backendCommunicationService.getExportedFile(format.toLowerCase()).subscribe({
             next: (blob) => {
@@ -101,7 +101,7 @@ export class ResultTableComponent implements OnInit, OnChanges {
                 this.exportDisabled = false;
             },
             error: (e) => {
-                console.error("Error downloading file: ", e);
+                console.error('Error downloading file: ', e);
                 this.exportDisabled = false;
             }
         });
@@ -113,7 +113,7 @@ export class ResultTableComponent implements OnInit, OnChanges {
 
         this.DataReady = false;
         this.pageNumber = page;
-        sessionStorage.setItem('page', page.toString())
+        sessionStorage.setItem('page', page.toString());
         this.getDataFromPage(this.pageNumber);
     }
 
@@ -148,7 +148,7 @@ export class ResultTableComponent implements OnInit, OnChanges {
     }
 
     public ngOnInit(): void {
-        const element: HTMLElement = <HTMLElement>document.getElementById("fixed-thead");
+        const element: HTMLElement = <HTMLElement>document.getElementById('fixed-thead');
         if (element !== null) {
             const parentElement: HTMLElement = <HTMLElement>element.parentElement;
             window.addEventListener('scroll', () => {

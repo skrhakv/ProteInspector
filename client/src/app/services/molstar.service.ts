@@ -10,7 +10,7 @@ import { StructureRepresentationPresetProvider, presetStaticComponent } from 'mo
 import { StructureRepresentationRegistry } from 'molstar/lib/mol-repr/structure/registry';
 import { StateObjectRef } from 'molstar/lib/mol-state';
 import { MolScriptBuilder as MS } from 'molstar/lib/mol-script/language/builder';
-import { getModelEntityOptions, getChainOptions, getOperatorOptions, getStructureOptions, getSequenceWrapper } from 'molstar/lib/mol-plugin-ui/sequence'
+import { getModelEntityOptions, getChainOptions, getOperatorOptions, getStructureOptions, getSequenceWrapper } from 'molstar/lib/mol-plugin-ui/sequence';
 import { ProteinSequence } from '../models/protein-sequence.model';
 import { PluginStateObject as PSO } from 'molstar/lib/mol-plugin-state/objects';
 import { Structure } from 'molstar/lib/mol-model/structure';
@@ -134,7 +134,7 @@ export class MolstarService {
 
         const selection = Script.getStructureSelection(Q => Q.struct.filter.first([
             Q.struct.generator.atomGroups({
-                "group-by": MS.struct.atomProperty.core.operatorName(),
+                'group-by': MS.struct.atomProperty.core.operatorName(),
                 'chain-test': Q.core.rel.eq([chainID, Q.struct.atomProperty.macromolecular.auth_asym_id()]),
                 'residue-test': Q.core.rel.eq([Q.struct.atomProperty.macromolecular.label_seq_id(), position + 1, position + 1]),
                 'entity-test': MS.core.rel.eq([MS.ammp('entityType'), 'polymer'])
@@ -156,7 +156,7 @@ export class MolstarService {
 
         const selection = Script.getStructureSelection(Q => Q.struct.filter.first([
             Q.struct.generator.atomGroups({
-                "group-by": MS.struct.atomProperty.core.operatorName(),
+                'group-by': MS.struct.atomProperty.core.operatorName(),
                 'chain-test': Q.core.rel.eq([domain.ChainId, Q.struct.atomProperty.macromolecular.auth_asym_id()]),
                 'residue-test': Q.core.rel.inRange([Q.struct.atomProperty.macromolecular.label_seq_id(), domain.Start, domain.End]),
                 'entity-test': MS.core.rel.eq([MS.ammp('entityType'), 'polymer'])
@@ -172,7 +172,7 @@ export class MolstarService {
             colorLevel = domain.ColorLevel;
         else colorLevel = 0;
 
-        const lociGetter = async (s: Structure) => { return loci; }
+        const lociGetter = async (s: Structure) => { return loci; };
 
         await setStructureOverpaint(plugin, components, getLighterColor(domain.ProteinIndex, colorLevel), lociGetter);
     }
@@ -186,26 +186,26 @@ export class MolstarService {
     }
 
     private ArrayLikeToString(sequence: ArrayLike<string>): string {
-        let sequenceToString = "";
+        let sequenceToString = '';
         for (let i = 0; i < sequence.length; i++) {
             sequenceToString += sequence[i];
         }
-        return sequenceToString
+        return sequenceToString;
     }
 
     private parseChainId(authAsymIdLabelAsymIdCombined: string): string {
         // sometimes the chain ID is in the format of "X [auth Y]", we want to retrieve the "Y" only
 
-        const index: number = authAsymIdLabelAsymIdCombined.indexOf("[");
+        const index: number = authAsymIdLabelAsymIdCombined.indexOf('[');
         if (index === -1) return authAsymIdLabelAsymIdCombined;
 
-        const indexEnd: number = authAsymIdLabelAsymIdCombined.indexOf("]");
+        const indexEnd: number = authAsymIdLabelAsymIdCombined.indexOf(']');
         const authSubstring: string = authAsymIdLabelAsymIdCombined.substring(index + 1, indexEnd);
         const tokens: string[] = authSubstring.split(' ');
-        if (tokens[0] === "auth")
-            return tokens[1]
+        if (tokens[0] === 'auth')
+            return tokens[1];
         else {
-            console.error("Unknown format of chain id: ", authAsymIdLabelAsymIdCombined);
+            console.error('Unknown format of chain id: ', authAsymIdLabelAsymIdCombined);
             return authAsymIdLabelAsymIdCombined;
         }
     }

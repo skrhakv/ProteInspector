@@ -30,7 +30,9 @@
             "prefix": "app",
             "style": "kebab-case"
           }
-        ]
+        ],
+        "semi": [2, "always"],
+        "quotes": [2, "single", { "avoidEscape": true }]
       }
     },
     {

@@ -12,16 +12,16 @@ import { SortMetric } from 'src/app/models/sort-metric.model';
         trigger('animation', [
             state('void', style({ opacity: 0, })),
             state('*', style({ opacity: 1, })),
-            transition(':enter', animate(`600ms ease-out`)),
-            transition(':leave', animate(`600ms ease-in`))
+            transition(':enter', animate('600ms ease-out')),
+            transition(':leave', animate('600ms ease-in'))
         ])
     ],
 })
 export class QueryInterfaceComponent {
-    public query = "";
-    public finishedQuery = "";
+    public query = '';
+    public finishedQuery = '';
     
-    public metricsOrder: string[] = []
+    public metricsOrder: string[] = [];
     public isBiologicalStructureSelected = false;
     public DropdownMetricItems: Metric[] = [];
     public SortingMetric: SortMetric = new SortMetric();
@@ -70,12 +70,12 @@ export class QueryInterfaceComponent {
         this.metricsOrder = [];
         this.isBiologicalStructureSelected = false;
 
-        const [query, request] = this.filterService.selectBiologicalStructureType(biologicalStructureType);
+        const [query, request] = this.filterService.loadAvailableStructuralMetrics(biologicalStructureType);
 
         this.query = query;
         request.subscribe(data => {
             Object.keys(data).forEach(key => {
-                if (data[key]["name"] === undefined || data[key]["name"] === "")
+                if (data[key]['name'] === undefined || data[key]['name'] === '')
                     delete data[key];
                 else
                     this.metricsOrder.push(key);
@@ -88,10 +88,10 @@ export class QueryInterfaceComponent {
 
     specifyMetricName(dropdownMetricItemsIndex: number, event: any) {
         const metric = event.target.value;
-        const type: string = this.filterService.AvailableMetrics[metric]["type"];
+        const type: string = this.filterService.AvailableMetrics[metric]['type'];
 
         if (dropdownMetricItemsIndex < 0 || dropdownMetricItemsIndex > this.DropdownMetricItems.length)
-            throw "Index out of scope";
+            throw 'Index out of scope';
         this.DropdownMetricItems[dropdownMetricItemsIndex].name = metric;
         this.DropdownMetricItems[dropdownMetricItemsIndex].type = type;
 

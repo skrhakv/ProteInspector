@@ -28,7 +28,7 @@ export class ProteinVisualizationComponent implements OnInit {
     public VisualizationReady = false;
     public ShowHighlightButtons = false;
     public IsProteinVisible: boolean[] = [];
-    public OnlyChains: [visible: boolean, buttonText: string] = [false, "Show Chains"];
+    public OnlyChains: [visible: boolean, buttonText: string] = [false, 'Show Chains'];
     public ProteinRepresentation: StructureRepresentationRegistry.BuiltIn[] = [];
 
     // MSA data
@@ -36,11 +36,12 @@ export class ProteinVisualizationComponent implements OnInit {
     private leftAlignmentShifts: number[] = [];
 
     constructor(
-        private molstarService: MolstarService,
-        private superpositionService: SuperpositionService
+        public molstarService: MolstarService,
+        public superpositionService: SuperpositionService
     ) { }
 
     public updateVisualization(proteins: Protein[], highlightedDomains: HighlightedDomain[]) {
+
         this.proteins = proteins;
         this.highlightedDomains = highlightedDomains;
 
@@ -57,7 +58,7 @@ export class ProteinVisualizationComponent implements OnInit {
         const callback = () => {
             this.VisualizationReady = true;
             this.LoadMsaViewer();
-        }
+        };
 
         this.superpositionService.GenerateMolstarVisualisation(this.plugin, this.proteins, callback);
 
@@ -134,20 +135,20 @@ export class ProteinVisualizationComponent implements OnInit {
 
             //  update buttons
             this.OnlyChains[0] = true;
-            this.OnlyChains[1] = "Show Full Structures"
+            this.OnlyChains[1] = 'Show Full Structures';
         }
 
         await this.updateHighlighting();
     }
 
     private UpdateChainVisibilityButtonText(): void {
-        this.OnlyChains[1] = "Show Chains "
+        this.OnlyChains[1] = 'Show Chains ';
         let first = true;
         for (const protein of this.proteins) {
             if (first)
                 first = false;
             else
-                this.OnlyChains[1] += ", ";
+                this.OnlyChains[1] += ', ';
 
             this.OnlyChains[1] += protein.PdbCode + protein.ChainId;
 
@@ -162,7 +163,7 @@ export class ProteinVisualizationComponent implements OnInit {
                 initial: {
                     isExpanded: false,
                     showControls: false,
-                    controlsDisplay: "reactive",
+                    controlsDisplay: 'reactive',
                 }
             },
             components: {
@@ -179,7 +180,7 @@ export class ProteinVisualizationComponent implements OnInit {
     }
 
     getStringSpan(domain: HighlightedDomain): string {
-        return domain.Start.toString() + "-" + domain.End.toString();
+        return domain.Start.toString() + '-' + domain.End.toString();
     }
 
     private LoadMsaViewer() {
@@ -207,7 +208,7 @@ export class ProteinVisualizationComponent implements OnInit {
         const labels: string[] = [];
 
         for (const structure of this.plugin.managers.structure.hierarchy.current.structures) {
-            let label = "", entryId = "";
+            let label = '', entryId = '';
 
             if (!structure.cell.obj || !structure.cell.obj.data.units)
                 return;
@@ -217,7 +218,7 @@ export class ProteinVisualizationComponent implements OnInit {
                 entryId = unit.model.entryId;
             }
 
-            if (label === "")
+            if (label === '')
                 label = entryId;
 
             labels.push(label);
@@ -233,7 +234,7 @@ export class ProteinVisualizationComponent implements OnInit {
 
             // where the chain begins (index position in the sequence)
             let length: number = longestLeftBranch - this.leftAlignmentShifts[i];
-            const chains: RcsbFvDisplayConfigInterface[] = []
+            const chains: RcsbFvDisplayConfigInterface[] = [];
 
             //  add the individual sequences to the fasta data 
             for (const ChainSequence of this.ProteinSequences[i].ChainSequences) {
@@ -247,8 +248,8 @@ export class ProteinVisualizationComponent implements OnInit {
                 // append the chain data 
                 chains.push({
                     displayType: RcsbFvDisplayTypes.SEQUENCE,
-                    displayColor: "#000000",
-                    displayId: "compositeSeqeunce" + begin,
+                    displayColor: '#000000',
+                    displayId: 'compositeSeqeunce' + begin,
                     displayData: [{
                         begin: begin,
                         value: ChainSequence.Sequence,
@@ -262,7 +263,7 @@ export class ProteinVisualizationComponent implements OnInit {
                 });
 
                 // move the index for the next chain
-                length += ChainSequence.Sequence.length
+                length += ChainSequence.Sequence.length;
             }
 
             // add the data
@@ -280,10 +281,10 @@ export class ProteinVisualizationComponent implements OnInit {
 
         for (let i = 0; i < this.ProteinSequences.length; i++) {
             rcsbInput[i] = {
-                trackId: "compositeSequence" + i,
+                trackId: 'compositeSequence' + i,
                 trackHeight: 30,
-                trackColor: "#F9F9F9",
-                displayType: "composite",
+                trackColor: '#F9F9F9',
+                displayType: 'composite',
                 rowTitle: labels[i],
                 displayConfig: proteinsData[i]
             };
@@ -292,12 +293,12 @@ export class ProteinVisualizationComponent implements OnInit {
         // define and add the 'SUPERPOSITION ALIGNMENT' row to the MSA browser
         if (this.proteins.length > 0) {
             rcsbInput.push({
-                trackId: "blockTrack",
+                trackId: 'blockTrack',
                 trackHeight: 20,
-                trackColor: "#F9F9F9",
-                displayType: "block",
-                displayColor: "#FF0000",
-                rowTitle: "SUPERPOSITION ALIGNMENT",
+                trackColor: '#F9F9F9',
+                displayType: 'block',
+                displayColor: '#FF0000',
+                rowTitle: 'SUPERPOSITION ALIGNMENT',
                 trackData: [{
                     begin: longestLeftBranch,
                     end: longestLeftBranch + this.proteins[0].LcsLength
@@ -316,7 +317,7 @@ export class ProteinVisualizationComponent implements OnInit {
             elementLeaveCallBack: (() => { this.clearResidueHighlighting(); })
         };
 
-        const elementId = "pfv";
+        const elementId = 'pfv';
         new RcsbFv({
             rowConfigData: rcsbInput,
             boardConfigData: boardConfigData,

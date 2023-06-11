@@ -7,7 +7,7 @@ import { AppComponent } from './app.component';
 import { NavbarLayoutComponent } from './components/navbar-layout/navbar-layout.component';
 import { BackendCommunicationService } from './services/backend-communication.service';
 
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { HomeComponent } from './components/home/home.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule } from '@angular/forms';
@@ -43,7 +43,8 @@ import { ProteinVisualizationComponent } from './components/protein-visualizatio
     providers: [
         BackendCommunicationService,
         CookieService,
-        FilterService
+        FilterService,
+        HttpClient
     ],
     bootstrap: [AppComponent]
 })

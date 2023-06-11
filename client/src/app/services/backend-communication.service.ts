@@ -11,7 +11,7 @@ export class BackendCommunicationService {
     public datasets: Dataset[] = [];
     public SelectedDataset!: Dataset;
     public ColumnOrder: string[] = [];
-    public currentQuery = "";
+    public currentQuery = '';
 
     constructor(private http: HttpClient) {
         this.getDatasetInfo();
@@ -25,7 +25,7 @@ export class BackendCommunicationService {
         const options = {
             headers
         };
-        this.http.get<any>(AppSettings.API_ENDPOINT + `/order`, options).subscribe(data => {
+        this.http.get<any>(AppSettings.API_ENDPOINT + '/order', options).subscribe(data => {
             this.ColumnOrder = data;
         });
     }
@@ -37,7 +37,7 @@ export class BackendCommunicationService {
         const options = {
             headers
         };
-        const datasetsResult = await firstValueFrom(this.http.get<any>(AppSettings.API_ENDPOINT + `/datasets-info`, options));
+        const datasetsResult = await firstValueFrom(this.http.get<any>(AppSettings.API_ENDPOINT + '/datasets-info', options));
         this.datasets = datasetsResult['results'];
 
         if (this.datasets.length > 0) {
@@ -54,12 +54,12 @@ export class BackendCommunicationService {
 
         }
         else
-            console.error("No datasets returned by the server");
+            console.error('No datasets returned by the server');
     }
 
     selectDataset(dataset: Dataset) {
         this.SelectedDataset = dataset;
-        sessionStorage.setItem("dataset-id", this.SelectedDataset.dataset_id);
+        sessionStorage.setItem('dataset-id', this.SelectedDataset.dataset_id);
     }
 
     getQueryData(page: number, pageSize: number) {
@@ -69,9 +69,9 @@ export class BackendCommunicationService {
         const options = {
             headers
         };
-        return this.http.get<any>(AppSettings.API_ENDPOINT + `/data/?page=` + page +
-            "&pageSize=" + pageSize + "&query=" + encodeURIComponent(this.currentQuery) +
-            "&datasetId=" + this.SelectedDataset.dataset_id, options);
+        return this.http.get<any>(AppSettings.API_ENDPOINT + '/data/?page=' + page +
+            '&pageSize=' + pageSize + '&query=' + encodeURIComponent(this.currentQuery) +
+            '&datasetId=' + this.SelectedDataset.dataset_id, options);
     }
 
     getExportedFile(format: string) {
@@ -82,11 +82,11 @@ export class BackendCommunicationService {
         const options = {
             headers: headers,
             responseType: 'blob' as 'json'
-        }
+        };
 
-        return this.http.get<any>(AppSettings.API_ENDPOINT + `/export/?query=` +
-            encodeURIComponent(this.currentQuery) + "&datasetId=" + this.SelectedDataset.dataset_id +
-            "&format=" + format, options);
+        return this.http.get<any>(AppSettings.API_ENDPOINT + '/export/?query=' +
+            encodeURIComponent(this.currentQuery) + '&datasetId=' + this.SelectedDataset.dataset_id +
+            '&format=' + format, options);
     }
 
     getPageCount() {
@@ -96,8 +96,8 @@ export class BackendCommunicationService {
         const options = {
             headers
         };
-        return this.http.get<any>(AppSettings.API_ENDPOINT + `/pages/?query=` + encodeURIComponent(this.currentQuery) +
-            "&pageSize=" + AppSettings.PAGE_SIZE + "&datasetId=" + this.SelectedDataset.dataset_id, options);
+        return this.http.get<any>(AppSettings.API_ENDPOINT + '/pages/?query=' + encodeURIComponent(this.currentQuery) +
+            '&pageSize=' + AppSettings.PAGE_SIZE + '&datasetId=' + this.SelectedDataset.dataset_id, options);
 
     }
 
@@ -108,8 +108,8 @@ export class BackendCommunicationService {
         const options = {
             headers
         };
-        return this.http.get<any>(AppSettings.API_ENDPOINT + `/count/?query=` + encodeURIComponent(this.currentQuery) +
-            "&datasetId=" + this.SelectedDataset.dataset_id, options);
+        return this.http.get<any>(AppSettings.API_ENDPOINT + '/count/?query=' + encodeURIComponent(this.currentQuery) +
+            '&datasetId=' + this.SelectedDataset.dataset_id, options);
 
 
     }
@@ -121,8 +121,8 @@ export class BackendCommunicationService {
         const options = {
             headers
         };
-        return this.http.get<any>(AppSettings.API_ENDPOINT + `/data/?page=` + 0 +
-            "&pageSize=" + 100 + "&query=" + encodeURIComponent(`SELECT * FROM ` + structure + ` WHERE id=` + id)
+        return this.http.get<any>(AppSettings.API_ENDPOINT + '/data/?page=' + 0 +
+            '&pageSize=' + 100 + '&query=' + encodeURIComponent('SELECT * FROM ' + structure + ' WHERE id=' + id)
             , options);
     }
 

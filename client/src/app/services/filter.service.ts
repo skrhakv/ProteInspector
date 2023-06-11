@@ -27,10 +27,10 @@ export class FilterService {
         const options = {
             headers
         };
-        return this.http.get<any>(AppSettings.API_ENDPOINT + `/biological-structures`, options);
+        return this.http.get<any>(AppSettings.API_ENDPOINT + '/biological-structures', options);
     }
 
-    selectBiologicalStructureType(biologicalStructureType: string): [string, Observable<any>] {
+    loadAvailableStructuralMetrics(biologicalStructureType: string): [string, Observable<any>] {
         this.selectedBiologicalStructureType = biologicalStructureType;
         const query: string = this.buildSelectStatement();
 
@@ -41,8 +41,8 @@ export class FilterService {
             headers
         };
 
-        const request = this.http.get<any>(AppSettings.API_ENDPOINT + `/biological-structures/` + biologicalStructureType, options);
-
+        const request = this.http.get<any>(AppSettings.API_ENDPOINT + '/biological-structures/' + biologicalStructureType, options);
+        
         return [query, request];
     }
 
@@ -62,32 +62,32 @@ export class FilterService {
             }
 
             if (!first)
-                query += " AND ";
+                query += ' AND ';
 
             else {
-                query += " WHERE ";
+                query += ' WHERE ';
                 first = false;
             }
 
             if (metric.type === 'string')
-                query += metric.name + " " + metric.comparator + " \"" + metric.value + "\"";
+                query += metric.name + ' ' + metric.comparator + ' "' + metric.value + '"';
 
             else
-                query += metric.name + " " + metric.comparator + " " + metric.value;
+                query += metric.name + ' ' + metric.comparator + ' ' + metric.value;
         }
 
         if (sortingMetric.name !== undefined) {
-            query += " ORDER BY " + sortingMetric.name + " " + sortingMetric.order;
+            query += ' ORDER BY ' + sortingMetric.name + ' ' + sortingMetric.order;
         }
 
         return query;
     }
 
     private validString(s: string): boolean {
-        return (s !== undefined && s !== null && s !== "");
+        return (s !== undefined && s !== null && s !== '');
     }
 
     private buildSelectStatement(): string {
-        return "SELECT * FROM " + this.selectedBiologicalStructureType;
+        return 'SELECT * FROM ' + this.selectedBiologicalStructureType;
     }
 }

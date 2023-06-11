@@ -23,7 +23,7 @@ const colors = [
     ColorNames.cyan,
     ColorNames.darkred,
     ColorNames.darkgreen
-]
+];
 
 function ProteinTheme(
     ctx: ThemeDataContext,
@@ -47,7 +47,7 @@ export const ProteinThemeProvider: ColorTheme.Provider<typeof ProteinThemeParams
     label: 'Protein Color Theme',
     category: ColorTheme.Category.Misc,
     factory: ProteinTheme,
-    getParams: () => { return ProteinThemeParams },
+    getParams: () => { return ProteinThemeParams; },
     defaultValues: PD.getDefaultValues(ProteinThemeParams),
     isApplicable: (ctx: ThemeDataContext) => true,
 };
