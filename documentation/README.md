@@ -17,3 +17,6 @@ The documentation is following a similar separation:
 
 ## Installation Instructions
 The instructions for installing the **ProteInspector** are available in the `/README.md` file located in the root folder.
+
+## User Documentation
+You can find user documentation at the [Wiki Pages](https://github.com/skrhakv/ProteInspector/wiki/ProteInspector).
