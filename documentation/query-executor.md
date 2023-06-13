@@ -27,3 +27,14 @@ To connect the C++ library with the Node.js, the **Node-API** addon was used. Th
 
 ## Testing
 The testing of the **Query Executor** is handled by the GoogleTest framework. The suite of unit tests is located in the `query-executor/src/tests` folder. To run the tests, one can simply use the `run-tests.sh` bash script.
+
+## Generate Documentation
+To analyze automatically generated documentation, one can use the `doxygen` package. FIrst, install the `doxygen` tool, on Fedora system, the following command can be used:
+```
+$> sudo dnf install doxygen doxygen-doxywizard
+```
+After successfuly installing the `doxygen` package, go to the `query-executor` folder and execute the following command to generate the documentation:
+```
+$> cd query-executor
+$> doxygen doxygen.conf
+```

@@ -50,3 +50,11 @@ Angular comes with a build-in support for the Jasmine testing framework. Sets of
 ```
 npm run test
 ```
+
+## Generate Documentation
+To analyze the automatically generated documentation, one can use the `compodoc` package:
+```
+$> cd client/
+$> npm install -g @compodoc/compodoc
+$> compodoc -p tsconfig.doc.json -s
+```
