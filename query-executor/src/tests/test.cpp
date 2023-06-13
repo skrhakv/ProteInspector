@@ -268,10 +268,10 @@ TEST(TestRegularWhereClauseParser, BasicAssertions)
 
     const hsql::SQLStatement *statement = parsedQuery.getStatement(0);
 
-    RegularWhereClauseParser parser(false);
+    RegularWhereClauseParser parser(false, 1);
     string result;
 
-    parser.Parse((const hsql::SelectStatement *)statement, "proteins", 1, result);
+    parser.Parse((const hsql::SelectStatement *)statement, "proteins", result);
 
     EXPECT_EQ(result, " WHERE (protein_transformations.protein_transformation_id = 6) AND transformations.dataset_id=1");
 };
@@ -287,9 +287,9 @@ TEST(TestWrapperWhereClauseParser, BasicAssertions)
     WrapperWhereClauseParser parser(0, 100);
     string result;
 
-    parser.Parse((const hsql::SelectStatement *)statement, "proteins", 1, result);
+    parser.Parse((const hsql::SelectStatement *)statement, "proteins", result);
 
-    EXPECT_EQ(result.substr(0, 86), " WHERE transformations.dataset_id=1 AND protein_transformations.transformation_id IN (");
+    EXPECT_EQ(result.substr(0, 53), " WHERE protein_transformations.transformation_id IN (");
 };
 
 TEST(TestCountMetricsParser, BasicAssertions)
