@@ -19,7 +19,9 @@ import { PluginContext } from 'molstar/lib/mol-plugin/context';
 import { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
 import { MolstarService } from './molstar.service';
 
-
+/**
+ * Service loads structures into the molstar plugin and superposes the structures. The methods are heavily inspired by the molstar codebase
+ */
 @Injectable({
     providedIn: 'root'
 })
@@ -27,6 +29,12 @@ export class SuperpositionService {
 
     constructor(private molstarService: MolstarService) { }
 
+    /**
+     * Loads and superposes the protein structures
+     * @param plugin molstar plugin
+     * @param proteinsToVisualize specified proteins and their mapping
+     * @param callback function to run after each load 
+     */
     public GenerateMolstarVisualisation(plugin: PluginUIContext, proteinsToVisualize: Protein[], callback: () => void) {
     plugin.dataTransaction(async () => {
         // load each structure

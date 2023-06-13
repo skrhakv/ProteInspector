@@ -17,15 +17,22 @@ import { Structure } from 'molstar/lib/mol-model/structure';
 import { setStructureOverpaint } from 'molstar/lib/mol-plugin-state/helpers/structure-overpaint';
 import { HighlightedDomain } from '../models/highlighted-domain.model';
 
-
+/**
+ * Handles the updating of the mol* plugin, for example highlighting, coloring, visibility, etc.
+ */
 @Injectable({
     providedIn: 'root'
 })
 export class MolstarService {
 
+    /**
+     * Extracts visualized protein sequences from the molstar plugin
+     * @param plugin molstar plugin
+     * @returns protein sequence array
+     */
     public GetChainSequences(plugin: PluginUIContext): ProteinSequence[] {
         const ProteinSequences: ProteinSequence[] = [];
-        // get the sequences from Mol*
+
         const structureOptions = getStructureOptions(plugin.state.data);
 
         // get sequence of each chain for each visualized structure 
@@ -59,11 +66,19 @@ export class MolstarService {
         return ProteinSequences;
     }
 
+    /**
+     * Reset the camera in the plugin
+     * @param plugin molstar plugin
+     */
     public async CameraReset(plugin: PluginUIContext) {
         await new Promise(res => requestAnimationFrame(res));
         PluginCommands.Camera.Reset(plugin);
     }
 
+    /**
+     * Color the proteins, each protein structure with a uniform color
+     * @param plugin molstar plugin
+     */
     public async ApplyUniformEntityColoring(plugin: PluginUIContext) {
         for (const [index, structure] of plugin.managers.structure.hierarchy.current.structures.entries()) {
             await plugin.managers.structure.component.updateRepresentationsTheme(structure.components, {
@@ -72,6 +87,12 @@ export class MolstarService {
         }
     }
 
+    /**
+     * Change visual representation of a protein 
+     * @param plugin molstar plugin
+     * @param index protein index
+     * @param structureRepresentationType representation type
+     */
     public async BuildRepresentation(plugin: PluginUIContext, index: number, structureRepresentationType: StructureRepresentationRegistry.BuiltIn) {
         // remove previous representation
         await plugin.managers.structure.component.removeRepresentations(plugin.managers.structure.hierarchy.current.structures[index].components);
@@ -103,6 +124,11 @@ export class MolstarService {
         this.CameraReset(plugin);
     }
 
+    /**
+     * Show only chains, not the whole structure
+     * @param plugin molstar plugin
+     * @param VisualizedProteins visualized proteins in the molstar plugin
+     */
     public async ShowChainsOnly(plugin: PluginUIContext, VisualizedProteins: Protein[]) {
         for (const [index, protein] of VisualizedProteins.entries()) {
             const data = plugin.managers.structure.hierarchy.current.structures[index]?.cell.obj?.data;
@@ -128,6 +154,13 @@ export class MolstarService {
         this.CameraReset(plugin);
     }
 
+    /**
+     * Highlight specified residue
+     * @param plugin molstar plugin
+     * @param proteinSequence
+     * @param chainID auth_asym_id
+     * @param position label_seq_id
+     */
     public HighlightResidue(plugin: PluginUIContext, proteinSequence: ProteinSequence, chainID: string, position: number) {
         const data = plugin.managers.structure.hierarchy.current.structures[proteinSequence.ProteinIndex]?.cell.obj?.data;
         if (!data) return;
@@ -145,10 +178,20 @@ export class MolstarService {
         plugin.managers.interactivity.lociHighlights.highlightOnly({ loci });
     }
 
+    /**
+     * clear highlighting
+     * @param plugin molstar plugin
+     */
     public ClearResidueHighlighting(plugin: PluginUIContext) {
         plugin.managers.interactivity.lociHighlights.clearHighlights();
     }
 
+    /**
+     * Overpaints specified domain to highlight it
+     * @param plugin molstar plugin
+     * @param domain 
+     * @param ToggleHighlighting true if apply highlight
+     */
     public async HighlightDomains(plugin: PluginUIContext, domain: HighlightedDomain, ToggleHighlighting = true) {
 
         const data = plugin.managers.structure.hierarchy.current.structures[domain.ProteinIndex]?.cell.obj?.data;
@@ -193,6 +236,11 @@ export class MolstarService {
         return sequenceToString;
     }
 
+    /**
+     * From string "X [auth Y]" extract the Y only
+     * @param authAsymIdLabelAsymIdCombined 
+     * @returns auth_asym_id
+     */
     private parseChainId(authAsymIdLabelAsymIdCombined: string): string {
         // sometimes the chain ID is in the format of "X [auth Y]", we want to retrieve the "Y" only
 

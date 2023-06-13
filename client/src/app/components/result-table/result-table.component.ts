@@ -11,26 +11,55 @@ import { saveAs } from 'file-saver';
     styleUrls: ['./result-table.component.scss']
 })
 export class ResultTableComponent implements OnInit, OnChanges {
-    // cancels previous requests (we don't want to spam the backend)
+    /**
+     * cancels previous requests (we don't want to spam the backend)
+     */
     protected ngUnsubscribe: Subject<void> = new Subject<void>();
 
-    // don't make any requests before the constructor terminates
+    /**
+     * don't make any requests before the constructor terminates 
+     */ 
     private makeRequests = false;
-
+    /**
+     * query inputed by the user
+     */
     @Input() query!: string;
     @Input() structure!: string;
 
+    /**
+     * true if user was empty
+     */
     public emptyResult = false;
+
     public pageSize: number;
 
+    /**
+     * Storage for all the column names returned by the backend
+     */
     public TableColumnNames: string[] = [];
+    /**
+     * Storage for all the data returned by the backend
+     */
     public TableData: any[] = [];
+    /**
+     * Ideal ordering of the columns
+     */
     public ColumnOrder: string[] = [];
 
     public pageNumber = 0;
     public pageCount = 0;
+
+    /**
+     * Number of results overall, not considering pagination
+     */
     public resultCount = 0;
+    /**
+     * True if valid transformation data was received from the backend
+     */
     public DataReady = true;
+    /**
+     * guard spamming the backend with requests
+     */
     public exportDisabled = false;
 
     constructor(
@@ -61,6 +90,11 @@ export class ResultTableComponent implements OnInit, OnChanges {
             this.sendQuery();
     }
 
+    /**
+     * Sends query to the backend and retrieves results
+     * @param setQueryIntoSession if we want to put the query into the session storage
+     * @param pageNum page number
+     */
     sendQuery(setQueryIntoSession = true, pageNum = 0) {
         if (setQueryIntoSession) {
             sessionStorage.setItem('query', this.query);
@@ -81,6 +115,10 @@ export class ResultTableComponent implements OnInit, OnChanges {
 
     }
 
+    /**
+     * Trigger result export
+     * @param format 'JSON' or 'CSV'
+     */
     ExportResults(format: string): void {
         // Export all the results, not just the page
 
@@ -107,6 +145,10 @@ export class ResultTableComponent implements OnInit, OnChanges {
         });
     }
 
+    /**
+     * triggers changing page
+     * @param page page number
+     */
     onPaginationChanged(page: number) {
         if (page >= this.pageCount || page < 0)
             return;
@@ -117,11 +159,15 @@ export class ResultTableComponent implements OnInit, OnChanges {
         this.getDataFromPage(this.pageNumber);
     }
 
+    /**
+     * Get data for particular page
+     * @param page page number
+     */
     getDataFromPage(page: number) {
         this.ngUnsubscribe.next();
         this.emptyResult = false;
 
-        this.backendCommunicationService.getQueryData(page, AppSettings.PAGE_SIZE).pipe(takeUntil(this.ngUnsubscribe)).subscribe({
+        this.backendCommunicationService.getQueryData(page).pipe(takeUntil(this.ngUnsubscribe)).subscribe({
             next: (data: any) => {
                 this.TableColumnNames = data['columnNames'];
                 this.TableData = data['results'];

@@ -4,6 +4,7 @@
 #include "where-clause-parser.hpp"
 #include "../order-by-parser.hpp"
 
+/// @brief Class generates regular WHERE clause 
 class RegularWhereClauseParser : public WhereClauseParser
 {
     bool orderBy;
@@ -17,6 +18,11 @@ public:
         includeDatasetId = true;
         datasetId = _datasetId;
     }
+    /// @brief parses tokens and generates the WHERE clause
+    /// @param selectStatement tokens
+    /// @param biologicalStructure proteins, domains, domainpairs, residues
+    /// @param result  container for converted part of the query
+    /// @return true if conversion successful
     bool Parse(const hsql::SelectStatement *selectStatement, const string &biologicalStructure, string &result) override;
 };
 

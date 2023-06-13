@@ -21,18 +21,47 @@ import { RcsbFv, RcsbFvDisplayConfigInterface, RcsbFvDisplayTypes, RcsbFvTrackDa
 export class ProteinVisualizationComponent implements OnInit {
     @Output() export = new EventEmitter<void>();
 
+    /**
+     * Instance of Molstar plugin
+     */
     private plugin!: PluginUIContext;
+    /**
+     * Storage for all the visualized proteins
+     */
     public proteins: Protein[] = [];
+    /**
+     * Storage for all the visualized domains
+     */
     public highlightedDomains: HighlightedDomain[] = [];
 
+    /**
+     * true if visualization is ready
+     */
     public VisualizationReady = false;
+    /**
+     * Show buttons only when data is ready
+     */
     public ShowHighlightButtons = false;
+    /**
+     * true if protein is visible, indexes match the 'proteins' array
+     */
     public IsProteinVisible: boolean[] = [];
+    /**
+     * [true if only chains are visible; text of the button in HTML]
+     */
     public OnlyChains: [visible: boolean, buttonText: string] = [false, 'Show Chains'];
+    /**
+     * Visual representation of the protein, indexes match the 'proteins' array
+     */
     public ProteinRepresentation: StructureRepresentationRegistry.BuiltIn[] = [];
 
-    // MSA data
+    /**
+     * MSA data, indexes match the 'proteins' array
+     */ 
     private ProteinSequences: ProteinSequence[] = [];
+    /**
+     * How far shift the sequence to make a correct alignment, indexes match the 'proteins' array
+     */
     private leftAlignmentShifts: number[] = [];
 
     constructor(
@@ -40,6 +69,11 @@ export class ProteinVisualizationComponent implements OnInit {
         public superpositionService: SuperpositionService
     ) { }
 
+    /**
+     * Visualize specified proteins and their domains
+     * @param proteins Proteins to visualize
+     * @param highlightedDomains Domains defitions inside of the proteins
+     */
     public updateVisualization(proteins: Protein[], highlightedDomains: HighlightedDomain[]) {
 
         this.proteins = proteins;
@@ -65,20 +99,35 @@ export class ProteinVisualizationComponent implements OnInit {
         this.ShowHighlightButtons = true;
     }
 
+    /**
+     * Trigger export event
+     */
     public onExportButtonClicked() {
         this.export.emit();
     }
 
+    /**
+     * Toggle highligting of a domain
+     * @param index the domain index, indexes match the 'highlightedDomains' array
+     */
     public async ToggleHighlighting(index: number) {
         this.molstarService.HighlightDomains(this.plugin, this.highlightedDomains[index]);
         this.highlightedDomains[index].Highlighted = !this.highlightedDomains[index].Highlighted;
     }
 
+    /**
+     * update highlighting according to the saved data (for example after changed representation, etc.)
+     */
     private async updateHighlighting() {
         for (const domain of this.highlightedDomains)
             await this.molstarService.HighlightDomains(this.plugin, domain, false);
     }
 
+    /**
+     * change representation of the protein
+     * @param index the protein index, indexes match the 'proteins' array
+     * @param structureRepresentationType new representation
+     */
     public async ChangeRepresentation(index: number, structureRepresentationType: string) {
         await this.molstarService.BuildRepresentation(this.plugin, index, structureRepresentationType as StructureRepresentationRegistry.BuiltIn);
 
@@ -95,6 +144,11 @@ export class ProteinVisualizationComponent implements OnInit {
         await this.updateHighlighting();
     }
 
+    /**
+     * get CSS styles to get suitable colors 
+     * @param index protein index
+     * @returns CSS styles
+     */
     getButtonStyles(index: number): Record<string, string> {
         const proteinColor = getColorHex(index);
 
@@ -106,6 +160,10 @@ export class ProteinVisualizationComponent implements OnInit {
         };
     }
 
+    /**
+     * Show/Hide protein
+     * @param index protein index, indexes match the 'proteins' array
+     */
     public async ToggleStructureVisibility(index: number) {
         if (this.IsProteinVisible[index])
             this.IsProteinVisible[index] = false;
@@ -116,6 +174,9 @@ export class ProteinVisualizationComponent implements OnInit {
         setSubtreeVisibility(this.plugin.state.data, this.plugin.managers.structure.hierarchy.current.structures[index].cell.transform.ref, !this.IsProteinVisible[index]);
     }
 
+    /**
+     * toggle between showing only chains or the whole structures
+     */
     public async ToggleChainVisibility() {
         // check whether show the whole structure or only the chains
         if (this.OnlyChains[0]) {
@@ -155,6 +216,9 @@ export class ProteinVisualizationComponent implements OnInit {
         }
     }
 
+    /**
+     * initiate molstar plugin
+     */
     async ngOnInit(): Promise<void> {
         // init Mol* plugin
         this.plugin = await createPluginUI(document.getElementById('molstar-viewer') as HTMLElement, {

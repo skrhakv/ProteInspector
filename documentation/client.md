@@ -8,10 +8,11 @@ The client web application is implemented in the `client/` folder. Four page lay
 The implementation is provided in the `client/src/app/` folder.
 
 ![Page Navigation](https://github.com/skrhakv/ProteInspector/blob/master/documentation/media/page-navigation.svg)
+
 The picture above shows the interaction between the user and the application with a special focus on the page layout.
 
 ## Components
-The Angular Components are budles of `.ts`, `.html` and `.css` files, which represent a visual component. The components are located in the `client/src/app/components` folder. `The page layouts are implemented using Angular components as follows:
+The Angular Components are bundles of `.ts`, `.html` and `.css` files, which represent a visual component. The components are located in the `client/src/app/components` folder. The page layouts are implemented using Angular components as follows:
 * `Landing Page` is implemented by the `HomeComponent`,
 * `Query Interface Page` - is implemented by the `QueryInterfaceComponent`, `ResultTableComponent` and `PaginationComponent`
 * `Detail View Page` - is implemented by the `DetailViewComponent` and `ProteinVisualizationComponent`

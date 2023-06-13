@@ -26,4 +26,4 @@ To load a new dataset, one can utilize scripts from the `database/insert-data/up
 $> python3 update-db.py name-of-the-dataset-file.json
 ```
 
-If the insertion was not successfull and the integrity of the database was damaged, one can use the `restore-from-db-backup.sh` script to restore the database from a `dump.sql` file
+If the insertion was not successful and the integrity of the database was damaged, one can use the `restore-from-db-backup.sh` script to restore the database from a `dump.sql` file

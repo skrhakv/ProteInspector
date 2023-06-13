@@ -10,8 +10,4 @@ import { BackendCommunicationService } from 'src/app/services/backend-communicat
 export class NavbarLayoutComponent {
 
     constructor(public backendCommunicationService: BackendCommunicationService) { }
-
-    selectDataset(dataset: Dataset) {
-        this.backendCommunicationService.selectDataset(dataset);
-    }
 }

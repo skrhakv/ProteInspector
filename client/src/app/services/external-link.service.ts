@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { AppSettings } from '../app-settings';
-
+/**
+ * Handles creation of links to external databases
+ */
 @Injectable({
     providedIn: 'root'
 })
@@ -34,10 +36,20 @@ export class ExternalLinkService {
         return AppSettings.CATH_DATABASE_URL + cathId;
     }
 
+    /**
+     * True if metric has external link
+     * @param metric 
+     * @returns 
+     */
     public HasExternalLink(metric: string): boolean {
         return metric in this.linkMapping;
     }
-
+    /**
+     * generates link to an external database
+     * @param metric metric name
+     * @param identificator database identificator (PDB ID for proteins, Uniprot ID for sequences, etc.)
+     * @returns 
+     */
     public GetExternalLink(metric: string, identificator: string): string {
         if (metric in this.linkMapping)
             return this.linkMapping[metric](identificator);

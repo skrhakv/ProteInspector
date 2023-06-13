@@ -7,6 +7,9 @@ import { DetailViewComponent } from './components/detail-view/detail-view.compon
 import { QueryInterfaceComponent } from './components/query-interface/query-interface.component';
 import { AboutComponent } from './components/about/about.component';
 
+/**
+ * Routing rules
+ */
 const routes: Routes = [
     {
         path: '',

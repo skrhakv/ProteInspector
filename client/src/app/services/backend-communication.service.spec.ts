@@ -110,7 +110,7 @@ describe('DatasetInfoService', () => {
             residue_count: '0'
         });
 
-        service.getQueryData(0, 100).subscribe({
+        service.getQueryData(0).subscribe({
             next: data => {
                 expect(data['results'][0]['AfterChainId']).toBe('A');
                 expect(data['columnNames'][0]).toBe('AfterChainId');

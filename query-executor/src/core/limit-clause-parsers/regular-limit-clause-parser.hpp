@@ -3,6 +3,7 @@
 
 #include "limit-clause-parser.hpp"
 
+/// @brief Class generates the LIMIT keywords to paginate the results
 class RegularLimitClauseParser : public LimitClauseParser
 {
     int page, pageSize;

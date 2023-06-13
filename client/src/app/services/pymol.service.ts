@@ -6,11 +6,16 @@ import { HighlightedDomain } from '../models/highlighted-domain.model';
 type StringMetricGetter = (p: Protein) => string;
 type NumberMetricGetter = (p: Protein) => number;
 
+/**
+ * Generates pymol script
+ */
 @Injectable({
     providedIn: 'root'
 })
 export class PymolService {
-
+    /**
+     * Generates pymol script according to the specified proteins and domains
+     */
     public GeneratePymolScript(visualizedProteins: Protein[], highlightedDomains: HighlightedDomain[]): string {
         let result: string = this.addGenericHeader();
 
@@ -47,7 +52,11 @@ export class PymolService {
 
         return result;
     }
-
+    /**
+     * Add python array with residues
+     * @param domains 
+     * @param proteinCount 
+     */
     private addResidues(domains: HighlightedDomain[], proteinCount: number): string {
         let result = '\nresidue_labels = [';
 
@@ -57,7 +66,11 @@ export class PymolService {
 
         return result;
     }
-
+    /**
+     * Add python array with domains
+     * @param domains 
+     * @param proteinCount 
+     */
     private addDomains(domains: HighlightedDomain[], proteinCount: number): string {
         let result = '\ndomain_spans = [';
 

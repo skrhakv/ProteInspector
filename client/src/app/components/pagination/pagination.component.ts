@@ -15,6 +15,8 @@ export class PaginationComponent {
     constructor()
     {
         const pageFromSession: string | null = sessionStorage.getItem('page');
+        
+        // check whether page was defined or not
         if(pageFromSession)
         {
             const parsedPage: number = parseInt(pageFromSession);

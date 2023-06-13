@@ -21,6 +21,8 @@ export class HomeComponent {
     }
 
     clickIntroductionButton() {
+
+        // timeout for the animation
         setTimeout(() => {
             this.router.navigate(['/search']);
         }, 600);

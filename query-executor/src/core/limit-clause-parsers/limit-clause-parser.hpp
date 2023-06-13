@@ -5,6 +5,7 @@
 
 using namespace std;
 
+/// @brief Parent class responsible for generating the LIMIT keywords to paginate the results
 class LimitClauseParser
 {
 public:

@@ -18,18 +18,51 @@ import { PymolService } from 'src/app/services/pymol.service';
 export class DetailViewComponent {
     @ViewChild(ProteinVisualizationComponent) visualization!: ProteinVisualizationComponent;
 
+    /**
+     * Storage for all the proteins in the transformation
+     */
     public VisualizedProteins: Protein[] = [];
+    /**
+     * Storage for all the domains in the transformation
+     */
     public highlightedDomains: HighlightedDomain[] = [];
 
+    /**
+     * Storage for all the column names returned from the backend
+     */
     public TableColumnNames: string[] = [];
+    /**
+     * Ideal ordering of the columns
+     */
     public ColumnOrder: string[] = [];
+    /**
+     * Storage for the main data of the visualized transformation (not the context!)
+     */
     public TableData!: Record<string, string>;
+    /**
+     * True if valid transformation data was received from the backend
+     */
     public DataReady = false;
 
+    /**
+     * Storage for all the context column names returned from the backend
+     */
     public ContextTableColumnNames!: Record<string, string[]>;
+    /**
+     * Storage for all the data data of the visualized transformation including the context transformations and structures
+     */
     public ContextTableData!: Record<string, Record<string, string>[]>;
+    /**
+     * Ideal ordering of the columns for the context tables
+     */
     public ContextColumnOrder: Record<string, string[]> = { 'proteins': [], 'domains': [], 'domainPairs': [], 'residues': [] };
+    /**
+     * True if valid context transformation data was received from the backend
+     */
     public ContextDataReady = false;
+    /**
+     * Mapping for the HTML texts
+     */
     public ContextStructureHeadingMapping: Record<string, string>[] = [
         {
             'key': 'proteins',
@@ -46,6 +79,9 @@ export class DetailViewComponent {
         }];
 
     public pageTitle!: string;
+    /**
+     * Structure: "proteins", "domains", "domainPairs", or "residues"
+     */
     public structure: string;
     private id!: number;
 
@@ -75,7 +111,7 @@ export class DetailViewComponent {
             this.pageTitle = 'Residue Transformation Details';
         }
 
-
+        // For better data consistency, load the dataset info first, then request data
         backendCommunicationService.getDatasetInfo().then(_ => {
             backendCommunicationService.getSpecificRow(this.id, this.structure.replace(/ /gi, '')
             ).subscribe(data => {
@@ -94,19 +130,17 @@ export class DetailViewComponent {
 
             backendCommunicationService.getTransformationContext(this.id, this.structure).subscribe({
                 next: (data) => {
+                    // conveniently store the data
                     const contextTableColumnNames = structuredClone(data);
                     const contextTableData = data;
-
                     Object.keys(contextTableColumnNames).forEach((key: any) => {
                         delete contextTableColumnNames[key]['results'];
                         contextTableColumnNames[key] = contextTableColumnNames[key]['columnNames'];
                     });
-
                     Object.keys(contextTableData).forEach((key: any) => {
                         delete contextTableData[key]['columnNames'];
                         contextTableData[key] = contextTableData[key]['results'];
                     });
-
                     this.ContextTableColumnNames = contextTableColumnNames;
                     this.ContextTableData = contextTableData;
 
@@ -163,7 +197,6 @@ export class DetailViewComponent {
                     this.visualization.updateVisualization(this.VisualizedProteins, this.highlightedDomains);
 
                     // only show columns from the this.backendCommunicationService.ColumnOrder in this order:
-
                     for (const biologicalStructure in this.ContextTableData) {
                         for (const columnName of this.backendCommunicationService.ColumnOrder) {
                             if (this.ContextTableColumnNames[biologicalStructure].includes(columnName)) {
@@ -184,7 +217,14 @@ export class DetailViewComponent {
             });
         });
     }
-
+    
+    /**
+     * Add domain to the domains storage
+     * @param prefix "Before" or "After"
+     * @param transformation transformation data
+     * @param structure biological structure
+     * @returns 
+     */
     updateHighlightedDomains(prefix: string, transformation: Record<string, any>, structure: string) {
         const index: number = this.VisualizedProteins.findIndex(
             protein =>
@@ -265,7 +305,9 @@ export class DetailViewComponent {
         }
     }
 
-
+    /**
+     * Prepares the data from the page, generates a PyMOL script and exports everything in a .zip file
+     */
     ExportDetails(): void {
         // create object with all the data
         const details = {

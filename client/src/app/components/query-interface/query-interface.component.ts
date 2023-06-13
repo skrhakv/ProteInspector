@@ -18,12 +18,30 @@ import { SortMetric } from 'src/app/models/sort-metric.model';
     ],
 })
 export class QueryInterfaceComponent {
+    /**
+     * query connected with the textbox
+     */
     public query = '';
+    /**
+     * query which is sent to the result table only when the query is finished 
+     */
     public finishedQuery = '';
     
+    /**
+     * Ideal ordering of the metrics in the dropdown menu
+     */
     public metricsOrder: string[] = [];
+    /**
+     * true if user selected a biological structure in the dropdown
+     */
     public isBiologicalStructureSelected = false;
+    /**
+     * selected metrics for building the 'WHERE' clause
+     */
     public DropdownMetricItems: Metric[] = [];
+    /**
+     * selected metrics for building 'ORDER BY' clause
+     */
     public SortingMetric: SortMetric = new SortMetric();
     public structure!: string;
     constructor(
@@ -39,11 +57,17 @@ export class QueryInterfaceComponent {
         this.finishedQuery = this.query;
     }
 
+    /**
+     * submit query using dropdown menus
+     */
     submitRegularQuery() {
         this.buildFilterQuery();
         this.updateQueryAttributes();
     }
 
+    /**
+     * submit query using the textbox
+     */
     submitCustomQuery() {
         this.isBiologicalStructureSelected = false;
         this.DropdownMetricItems = [];
@@ -64,6 +88,10 @@ export class QueryInterfaceComponent {
         else return '';
     }
 
+    /**
+     * User specified the biological structure using the dropdown menu
+     * @param event event
+     */
     selectBiologicalStructureType(event: any) {
         const biologicalStructureType = event.target.value;
         this.DropdownMetricItems = [];
@@ -86,6 +114,11 @@ export class QueryInterfaceComponent {
         });
     }
 
+    /**
+     * User specified a metric using the dropdown menu
+     * @param dropdownMetricItemsIndex Which metric is being updated/added
+     * @param event event
+     */
     specifyMetricName(dropdownMetricItemsIndex: number, event: any) {
         const metric = event.target.value;
         const type: string = this.filterService.AvailableMetrics[metric]['type'];
@@ -101,6 +134,10 @@ export class QueryInterfaceComponent {
         this.buildFilterQuery();
     }
 
+    /**
+     * User specified a sorting metric using the dropdown menu
+     * @param event 
+     */
     specifySortingMetric(event: any) {
         const metric = event.target.value;
         this.SortingMetric.name = metric;
@@ -108,6 +145,10 @@ export class QueryInterfaceComponent {
         this.buildFilterQuery();
     }
 
+    /**
+     * User deleted a metric in the dropdown menu
+     * @param event 
+     */
     removeMetric(index: number) {
         if (this.DropdownMetricItems[index].name !== undefined)
             this.DropdownMetricItems.splice(index, 1);
@@ -115,6 +156,9 @@ export class QueryInterfaceComponent {
         this.buildFilterQuery();
     }
 
+    /**
+     * delegates building the query to the filter service
+     */
     buildFilterQuery() {
         const buildedQuery = this.filterService.buildQuery(this.DropdownMetricItems, this.SortingMetric);
         this.query = buildedQuery;

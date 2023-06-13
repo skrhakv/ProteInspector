@@ -20,8 +20,11 @@ import { Router } from '@angular/router';
 export class DatasetSelectorComponent {
     constructor(public backendCommunicationService: BackendCommunicationService, private router: Router) {
     }
+
     selectDataset(dataset: Dataset) {
         this.backendCommunicationService.selectDataset(dataset);
+        
+        // timeout for the animation
         setTimeout(() => {
             this.router.navigate(['/search']);
         }, 600);
