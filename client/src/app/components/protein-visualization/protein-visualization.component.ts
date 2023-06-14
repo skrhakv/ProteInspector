@@ -26,6 +26,10 @@ export class ProteinVisualizationComponent implements OnInit {
      */
     private plugin!: PluginUIContext;
     /**
+     * Instance of RCSB 1D Viewer plugin
+     */
+    private rcsbViewer!: RcsbFv;
+    /**
      * Storage for all the visualized proteins
      */
     public proteins: Protein[] = [];
@@ -75,6 +79,9 @@ export class ProteinVisualizationComponent implements OnInit {
      * @param highlightedDomains Domains defitions inside of the proteins
      */
     public updateVisualization(proteins: Protein[], highlightedDomains: HighlightedDomain[]) {
+        this.plugin.clear();
+        if(this.rcsbViewer)
+            this.rcsbViewer.reset();
 
         this.proteins = proteins;
         this.highlightedDomains = highlightedDomains;
@@ -382,7 +389,7 @@ export class ProteinVisualizationComponent implements OnInit {
         };
 
         const elementId = 'pfv';
-        new RcsbFv({
+        this.rcsbViewer = new RcsbFv({
             rowConfigData: rcsbInput,
             boardConfigData: boardConfigData,
             elementId

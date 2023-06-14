@@ -5,6 +5,7 @@ import { BackendCommunicationService } from 'src/app/services/backend-communicat
 import { RouterTestingModule } from '@angular/router/testing';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { Component } from '@angular/core';
+import { of } from 'rxjs';
 
 describe('DetailViewComponent', () => {
     let component: DetailViewComponent;
@@ -306,12 +307,10 @@ describe('DetailViewComponent', () => {
                 {
                     provide: ActivatedRoute,
                     useValue: {
-                        snapshot: {
-                            paramMap: convertToParamMap({
-                                id: '1',
-                                structure: 'proteins',
-                            })
-                        }
+                        paramMap: of(convertToParamMap({
+                            id: '1',
+                            structure: 'proteins',
+                        }))
                     }
                 },
             ],

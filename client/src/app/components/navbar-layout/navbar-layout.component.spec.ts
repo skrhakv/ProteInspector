@@ -46,7 +46,7 @@ describe('NavbarLayoutComponent', () => {
             residue_count: '0',
         };
 
-        component.selectDataset(d);
+        component.backendCommunicationService.selectDataset(d);
         fixture.detectChanges();
 
         fixture.whenStable().then(() => {

@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, ParamMap } from '@angular/router';
 import { BackendCommunicationService } from 'src/app/services/backend-communication.service';
 import { ExternalLinkService } from 'src/app/services/external-link.service';
 import { Protein } from 'src/app/models/protein.model';
@@ -82,7 +82,7 @@ export class DetailViewComponent {
     /**
      * Structure: "proteins", "domains", "domainPairs", or "residues"
      */
-    public structure: string;
+    public structure!: string;
     private id!: number;
 
     constructor(
@@ -90,134 +90,137 @@ export class DetailViewComponent {
         public externalLinkService: ExternalLinkService,
         private pymolService: PymolService,
         private route: ActivatedRoute) {
+        this.route.paramMap.subscribe((params: ParamMap) => {
+            this.Clear();
 
-        this.id = parseInt(this.route.snapshot.paramMap.get('id') as string);
+            this.id = parseInt(params.get('id') as string);
 
-        this.structure = this.route.snapshot.paramMap.get('structure') as string;
+            this.structure = params.get('structure') as string;
 
-        if (this.structure === 'proteins') {
-            this.pageTitle = 'Protein Transformation Details';
-        }
-        else if (this.structure === 'domains') {
-            this.pageTitle = 'Domain Transformation Details';
-        }
+            if (this.structure === 'proteins') {
+                this.pageTitle = 'Protein Transformation Details';
+            }
+            else if (this.structure === 'domains') {
+                this.pageTitle = 'Domain Transformation Details';
+            }
 
-        else if (this.structure === 'domainpairs') {
-            this.structure = 'domainPairs';
-            this.pageTitle = 'Domain Pair Transformation Details';
-        }
+            else if (this.structure === 'domainpairs') {
+                this.structure = 'domainPairs';
+                this.pageTitle = 'Domain Pair Transformation Details';
+            }
 
-        else if (this.structure === 'residues') {
-            this.pageTitle = 'Residue Transformation Details';
-        }
+            else if (this.structure === 'residues') {
+                this.pageTitle = 'Residue Transformation Details';
+            }
 
-        // For better data consistency, load the dataset info first, then request data
-        backendCommunicationService.getDatasetInfo().then(_ => {
-            backendCommunicationService.getSpecificRow(this.id, this.structure.replace(/ /gi, '')
-            ).subscribe(data => {
-                this.TableColumnNames = data['columnNames'];
-                const tableData = data['results'];
-
-                // only show columns from the this.backendCommunicationService.ColumnOrder in this order:
-                for (const columnName of this.backendCommunicationService.ColumnOrder) {
-                    if (this.TableColumnNames.includes(columnName)) {
-                        this.ColumnOrder.push(columnName);
-                    }
-                }
-                this.TableData = tableData[0];
-                this.DataReady = true;
-            });
-
-            backendCommunicationService.getTransformationContext(this.id, this.structure).subscribe({
-                next: (data) => {
-                    // conveniently store the data
-                    const contextTableColumnNames = structuredClone(data);
-                    const contextTableData = data;
-                    Object.keys(contextTableColumnNames).forEach((key: any) => {
-                        delete contextTableColumnNames[key]['results'];
-                        contextTableColumnNames[key] = contextTableColumnNames[key]['columnNames'];
-                    });
-                    Object.keys(contextTableData).forEach((key: any) => {
-                        delete contextTableData[key]['columnNames'];
-                        contextTableData[key] = contextTableData[key]['results'];
-                    });
-                    this.ContextTableColumnNames = contextTableColumnNames;
-                    this.ContextTableData = contextTableData;
-
-                    // sort by BeforeSnapshot, AfterSnapshot
-                    for (const index in this.ContextTableData) {
-                        this.ContextTableData[index].sort((a: any, b: any) => {
-                            if (a['BeforeSnapshot'] < b['BeforeSnapshot'])
-                                return -1;
-                            if (a['BeforeSnapshot'] > b['BeforeSnapshot'])
-                                return 1;
-                            if (a['AfterSnapshot'] < b['AfterSnapshot'])
-                                return -1;
-                            if (a['AfterSnapshot'] > b['AfterSnapshot'])
-                                return 1;
-                            return 0;
-                        });
-                    }
-
-                    // pick data for the protein superposition and visualization
-                    for (const biologicalStructure in this.ContextTableData) {
-                        for (const transformation of this.ContextTableData[biologicalStructure]) {
-                            if (this.VisualizedProteins.filter(
-                                x =>
-                                    x.PdbCode === transformation['BeforePdbID'] &&
-                                    x.ChainId === transformation['BeforeChainId']).length === 0) {
-                                this.VisualizedProteins.push({
-                                    PdbCode: transformation['BeforePdbID'] as string,
-                                    ChainId: transformation['BeforeChainId'] as string,
-                                    LcsStart: Number(transformation['BeforeLcsStart']),
-                                    FileLocation: transformation['BeforeFileLocation'] as string,
-                                    LcsLength: Number(transformation['LcsLength'])
-                                });
-                            }
-                            this.updateHighlightedDomains('Before', transformation, biologicalStructure);
-
-                            if (this.VisualizedProteins.filter(
-                                x =>
-                                    x.PdbCode === transformation['AfterPdbID'] &&
-                                    x.ChainId === transformation['AfterChainId']).length === 0) {
-                                this.VisualizedProteins.push({
-                                    PdbCode: transformation['AfterPdbID'] as string,
-                                    ChainId: transformation['AfterChainId'] as string,
-                                    LcsStart: Number(transformation['AfterLcsStart']),
-                                    FileLocation: transformation['AfterFileLocation'] as string,
-                                    LcsLength: Number(transformation['LcsLength'])
-                                });
-                            }
-                            this.updateHighlightedDomains('After', transformation, biologicalStructure);
-                        }
-                    }
-                    // Update visualization
-                    if(!this.visualization)
-                        return;
-                    this.visualization.updateVisualization(this.VisualizedProteins, this.highlightedDomains);
+            // For better data consistency, load the dataset info first, then request data
+            backendCommunicationService.getDatasetInfo().then(_ => {
+                backendCommunicationService.getSpecificRow(this.id, this.structure.replace(/ /gi, '')
+                ).subscribe(data => {
+                    this.TableColumnNames = data['columnNames'];
+                    const tableData = data['results'];
 
                     // only show columns from the this.backendCommunicationService.ColumnOrder in this order:
-                    for (const biologicalStructure in this.ContextTableData) {
-                        for (const columnName of this.backendCommunicationService.ColumnOrder) {
-                            if (this.ContextTableColumnNames[biologicalStructure].includes(columnName)) {
-                                this.ContextColumnOrder[biologicalStructure].push(columnName);
+                    for (const columnName of this.backendCommunicationService.ColumnOrder) {
+                        if (this.TableColumnNames.includes(columnName)) {
+                            this.ColumnOrder.push(columnName);
+                        }
+                    }
+                    this.TableData = tableData[0];
+                    this.DataReady = true;
+                });
+
+                backendCommunicationService.getTransformationContext(this.id, this.structure).subscribe({
+                    next: (data) => {
+                        // conveniently store the data
+                        const contextTableColumnNames = structuredClone(data);
+                        const contextTableData = data;
+                        Object.keys(contextTableColumnNames).forEach((key: any) => {
+                            delete contextTableColumnNames[key]['results'];
+                            contextTableColumnNames[key] = contextTableColumnNames[key]['columnNames'];
+                        });
+                        Object.keys(contextTableData).forEach((key: any) => {
+                            delete contextTableData[key]['columnNames'];
+                            contextTableData[key] = contextTableData[key]['results'];
+                        });
+                        this.ContextTableColumnNames = contextTableColumnNames;
+                        this.ContextTableData = contextTableData;
+
+                        // sort by BeforeSnapshot, AfterSnapshot
+                        for (const index in this.ContextTableData) {
+                            this.ContextTableData[index].sort((a: any, b: any) => {
+                                if (a['BeforeSnapshot'] < b['BeforeSnapshot'])
+                                    return -1;
+                                if (a['BeforeSnapshot'] > b['BeforeSnapshot'])
+                                    return 1;
+                                if (a['AfterSnapshot'] < b['AfterSnapshot'])
+                                    return -1;
+                                if (a['AfterSnapshot'] > b['AfterSnapshot'])
+                                    return 1;
+                                return 0;
+                            });
+                        }
+
+                        // pick data for the protein superposition and visualization
+                        for (const biologicalStructure in this.ContextTableData) {
+                            for (const transformation of this.ContextTableData[biologicalStructure]) {
+                                if (this.VisualizedProteins.filter(
+                                    x =>
+                                        x.PdbCode === transformation['BeforePdbID'] &&
+                                        x.ChainId === transformation['BeforeChainId']).length === 0) {
+                                    this.VisualizedProteins.push({
+                                        PdbCode: transformation['BeforePdbID'] as string,
+                                        ChainId: transformation['BeforeChainId'] as string,
+                                        LcsStart: Number(transformation['BeforeLcsStart']),
+                                        FileLocation: transformation['BeforeFileLocation'] as string,
+                                        LcsLength: Number(transformation['LcsLength'])
+                                    });
+                                }
+                                this.updateHighlightedDomains('Before', transformation, biologicalStructure);
+
+                                if (this.VisualizedProteins.filter(
+                                    x =>
+                                        x.PdbCode === transformation['AfterPdbID'] &&
+                                        x.ChainId === transformation['AfterChainId']).length === 0) {
+                                    this.VisualizedProteins.push({
+                                        PdbCode: transformation['AfterPdbID'] as string,
+                                        ChainId: transformation['AfterChainId'] as string,
+                                        LcsStart: Number(transformation['AfterLcsStart']),
+                                        FileLocation: transformation['AfterFileLocation'] as string,
+                                        LcsLength: Number(transformation['LcsLength'])
+                                    });
+                                }
+                                this.updateHighlightedDomains('After', transformation, biologicalStructure);
                             }
                         }
-                        // manually add BeforeSnapshot, AfterSnapshot columns to the result table 
-                        this.ContextColumnOrder[biologicalStructure].push('BeforeSnapshot');
-                        this.ContextColumnOrder[biologicalStructure].push('AfterSnapshot');
+                        // Update visualization
+                        if (!this.visualization)
+                            return;
+                        this.visualization.updateVisualization(this.VisualizedProteins, this.highlightedDomains);
+
+                        // only show columns from the this.backendCommunicationService.ColumnOrder in this order:
+                        for (const biologicalStructure in this.ContextTableData) {
+                            for (const columnName of this.backendCommunicationService.ColumnOrder) {
+                                if (this.ContextTableColumnNames[biologicalStructure].includes(columnName)) {
+                                    this.ContextColumnOrder[biologicalStructure].push(columnName);
+                                }
+                            }
+                            // manually add BeforeSnapshot, AfterSnapshot columns to the result table 
+                            this.ContextColumnOrder[biologicalStructure].push('BeforeSnapshot');
+                            this.ContextColumnOrder[biologicalStructure].push('AfterSnapshot');
+                        }
+                        this.ContextDataReady = true;
+                    },
+                    error: (error) => {
+                        console.error(error);
+                        this.ContextTableData = {};
+                        this.ContextColumnOrder = {};
                     }
-                    this.ContextDataReady = true;
-                },
-                error: (error) => {
-                    console.error(error);
-                    this.ContextTableData = {};
-                    this.ContextColumnOrder = {};
-                }
+                });
             });
         });
     }
-    
+
     /**
      * Add domain to the domains storage
      * @param prefix "Before" or "After"
@@ -330,10 +333,23 @@ export class DetailViewComponent {
         const jszip = new JSZip();
         jszip.file('details.json', JSON.stringify(details));
         jszip.file('pymol-script.py', this.pymolService.GeneratePymolScript(this.VisualizedProteins, this.highlightedDomains));
-        
+
         // generate zip
         jszip.generateAsync({ type: 'blob' }).then(function (content: any) {
             saveAs(content, 'details.zip');
         });
+    }
+
+    private Clear() {
+        this.ContextDataReady = false;
+        this.DataReady = false;
+        this.ContextColumnOrder = { 'proteins': [], 'domains': [], 'domainPairs': [], 'residues': [] };
+        this.ContextTableData = {};
+        this.ContextTableColumnNames = {};
+        this.ColumnOrder = [];
+        this.TableData = {};
+        this.TableColumnNames = [];
+        this.highlightedDomains = [];
+        this.VisualizedProteins = [];
     }
 }
