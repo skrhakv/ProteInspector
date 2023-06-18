@@ -14,8 +14,13 @@ import { getModelEntityOptions, getChainOptions, getOperatorOptions, getStructur
 import { ProteinSequence } from '../models/protein-sequence.model';
 import { PluginStateObject as PSO } from 'molstar/lib/mol-plugin-state/objects';
 import { Structure } from 'molstar/lib/mol-model/structure';
-import { setStructureOverpaint } from 'molstar/lib/mol-plugin-state/helpers/structure-overpaint';
-import { HighlightedDomain } from '../models/highlighted-domain.model';
+import { clearStructureOverpaint, setStructureOverpaint } from 'molstar/lib/mol-plugin-state/helpers/structure-overpaint';
+import { clearStructureTransparency, setStructureTransparency } from 'molstar/lib/mol-plugin-state/helpers/structure-transparency';
+import { createStructureRepresentationParams } from 'molstar/lib/mol-plugin-state/helpers/structure-representation-params';
+import { StateTransforms } from 'molstar/lib/mol-plugin-state/transforms';
+import { ColorNames } from 'molstar/lib/mol-util/color/names';
+import { Color } from 'molstar/lib/mol-util/color';
+import { Expression } from 'molstar/lib/mol-script/language/expression';
 
 /**
  * Handles the updating of the mol* plugin, for example highlighting, coloring, visibility, etc.
@@ -24,7 +29,44 @@ import { HighlightedDomain } from '../models/highlighted-domain.model';
     providedIn: 'root'
 })
 export class MolstarService {
+    /**
+     * Renders new selection with specified parameters
+     * @param plugin molstar plugin
+     * @param structure structure from loading process
+     * @param state state from loading process
+     * @param selector selector for deleting the previous selection
+     * @param selection definition of the selection
+     * @param visible true if the selection should be visible
+     * @param color color of the new selection structure
+     * @param opacity opacity of the new selection structure
+     * @param representation representation of the new selection structure
+     * @returns selector for deleting this selection in the future call
+     */
+    async BuildSelection(plugin: PluginUIContext, structure: any, state: any, selector: any, selection: Expression,
+        visible: boolean, color: Color, opacity: number, representation: StructureRepresentationRegistry.BuiltIn) {
 
+        // remove previous selection
+        if (selector)
+            await PluginCommands.State.RemoveObject(plugin, { state: state.state, ref: selector });
+
+        if (!visible)
+            return;
+
+        const update = plugin.build();
+
+        const a = update.to(structure)
+            .apply(StateTransforms.Model.StructureSelectionFromExpression, { label: 'myLabel', expression: selection });
+        a.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(plugin, structure.data, {
+            type: representation,
+            color: 'uniform',
+            colorParams: { value: ColorNames.yellow },
+            typeParams: { alpha: opacity },
+
+        }));
+
+        await update.commit();
+        return a.selector;
+    }
     /**
      * Extracts visualized protein sequences from the molstar plugin
      * @param plugin molstar plugin
@@ -179,7 +221,7 @@ export class MolstarService {
     }
 
     /**
-     * clear highlighting
+     * clear residue highlighting
      * @param plugin molstar plugin
      */
     public ClearResidueHighlighting(plugin: PluginUIContext) {
@@ -187,37 +229,47 @@ export class MolstarService {
     }
 
     /**
-     * Overpaints specified domain to highlight it
-     * @param plugin molstar plugin
-     * @param domain 
-     * @param ToggleHighlighting true if apply highlight
+     * clear domain highlighting
+     * @param plugin 
+     * @param proteinIndex 
+     * @returns 
      */
-    public async HighlightDomains(plugin: PluginUIContext, domain: HighlightedDomain, ToggleHighlighting = true) {
+    public async ClearDomainHighlighting(plugin: PluginUIContext, proteinIndex: number) {
 
-        const data = plugin.managers.structure.hierarchy.current.structures[domain.ProteinIndex]?.cell.obj?.data;
+        const data = plugin.managers.structure.hierarchy.current.structures[proteinIndex]?.cell.obj?.data;
         if (!data) return;
 
-        const selection = Script.getStructureSelection(Q => Q.struct.filter.first([
-            Q.struct.generator.atomGroups({
-                'group-by': MS.struct.atomProperty.core.operatorName(),
-                'chain-test': Q.core.rel.eq([domain.ChainId, Q.struct.atomProperty.macromolecular.auth_asym_id()]),
-                'residue-test': Q.core.rel.inRange([Q.struct.atomProperty.macromolecular.label_seq_id(), domain.Start, domain.End]),
-                'entity-test': MS.core.rel.eq([MS.ammp('entityType'), 'polymer'])
-            })]), data);
+        const s = plugin.managers.structure.hierarchy.current.structures[proteinIndex];
+        const components = s.components;
+
+        await clearStructureOverpaint(plugin, components);
+        await clearStructureTransparency(plugin, components);}
+
+    /**
+     * Overpaints specified domain to highlight it
+     * @param plugin molstar plugin
+     * @param expr selection
+     * @param color 
+     * @param transparency 
+     * @param proteinIndex 
+     * @returns 
+     */
+    public async HighlightDomains(plugin: PluginUIContext, expr: Expression, color: Color, transparency: number, proteinIndex: number) {
+
+        const data = plugin.managers.structure.hierarchy.current.structures[proteinIndex]?.cell.obj?.data;
+        if (!data) return;
+
+        const selection = Script.getStructureSelection(Q => Q.struct.filter.first([expr]), data);
 
         const loci: StructureElement.Loci = StructureSelection.toLociWithSourceUnits(selection);
 
-        const s = plugin.managers.structure.hierarchy.current.structures[domain.ProteinIndex];
+        const s = plugin.managers.structure.hierarchy.current.structures[proteinIndex];
         const components = s.components;
-
-        let colorLevel: number;
-        if (domain.Highlighted != ToggleHighlighting)
-            colorLevel = domain.ColorLevel;
-        else colorLevel = 0;
 
         const lociGetter = async (s: Structure) => { return loci; };
 
-        await setStructureOverpaint(plugin, components, getLighterColor(domain.ProteinIndex, colorLevel), lociGetter);
+        await setStructureOverpaint(plugin, components, color, lociGetter);
+        await setStructureTransparency(plugin, components, transparency, lociGetter);
     }
 
 

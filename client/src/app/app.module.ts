@@ -19,6 +19,7 @@ import { AboutComponent } from './components/about/about.component';
 import { ResultTableComponent } from './components/result-table/result-table.component';
 import { PaginationComponent } from './components/pagination/pagination.component';
 import { ProteinVisualizationComponent } from './components/protein-visualization/protein-visualization.component';
+import { DetailViewButtonGroupComponent } from './components/detail-view-button-group/detail-view-button-group.component';
 
 @NgModule({
     declarations: [
@@ -31,7 +32,8 @@ import { ProteinVisualizationComponent } from './components/protein-visualizatio
         AboutComponent,
         ResultTableComponent,
         PaginationComponent,
-        ProteinVisualizationComponent
+        ProteinVisualizationComponent,
+        DetailViewButtonGroupComponent
     ],
     imports: [
         BrowserModule,

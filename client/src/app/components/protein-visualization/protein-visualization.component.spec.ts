@@ -123,19 +123,6 @@ describe('ProteinVisualizationComponent', () => {
         });
     });
 
-    it('toggles domain highlighting', () => {
-        fixture.whenStable().then(() => {
-            spyOn(component.molstarService, 'HighlightDomains');
-
-            component.ToggleHighlighting(0);
-            expect(component.highlightedDomains[0].Highlighted).toBeTruthy();
-            spyOn(component.molstarService, 'HighlightDomains');
-
-            component.ToggleHighlighting(0);
-            expect(component.highlightedDomains[0].Highlighted).toBeFalsy();
-
-        });
-    });
     it('toggles representation', () => {
         fixture.whenStable().then(() => {
             spyOn(component.molstarService, 'BuildRepresentation');

@@ -21,18 +21,6 @@
     white-space: normal;
 }
 
-.custom-btn-color:hover {
-    color: var(--register-button--color);
-    background-color: var(--register-button--background-color);
-}
-
-.custom-btn-color {
-    margin-top: 1px;
-    color: var(--register-button--hover-color);
-    background-color: var(--register-button--hover-background-color);
-    border: 1px solid var(--register-button--hover-color);
-}
-
 @media (max-width : 992px) {
     #button-panel {
         width: 200px;

@@ -6,3 +6,21 @@
 .clickable-link {
     cursor: pointer;
 }
+
+.custom-btn-color:hover {
+    color: var(--register-button--color);
+    background-color: var(--register-button--background-color);
+}
+
+.custom-btn-color:active {
+    color: var(--register-button--color) !important;
+    background-color: var(--register-button--background-color) !important;
+}
+
+
+.custom-btn-color {
+    margin-top: 1px;
+    color: var(--register-button--hover-color);
+    background-color: var(--register-button--hover-background-color);
+    border: 1px solid var(--register-button--hover-color);
+}

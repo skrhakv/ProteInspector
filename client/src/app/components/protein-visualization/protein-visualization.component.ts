@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, QueryList, ViewChildren } from '@angular/core';
 import { HighlightedDomain } from 'src/app/models/highlighted-domain.model';
 import { Protein } from 'src/app/models/protein.model';
 import { MolstarService } from 'src/app/services/molstar.service';
@@ -7,11 +7,15 @@ import { StructureRepresentationRegistry } from 'molstar/lib/mol-repr/structure/
 import { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
 import { DefaultPluginUISpec } from 'molstar/lib/mol-plugin-ui/spec';
 import { createPluginUI } from 'molstar/lib/mol-plugin-ui/react18';
-import { ProteinThemeProvider, getColorHex } from 'src/app/providers/protein-theme-provider';
+import { ProteinThemeProvider, getColorHexFromIndex } from 'src/app/providers/protein-theme-provider';
 import { AppSettings } from 'src/app/app-settings';
 import { ProteinSequence } from 'src/app/models/protein-sequence.model';
 import { SuperpositionService } from 'src/app/services/superposition.service';
 import { RcsbFv, RcsbFvDisplayConfigInterface, RcsbFvDisplayTypes, RcsbFvTrackDataElementInterface } from '@rcsb/rcsb-saguaro';
+import { Expression } from 'molstar/lib/mol-script/language/expression';
+import { MolScriptBuilder as MS } from 'molstar/lib/mol-script/language/builder';
+import { Utils } from 'src/app/utils';
+import { DetailViewButtonGroupComponent } from '../detail-view-button-group/detail-view-button-group.component';
 
 @Component({
     selector: 'app-protein-visualization',
@@ -22,9 +26,14 @@ export class ProteinVisualizationComponent implements OnInit {
     @Output() export = new EventEmitter<void>();
 
     /**
+     * container for every DetailViewButtonGroupComponent
+     */
+    @ViewChildren(DetailViewButtonGroupComponent) allHighlightButtons!: QueryList<DetailViewButtonGroupComponent>;
+
+    /**
      * Instance of Molstar plugin
      */
-    private plugin!: PluginUIContext;
+    public plugin!: PluginUIContext;
     /**
      * Instance of RCSB 1D Viewer plugin
      */
@@ -34,9 +43,19 @@ export class ProteinVisualizationComponent implements OnInit {
      */
     public proteins: Protein[] = [];
     /**
-     * Storage for all the visualized domains
+     * Storage for all the visualized substructures
      */
     public highlightedDomains: HighlightedDomain[] = [];
+
+    /**
+    * Storage for all the visualized substructures
+    */
+    public onlyDomains: HighlightedDomain[] = [];
+
+    /**
+    * Storage for all the visualized substructures
+    */
+    public onlyResidues: HighlightedDomain[] = [];
 
     /**
      * true if visualization is ready
@@ -61,7 +80,7 @@ export class ProteinVisualizationComponent implements OnInit {
 
     /**
      * MSA data, indexes match the 'proteins' array
-     */ 
+     */
     private ProteinSequences: ProteinSequence[] = [];
     /**
      * How far shift the sequence to make a correct alignment, indexes match the 'proteins' array
@@ -80,7 +99,7 @@ export class ProteinVisualizationComponent implements OnInit {
      */
     public updateVisualization(proteins: Protein[], highlightedDomains: HighlightedDomain[]) {
         this.plugin.clear();
-        if(this.rcsbViewer)
+        if (this.rcsbViewer)
             this.rcsbViewer.reset();
 
         this.proteins = proteins;
@@ -104,8 +123,33 @@ export class ProteinVisualizationComponent implements OnInit {
         this.superpositionService.GenerateMolstarVisualisation(this.plugin, this.proteins, callback);
 
         this.ShowHighlightButtons = true;
+
+        this.onlyDomains = highlightedDomains.filter(domain => !domain.IsResidueSpan);
+        this.onlyResidues = highlightedDomains.filter(domain => domain.IsResidueSpan); 
     }
 
+    /**
+     * generates molstar selection expression for a highlighting button
+     * @param domain domain
+     */
+    generateMolstarExpression(domain: HighlightedDomain): Expression {
+        return MS.struct.generator.atomGroups({
+            'group-by': MS.struct.atomProperty.core.operatorName(),
+            'chain-test': MS.core.rel.eq([domain.ChainId, MS.struct.atomProperty.macromolecular.auth_asym_id()]),
+            'residue-test': MS.core.rel.inRange([MS.struct.atomProperty.macromolecular.label_seq_id(), domain.Start, domain.End]),
+            'entity-test': MS.core.rel.eq([MS.ammp('entityType'), 'polymer'])
+        });
+    }
+
+    /**
+     * generates description text for a highlighting button
+     */
+    getDescriptionText(domain: HighlightedDomain) {
+        let result = domain.DomainName;
+        if(domain.IsResidueSpan)
+            result += ' ' + domain.Start + '-' + domain.End;
+        return result + ' (' + domain.PdbId + domain.ChainId + ')';
+    }
     /**
      * Trigger export event
      */
@@ -114,20 +158,13 @@ export class ProteinVisualizationComponent implements OnInit {
     }
 
     /**
-     * Toggle highligting of a domain
-     * @param index the domain index, indexes match the 'highlightedDomains' array
-     */
-    public async ToggleHighlighting(index: number) {
-        this.molstarService.HighlightDomains(this.plugin, this.highlightedDomains[index]);
-        this.highlightedDomains[index].Highlighted = !this.highlightedDomains[index].Highlighted;
-    }
-
-    /**
      * update highlighting according to the saved data (for example after changed representation, etc.)
      */
     private async updateHighlighting() {
-        for (const domain of this.highlightedDomains)
-            await this.molstarService.HighlightDomains(this.plugin, domain, false);
+        // rebuild highlighting in each DetailViewButtonGroupComponent
+        for(const b of this.allHighlightButtons)
+            b.rebuildStructure();
+
     }
 
     /**
@@ -157,14 +194,15 @@ export class ProteinVisualizationComponent implements OnInit {
      * @returns CSS styles
      */
     getButtonStyles(index: number): Record<string, string> {
-        const proteinColor = getColorHex(index);
+        return Utils.getButtonStyles(index);
+    }
 
-        return {
-            '--register-button--color': 'white',
-            '--register-button--background-color': proteinColor,
-            '--register-button--hover-color': proteinColor,
-            '--register-button--hover-background-color': 'white',
-        };
+    /**
+     * Gets hex color of the protein
+     * @param index protein index
+     */
+    getHexColor(index: number): string {
+        return getColorHexFromIndex(index);
     }
 
     /**
@@ -179,6 +217,7 @@ export class ProteinVisualizationComponent implements OnInit {
             this.IsProteinVisible[index] = true;
 
         setSubtreeVisibility(this.plugin.state.data, this.plugin.managers.structure.hierarchy.current.structures[index].cell.transform.ref, !this.IsProteinVisible[index]);
+        this.molstarService.CameraReset(this.plugin);
     }
 
     /**
@@ -313,9 +352,9 @@ export class ProteinVisualizationComponent implements OnInit {
                 const begin = length;
 
                 //define data for callback
-                const proteinSequence:ProteinSequence = this.ProteinSequences[i];
+                const proteinSequence: ProteinSequence = this.ProteinSequences[i];
                 const chainId = ChainSequence.ChainId;
-                
+
                 // append the chain data 
                 chains.push({
                     displayType: RcsbFvDisplayTypes.SEQUENCE,
@@ -326,11 +365,11 @@ export class ProteinVisualizationComponent implements OnInit {
                         value: ChainSequence.Sequence,
                         description: [`Chain ID: ${ChainSequence.ChainId}`]
                     }],
-                    elementEnterCallBack: ((d?: RcsbFvTrackDataElementInterface) => 
-                    { 
+                    elementEnterCallBack: ((d?: RcsbFvTrackDataElementInterface) => {
                         if (!d) return;
                         const position = d?.begin - begin;
-                        this.highlightResidue(proteinSequence, chainId, position); }),
+                        this.highlightResidue(proteinSequence, chainId, position);
+                    }),
                 });
 
                 // move the index for the next chain

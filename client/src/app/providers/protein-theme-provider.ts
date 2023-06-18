@@ -56,6 +56,15 @@ export function getLighterColor(index: number, lightenLevel: number): Color {
     return Color.lighten(colors[index], lightenLevel);
 }
 
-export function getColorHex(index: number): string {
+export function getColorHexFromIndex(index: number): string {
     return Color.toHexStyle(colors[index]);
+}
+
+export function getColorHex(color: Color): string {
+    return Color.toHexStyle(color);
+}
+
+export function getLighterColorFromHex(hex: string, lightenLevel: number): Color {
+    const color = Color.fromHexStyle(hex);
+    return Color.lighten(color, lightenLevel);
 }
