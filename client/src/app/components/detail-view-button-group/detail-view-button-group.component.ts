@@ -51,7 +51,7 @@ export class DetailViewButtonGroupComponent implements OnInit {
     private color!: Color;
     /**
      * selected opacity of the substructure
-     *  */ 
+     *  */
     private opacity = 1;
     /**
      * molstar selector for handling re-structuring 
@@ -71,9 +71,8 @@ export class DetailViewButtonGroupComponent implements OnInit {
      */
     ChangeRepresentation(representation: string) {
         this.representation = representation as StructureRepresentationRegistry.BuiltIn;
-
-        if (this.visible)
-            this.rebuildStructure();
+        this.visible = true;
+        this.rebuildStructure();
     }
     /**
      * toggles visibility of the whole structure
@@ -89,8 +88,8 @@ export class DetailViewButtonGroupComponent implements OnInit {
     ToggleOpacity(event: any) {
         this.opacity = event.target.value / 100;
 
-        if (this.visible)
-            this.rebuildStructure();
+        this.visible = true;
+        this.rebuildStructure();
     }
 
     /**
@@ -99,8 +98,8 @@ export class DetailViewButtonGroupComponent implements OnInit {
     ColorChanged(event: any) {
         this.color = Color.fromHexStyle(event.target.value);
 
-        if (this.visible)
-            this.rebuildStructure();
+        this.visible = true;
+        this.rebuildStructure();
     }
     /**
      * Pallete button clicked
@@ -129,8 +128,8 @@ export class DetailViewButtonGroupComponent implements OnInit {
             this.representation);
 
         await this.molstarService.ClearDomainHighlighting(this.plugin, this.proteinIndex);
-        
-        if(this.visible)
+
+        if (this.visible)
             await this.molstarService.HighlightDomains(this.plugin, this.molstarSelection, this.color, 1 - this.opacity, this.proteinIndex);
     }
 

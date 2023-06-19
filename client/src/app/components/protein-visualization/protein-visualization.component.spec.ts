@@ -38,8 +38,6 @@ describe('ProteinVisualizationComponent', () => {
                 'ChainId': 'A',
                 'Start': 9,
                 'End': 272,
-                'Highlighted': false,
-                'ColorLevel': 2,
                 'DomainName': '5b02A00',
                 'IsResidueSpan': false,
                 'ProteinIndex': 0
@@ -49,8 +47,6 @@ describe('ProteinVisualizationComponent', () => {
                 'ChainId': 'A',
                 'Start': 9,
                 'End': 272,
-                'Highlighted': false,
-                'ColorLevel': 2,
                 'DomainName': '5b02A00',
                 'IsResidueSpan': false,
                 'ProteinIndex': 1
@@ -60,8 +56,6 @@ describe('ProteinVisualizationComponent', () => {
                 'ChainId': 'A',
                 'Start': 1,
                 'End': 2,
-                'Highlighted': false,
-                'ColorLevel': 2,
                 'DomainName': 'active',
                 'IsResidueSpan': true,
                 'ProteinIndex': 0
@@ -71,8 +65,6 @@ describe('ProteinVisualizationComponent', () => {
                 'ChainId': 'A',
                 'Start': 1,
                 'End': 2,
-                'Highlighted': false,
-                'ColorLevel': 2,
                 'DomainName': 'active',
                 'IsResidueSpan': true,
                 'ProteinIndex': 1

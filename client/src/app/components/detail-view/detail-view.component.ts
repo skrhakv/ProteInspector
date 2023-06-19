@@ -239,18 +239,16 @@ export class DetailViewComponent {
                 x =>
                     x.PdbId === transformation[prefix + 'PdbID'] &&
                     x.ChainId === transformation[prefix + 'ChainId'] &&
-                    x.Start === transformation[prefix + 'DomainSpanStart'] &&
-                    x.End === transformation[prefix + 'DomainSpanEnd']).length !== 0)
+                    x.Start === Number(transformation[prefix + 'DomainSpanStart']) &&
+                    x.End === Number(transformation[prefix + 'DomainSpanEnd'])).length !== 0)
                 return;
 
         if (structure === 'domains') {
             this.highlightedDomains.push({
                 PdbId: transformation[prefix + 'PdbID'],
                 ChainId: transformation[prefix + 'ChainId'],
-                Start: transformation[prefix + 'DomainSpanStart'],
-                End: transformation[prefix + 'DomainSpanEnd'],
-                Highlighted: false,
-                ColorLevel: 2,
+                Start: Number(transformation[prefix + 'DomainSpanStart']),
+                End: Number(transformation[prefix + 'DomainSpanEnd']),
                 DomainName: transformation[prefix + 'DomainCathId'],
                 IsResidueSpan: false,
                 ProteinIndex: index
@@ -261,15 +259,13 @@ export class DetailViewComponent {
                 x =>
                     x.PdbId === transformation[prefix + 'PdbID'] &&
                     x.ChainId === transformation[prefix + 'ChainId'] &&
-                    x.Start === transformation[prefix + 'DomainSpanStart1'] &&
-                    x.End === transformation[prefix + 'DomainSpanEnd1']).length === 0)
+                    x.Start === Number(transformation[prefix + 'DomainSpanStart1']) &&
+                    x.End === Number(transformation[prefix + 'DomainSpanEnd1'])).length === 0)
                 this.highlightedDomains.push({
                     PdbId: transformation[prefix + 'PdbID'],
                     ChainId: transformation[prefix + 'ChainId'],
-                    Start: transformation[prefix + 'DomainSpanStart1'],
-                    End: transformation[prefix + 'DomainSpanEnd1'],
-                    Highlighted: false,
-                    ColorLevel: 2,
+                    Start: Number(transformation[prefix + 'DomainSpanStart1']),
+                    End: Number(transformation[prefix + 'DomainSpanEnd1']),
                     DomainName: transformation[prefix + 'DomainCathId1'],
                     IsResidueSpan: false,
                     ProteinIndex: index
@@ -278,16 +274,14 @@ export class DetailViewComponent {
                 x =>
                     x.PdbId === transformation[prefix + 'PdbID'] &&
                     x.ChainId === transformation[prefix + 'ChainId'] &&
-                    x.Start === transformation[prefix + 'DomainSpanStart2'] &&
-                    x.End === transformation[prefix + 'DomainSpanEnd2']).length === 0)
+                    x.Start === Number(transformation[prefix + 'DomainSpanStart2']) &&
+                    x.End === Number(transformation[prefix + 'DomainSpanEnd2'])).length === 0)
 
                 this.highlightedDomains.push({
                     PdbId: transformation[prefix + 'PdbID'],
                     ChainId: transformation[prefix + 'ChainId'],
-                    Start: transformation[prefix + 'DomainSpanStart2'],
-                    End: transformation[prefix + 'DomainSpanEnd2'],
-                    Highlighted: false,
-                    ColorLevel: 4,
+                    Start: Number(transformation[prefix + 'DomainSpanStart2']),
+                    End: Number(transformation[prefix + 'DomainSpanEnd2']),
                     DomainName: transformation[prefix + 'DomainCathId2'],
                     IsResidueSpan: false,
                     ProteinIndex: index
@@ -297,10 +291,8 @@ export class DetailViewComponent {
             this.highlightedDomains.push({
                 PdbId: transformation[prefix + 'PdbID'],
                 ChainId: transformation[prefix + 'ChainId'],
-                Start: transformation[prefix + 'ResidueStart'],
-                End: transformation[prefix + 'ResidueEnd'],
-                Highlighted: false,
-                ColorLevel: 2,
+                Start: Number(transformation[prefix + 'ResidueStart']),
+                End: Number(transformation[prefix + 'ResidueEnd']),
                 DomainName: transformation['Label'],
                 IsResidueSpan: true,
                 ProteinIndex: index

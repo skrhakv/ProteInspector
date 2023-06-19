@@ -125,7 +125,7 @@ export class ProteinVisualizationComponent implements OnInit {
         this.ShowHighlightButtons = true;
 
         this.onlyDomains = highlightedDomains.filter(domain => !domain.IsResidueSpan);
-        this.onlyResidues = highlightedDomains.filter(domain => domain.IsResidueSpan); 
+        this.onlyResidues = highlightedDomains.filter(domain => domain.IsResidueSpan);
     }
 
     /**
@@ -146,7 +146,7 @@ export class ProteinVisualizationComponent implements OnInit {
      */
     getDescriptionText(domain: HighlightedDomain) {
         let result = domain.DomainName;
-        if(domain.IsResidueSpan)
+        if (domain.IsResidueSpan)
             result += ' ' + domain.Start + '-' + domain.End;
         return result + ' (' + domain.PdbId + domain.ChainId + ')';
     }
@@ -162,7 +162,7 @@ export class ProteinVisualizationComponent implements OnInit {
      */
     private async updateHighlighting() {
         // rebuild highlighting in each DetailViewButtonGroupComponent
-        for(const b of this.allHighlightButtons)
+        for (const b of this.allHighlightButtons)
             b.rebuildStructure();
 
     }
@@ -416,6 +416,9 @@ export class ProteinVisualizationComponent implements OnInit {
             });
         }
 
+        // add residue spans and domains
+        this.loadSpansToMsaViewer(rcsbInput);
+
         const boardConfigData = {
             length: maxLength,
             trackWidth: 1300,
@@ -441,5 +444,113 @@ export class ProteinVisualizationComponent implements OnInit {
 
     clearResidueHighlighting(): void {
         this.molstarService.ClearResidueHighlighting(this.plugin);
+    }
+
+    /**
+     * loads domain/residue spans to the RCSB Vieewer array
+     * @param rcsbInput array for inputing the spans
+     */
+    loadSpansToMsaViewer(rcsbInput: Array<any>) {
+        const longestLeftBranch = Math.max(...this.leftAlignmentShifts);
+
+        // first add the domains
+        for (const span of this.highlightedDomains.filter(x => !x.IsResidueSpan)) {
+            const proteinSequence = this.ProteinSequences.filter(x => x.ProteinIndex === span.ProteinIndex).at(0);
+
+            if (!proteinSequence)
+                continue;
+
+            let begin: number = longestLeftBranch - this.leftAlignmentShifts[span.ProteinIndex];
+
+            for (const chain of proteinSequence.ChainSequences) {
+                if (chain.ChainId === span.ChainId) {
+                    begin += span.Start;
+                    const end = begin + span.End;
+
+                    rcsbInput.push({
+                        trackId: 'blockTrack',
+                        trackHeight: 20,
+                        trackColor: '#FFFFFF',
+                        displayType: 'block',
+                        displayColor: '#563C5C',
+                        rowTitle: `${span.DomainName} (${span.PdbId})`,
+                        trackData: [{
+                            begin: begin,
+                            end: end
+                        }]
+                    });
+                    break;
+                }
+
+                begin += chain.Sequence.length;
+            }
+        }
+
+        // now focus on the residue spans
+
+        // get unique [PDB ID + RESIDUE LABEL] pairs to merge the spans of the unique residue labels
+        const labelPerProteinWithSpans: Record<string,
+            [{ ChainId: string, Start: number, End: number, ProteinIndex: number }]
+        > = {};
+        Array.from(this.highlightedDomains.filter(x => x.IsResidueSpan), x => {
+            return {
+                name: `${x.DomainName} (${x.PdbId})`,
+                chain: {
+                    ChainId: x.ChainId,
+                    Start: x.Start,
+                    End: x.End,
+                    ProteinIndex: x.ProteinIndex
+                }
+            };
+        }).map(x => {
+            if (x.name in labelPerProteinWithSpans)
+                labelPerProteinWithSpans[x.name].push(x.chain);
+            else
+                labelPerProteinWithSpans[x.name] = [x.chain];
+        });
+
+        // add each unique [PDB ID + RESIDUE LABEL] pair to the RCSB viewer
+        for (const [name, chains] of Object.entries(labelPerProteinWithSpans)) {
+            if (chains.length < 1)
+                continue;
+
+            const proteinIndex = chains[0].ProteinIndex;
+
+            // get appropriate protein sequence data
+            const proteinSequence = this.ProteinSequences.filter(x => x.ProteinIndex === proteinIndex).at(0);
+
+            if (!proteinSequence)
+                continue;
+
+            let begin: number = longestLeftBranch - this.leftAlignmentShifts[proteinIndex];
+
+            // container for all the track data
+            const trackData: Array<{ begin: number, end: number }> = [];
+
+            // for each chain sequence add residue spans
+            for (const chain of proteinSequence.ChainSequences) {
+                // get spans of current chain
+                const currentChainSpans = chains.filter(x => x.ChainId === chain.ChainId);
+
+                // add each span to the trackData 
+                for (const span of currentChainSpans) {
+                    trackData.push({ begin: begin + span.Start, end: begin + span.End });
+                }
+
+                // shift the variable to the start of the next chain
+                begin += chain.Sequence.length;
+            }
+
+            // add all data into the viewer array
+            rcsbInput.push({
+                trackId: 'blockTrack',
+                trackHeight: 20,
+                trackColor: '#FFFFFF',
+                displayType: 'block',
+                displayColor: '#FF8C00',
+                rowTitle: `${name}`,
+                trackData: trackData
+            });
+        }
     }
 }
