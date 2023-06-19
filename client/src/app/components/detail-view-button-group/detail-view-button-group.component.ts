@@ -43,7 +43,7 @@ export class DetailViewButtonGroupComponent implements OnInit {
     /**
      * selected representation of the substructure
      */
-    public representation: StructureRepresentationRegistry.BuiltIn = 'cartoon';
+    @Input() representation: StructureRepresentationRegistry.BuiltIn = 'cartoon';
     /**
      * selected visibility of the substructure
      */

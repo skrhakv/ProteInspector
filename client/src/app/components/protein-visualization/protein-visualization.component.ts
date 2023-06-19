@@ -18,6 +18,8 @@ import { Utils } from 'src/app/utils';
 import { DetailViewButtonGroupComponent } from '../detail-view-button-group/detail-view-button-group.component';
 import { SetUtils } from 'molstar/lib/mol-util/set';
 import { AminoAcidNamesL, RnaBaseNames, DnaBaseNames, WaterNames } from 'molstar/lib/mol-model/structure/model/types';
+import { Script } from 'molstar/lib/mol-script/script';
+import { StructureSelection } from 'molstar/lib/mol-model/structure/query';
 @Component({
     selector: 'app-protein-visualization',
     templateUrl: './protein-visualization.component.html',
@@ -87,7 +89,10 @@ export class ProteinVisualizationComponent implements OnInit {
      * How far shift the sequence to make a correct alignment, indexes match the 'proteins' array
      */
     private leftAlignmentShifts: number[] = [];
-
+    /**
+     * true if at least one of the protein structures has ligands defined 
+     */
+    public proteinsWithLigands: { index: number, protein: Protein }[] = [];
     constructor(
         public molstarService: MolstarService,
         public superpositionService: SuperpositionService
@@ -119,6 +124,10 @@ export class ProteinVisualizationComponent implements OnInit {
         const callback = () => {
             this.VisualizationReady = true;
             this.LoadMsaViewer();
+            for (let i = 0; i < proteins.length; i++) {
+                if (this.existLigand(i))
+                    this.proteinsWithLigands.push({index: i, protein: proteins[i]});
+            }
         };
 
         this.superpositionService.GenerateMolstarVisualisation(this.plugin, this.proteins, callback);
@@ -142,14 +151,33 @@ export class ProteinVisualizationComponent implements OnInit {
         });
     }
 
-    generateLigandMolstarExpression() {
-        const StandardResidues = SetUtils.unionMany(
-            AminoAcidNamesL, RnaBaseNames, DnaBaseNames, WaterNames
-        );
+    /**
+     * Definition for distinguishing between residues and ligands
+     */
+    private StandardResidues = SetUtils.unionMany(
+        AminoAcidNamesL, RnaBaseNames, DnaBaseNames, WaterNames
+    );
 
+    /**
+     * decides whether ligands are defined for a particular protein
+     * @param proteinIndex index of the protein
+     * @returns true if ligands are defined
+     */
+    existLigand(proteinIndex: number): boolean {
+        const data = this.plugin.managers.structure.hierarchy.current.structures[proteinIndex]?.cell.obj?.data;
+        if (!data) return false;
+        const selection = Script.getStructureSelection(Q => MS.struct.generator.atomGroups({
+            'group-by': MS.struct.atomProperty.core.operatorName(),
+            'residue-test': MS.core.logic.not([MS.core.set.has([MS.set(...SetUtils.toArray(this.StandardResidues)), MS.ammp('label_comp_id')])]),
+        }), data);
+        return !StructureSelection.isEmpty(selection);
+    }
+
+
+    generateLigandMolstarExpression() {
         return MS.struct.generator.atomGroups({
             'group-by': MS.struct.atomProperty.core.operatorName(),
-            'residue-test': MS.core.logic.not([MS.core.set.has([MS.set(...SetUtils.toArray(StandardResidues)), MS.ammp('label_comp_id')])]),
+            'residue-test': MS.core.logic.not([MS.core.set.has([MS.set(...SetUtils.toArray(this.StandardResidues)), MS.ammp('label_comp_id')])]),
         });
     }
 
