@@ -31,7 +31,7 @@ describe('DetailViewButtonGroupComponent', () => {
 
         fixture = TestBed.createComponent(DetailViewButtonGroupComponent);
         component = fixture.componentInstance;
-        component.colorHex = '0000FF';
+        component.proteinColorHex = '0000FF';
         component.disabled = false;
         component.description = '5b0i01';
         component.visible = true;
@@ -54,7 +54,7 @@ describe('DetailViewButtonGroupComponent', () => {
             }
         };
         component.ColorChanged(event);
-        expect(component.colorHex).toBe(event.target.value);
+        expect(component.proteinColorHex).toBe(event.target.value);
     });
 
     it('should change opacity', () => {

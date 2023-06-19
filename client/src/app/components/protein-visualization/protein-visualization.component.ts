@@ -16,7 +16,8 @@ import { Expression } from 'molstar/lib/mol-script/language/expression';
 import { MolScriptBuilder as MS } from 'molstar/lib/mol-script/language/builder';
 import { Utils } from 'src/app/utils';
 import { DetailViewButtonGroupComponent } from '../detail-view-button-group/detail-view-button-group.component';
-
+import { SetUtils } from 'molstar/lib/mol-util/set';
+import { AminoAcidNamesL, RnaBaseNames, DnaBaseNames, WaterNames } from 'molstar/lib/mol-model/structure/model/types';
 @Component({
     selector: 'app-protein-visualization',
     templateUrl: './protein-visualization.component.html',
@@ -141,6 +142,17 @@ export class ProteinVisualizationComponent implements OnInit {
         });
     }
 
+    generateLigandMolstarExpression() {
+        const StandardResidues = SetUtils.unionMany(
+            AminoAcidNamesL, RnaBaseNames, DnaBaseNames, WaterNames
+        );
+
+        return MS.struct.generator.atomGroups({
+            'group-by': MS.struct.atomProperty.core.operatorName(),
+            'residue-test': MS.core.logic.not([MS.core.set.has([MS.set(...SetUtils.toArray(StandardResidues)), MS.ammp('label_comp_id')])]),
+        });
+    }
+
     /**
      * generates description text for a highlighting button
      */
@@ -149,6 +161,13 @@ export class ProteinVisualizationComponent implements OnInit {
         if (domain.IsResidueSpan)
             result += ' ' + domain.Start + '-' + domain.End;
         return result + ' (' + domain.PdbId + domain.ChainId + ')';
+    }
+
+    /**
+     * generates description text for a highlighting button
+     */
+    getLigandDescriptionText(protein: Protein) {
+        return `${protein.PdbCode} Ligands`;
     }
     /**
      * Trigger export event

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, ElementRef, Input, OnInit } from '@angular/core';
 import { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
 import { StructureRepresentationRegistry } from 'molstar/lib/mol-repr/structure/registry';
 import { Expression } from 'molstar/lib/mol-script/language/expression';
@@ -19,6 +19,9 @@ import { Utils } from 'src/app/utils';
 })
 export class DetailViewButtonGroupComponent implements OnInit {
     @Input() plugin!: PluginUIContext;
+    /**
+     * Molstar expression for selecting the substructure
+     */
     @Input() molstarSelection!: Expression;
     /**
      *  protein index where the substructure belongs
@@ -35,7 +38,7 @@ export class DetailViewButtonGroupComponent implements OnInit {
     /**
      * hex color in format: "FFFFFF"
      */
-    @Input() colorHex!: string;
+    @Input() proteinColorHex!: string;
 
     /**
      * selected representation of the substructure
@@ -59,7 +62,9 @@ export class DetailViewButtonGroupComponent implements OnInit {
     private selector!: any;
     constructor(
         private molstarService: MolstarService,
-        private superpositionService: SuperpositionService) { }
+        private superpositionService: SuperpositionService,
+        private elementRef: ElementRef
+    ) { }
 
     get GetRepresentationTypes(): Record<StructureRepresentationRegistry.BuiltIn, string> {
         return AppSettings.REPRESENTATION_TYPES;
@@ -105,7 +110,7 @@ export class DetailViewButtonGroupComponent implements OnInit {
      * Pallete button clicked
      */
     OnClickPalleteButton() {
-        const elem = document.getElementById('exampleColorInput');
+        const elem = this.elementRef.nativeElement.getElementsByTagName('input')[1];
 
         if (!elem)
             return;
@@ -116,7 +121,6 @@ export class DetailViewButtonGroupComponent implements OnInit {
         });
 
         elem.dispatchEvent(evt);
-
     }
 
     /**
@@ -127,10 +131,10 @@ export class DetailViewButtonGroupComponent implements OnInit {
             this.superpositionService.model, this.selector, this.molstarSelection, this.visible, this.color, this.opacity,
             this.representation);
 
-        await this.molstarService.ClearDomainHighlighting(this.plugin, this.proteinIndex);
-
         if (this.visible)
             await this.molstarService.HighlightDomains(this.plugin, this.molstarSelection, this.color, 1 - this.opacity, this.proteinIndex);
+        else
+            await this.molstarService.HighlightDomains(this.plugin, this.molstarSelection, Color.fromHexStyle(this.proteinColorHex), 0, this.proteinIndex);
     }
 
     /**
@@ -139,11 +143,11 @@ export class DetailViewButtonGroupComponent implements OnInit {
      * @returns CSS styles
      */
     getCssColor(): Record<string, string> {
-        return Utils.getCssColor(this.colorHex);
+        return Utils.getCssColor(this.proteinColorHex);
     }
 
     ngOnInit() {
         // get initial color of the substructure
-        this.color = getLighterColorFromHex(this.colorHex, 2);
+        this.color = getLighterColorFromHex(this.proteinColorHex, 2);
     }
 }

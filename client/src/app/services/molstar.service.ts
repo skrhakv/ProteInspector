@@ -229,28 +229,11 @@ export class MolstarService {
     }
 
     /**
-     * clear domain highlighting
-     * @param plugin 
-     * @param proteinIndex 
-     * @returns 
-     */
-    public async ClearDomainHighlighting(plugin: PluginUIContext, proteinIndex: number) {
-
-        const data = plugin.managers.structure.hierarchy.current.structures[proteinIndex]?.cell.obj?.data;
-        if (!data) return;
-
-        const s = plugin.managers.structure.hierarchy.current.structures[proteinIndex];
-        const components = s.components;
-
-        await clearStructureOverpaint(plugin, components);
-        await clearStructureTransparency(plugin, components);}
-
-    /**
      * Overpaints specified domain to highlight it
      * @param plugin molstar plugin
      * @param expr selection
      * @param color 
-     * @param transparency 
+     * @param transparency 0 means full visiblity, 1 mean no visibility
      * @param proteinIndex 
      * @returns 
      */
