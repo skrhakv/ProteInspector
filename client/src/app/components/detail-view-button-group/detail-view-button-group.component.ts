@@ -131,8 +131,10 @@ export class DetailViewButtonGroupComponent implements OnInit {
             this.superpositionService.model, this.selector, this.molstarSelection, this.visible, this.color, this.opacity,
             this.representation);
 
+        // if the highlighting should be visible, then use the specified color and transparency
         if (this.visible)
             await this.molstarService.HighlightDomains(this.plugin, this.molstarSelection, this.color, 1 - this.opacity, this.proteinIndex);
+        // if not, then "overpaint" the domain with the color of the protein and no transparency, resulting in unified surface with the rest of the protein
         else
             await this.molstarService.HighlightDomains(this.plugin, this.molstarSelection, Color.fromHexStyle(this.proteinColorHex), 0, this.proteinIndex);
     }
