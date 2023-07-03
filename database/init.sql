@@ -1,0 +1,1 @@
+GRANT ALL PRIVILEGES ON DATABASE apo_holo_db TO apo_holo_db;

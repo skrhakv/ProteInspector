@@ -1,0 +1,58 @@
+version: '3'
+services:
+    proteinspector-db:
+        container_name: proteinspector-db
+        build:
+            context: ./database/
+            dockerfile: Dockerfile
+        expose:
+            - "5432"
+        ports:
+            - "5432:5432"
+        networks:
+            - proteinspector-network
+        environment:
+            - POSTGRES_HOST_AUTH_METHOD=trust
+        hostname: postgres
+        shm_size: 1g
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U apo_holo_db"]
+            interval: 5s
+            timeout: 5s
+            retries: 10
+
+    proteinspector-api:
+        container_name: proteinspector-api
+        build:
+            context: .
+            dockerfile: ./api/Dockerfile
+        networks:
+            - proteinspector-network
+        depends_on:
+            proteinspector-db:
+                condition: service_healthy
+        links:
+            - proteinspector-db
+
+        expose:
+            - "3000"
+        ports:
+            - "3000:3000"
+        healthcheck:
+            test:
+                [
+                    "CMD",
+                    "curl",
+                    "-X",
+                    "GET",
+                    "-H",
+                    "Content---verbose type: application/json",
+                    "http://localhost:3000/data/?page=0&pageSize=100&query=SELECT%20*%20FROM%20proteins&datasetId=1"
+                ]
+            interval: 5s
+            timeout: 5s
+            retries: 10
+        restart: always
+networks:
+    proteinspector-network:
+        driver: bridge
