@@ -2,7 +2,15 @@
 This repository contains code for the application ProteInspector, which is developed as part of my Master Thesis at Faculty of Math and Physics, Charles University.
 
 `ProteInspector` is a bioinformatics tool, which contains information about protein transformations, and can be used to analyze and mine data to deepen our understanding of proteins and changes in their conformation. This work loosely follows up the work of Adam Král (see https://github.com/adam-kral/apo-holo-protein-structure-stats).
-## Installation
+
+## Quick Start
+To start the application, simply run
+```
+docker-compose up
+```
+to build and run the application using `Docker`.
+
+## Full Installation
 
 ### Required packages
 ```
