@@ -1,6 +1,7 @@
 #include <pqxx/pqxx>
 #include "db-client.hpp"
 #include "json-reader.hpp"
+#include <iostream>
 
 using namespace std;
 
@@ -21,8 +22,14 @@ DbClient::DbClient()
     connectionString += configData["password"];
     connectionString += " dbname=";
     connectionString += configData["dbname"];
-
-    connnection = new pqxx::connection(connectionString);
+    try
+    {
+        connnection = new pqxx::connection(connectionString);
+    }
+    catch (const std::exception &e)
+    {
+        cerr << e.what() << std::endl;
+    }
 }
 
 std::pair<pqxx::result, std::string> DbClient::ExecuteQuery(const std::string &parsedQuery)

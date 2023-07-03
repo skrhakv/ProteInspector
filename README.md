@@ -14,7 +14,7 @@ sudo apt-get -y install nlohmann-json3-dev
 sudo apt install postgresql
 ```
 ### Download sql dump
-Download database dump from this [link](http://proteinspector.projekty.ms.mff.cuni.cz/apo_holo_db_2023-04-05.sql).
+Download database dump from this [link](http://proteinspector.projekty.ms.mff.cuni.cz/data/dump.sql).
 
 ### Upload SQL dump to Postgres
 Relog as postgres and create new user and new database:
