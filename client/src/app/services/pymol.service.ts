@@ -124,7 +124,7 @@ converted_superposition_alignment_start = []
 
 # load all protein structures
 for i in range(len(proteins)):
-    cmd.load(protein_file_location[i], (proteins[i] + chains[i]), discrete=1)
+    cmd.load(protein_file_location[i], (proteins[i] + chains[i]))
     
     # we need to convert the label_seq_id to auth_seq_id
     stored.residues = []
