@@ -10,6 +10,9 @@ docker-compose up
 ```
 to build and run the application using `Docker`.
 
+## Docs
+Each part of the software framework is documented. The documentation can be found in the `/documentation` folder.
+
 ## Full Installation
 
 ### Required packages
