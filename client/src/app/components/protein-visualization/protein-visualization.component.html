@@ -1,9 +1,6 @@
-<div class="container-fluid">
-    <div id="pfv-parent" class="my-5">
-        <div class="row" id="pfv"></div>
-    </div>
+<div class="container-fluid mt-3">
     <div class="row" id="button-panel-row">
-        <div class="col-lg-2" id="button-panel">
+        <div class="col-lg-3 scroll-y" id="button-panel">
             <div class="container">
                 <div class="row">
                     <button type="button" class="btn btn-outline-dark" [disabled]="!VisualizationReady"
@@ -65,14 +62,19 @@
                             [representation]="'ball-and-stick'"></app-detail-view-button-group>
                     </div>
                 </div>
-                <div class="row mt-3">
+                <div class="row my-3">
                     <button type="button" class="btn btn-outline-dark" (click)="onExportButtonClicked()"
                         [disabled]="!VisualizationReady">Export</button>
                 </div>
             </div>
         </div>
-        <div class="col-lg-10">
-            <div id='molstar-viewer'>
+        <div class="col-lg-9">
+            <div class="container">
+                <div id='molstar-viewer' class="row">
+                </div>
+                <div id="pfv-parent" class="row">
+                    <div id="pfv"></div>
+                </div>
             </div>
         </div>
     </div>

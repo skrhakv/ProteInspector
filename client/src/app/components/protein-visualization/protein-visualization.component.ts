@@ -468,7 +468,8 @@ export class ProteinVisualizationComponent implements OnInit {
 
         const boardConfigData = {
             length: maxLength,
-            trackWidth: 1300,
+            rowTitleWidth: 100,
+            trackWidth: 1096,
             includeAxis: true,
             includeTooltip: true,
             highlightHoverElement: true,

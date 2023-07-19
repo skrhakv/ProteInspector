@@ -40,3 +40,9 @@
         overflow: scroll;
     }
 }
+
+.scroll-y {
+    overflow-y: auto;
+    position: relative;
+    max-height: 800px;
+}
