@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
 import { PluginCommands } from 'molstar/lib/mol-plugin/commands';
-import { ProteinThemeProvider, getLighterColor } from '../providers/protein-theme-provider';
+import { ProteinThemeProvider } from '../providers/protein-theme-provider';
 import { Protein } from '../models/protein.model';
 import { StructureElement, StructureSelection } from 'molstar/lib/mol-model/structure';
 import { StructureComponentRef } from 'molstar/lib/mol-plugin-state/manager/structure/hierarchy-state';
@@ -14,11 +14,10 @@ import { getModelEntityOptions, getChainOptions, getOperatorOptions, getStructur
 import { ProteinSequence } from '../models/protein-sequence.model';
 import { PluginStateObject as PSO } from 'molstar/lib/mol-plugin-state/objects';
 import { Structure } from 'molstar/lib/mol-model/structure';
-import { clearStructureOverpaint, setStructureOverpaint } from 'molstar/lib/mol-plugin-state/helpers/structure-overpaint';
-import { clearStructureTransparency, setStructureTransparency } from 'molstar/lib/mol-plugin-state/helpers/structure-transparency';
+import { setStructureOverpaint } from 'molstar/lib/mol-plugin-state/helpers/structure-overpaint';
+import { setStructureTransparency } from 'molstar/lib/mol-plugin-state/helpers/structure-transparency';
 import { createStructureRepresentationParams } from 'molstar/lib/mol-plugin-state/helpers/structure-representation-params';
 import { StateTransforms } from 'molstar/lib/mol-plugin-state/transforms';
-import { ColorNames } from 'molstar/lib/mol-util/color/names';
 import { Color } from 'molstar/lib/mol-util/color';
 import { Expression } from 'molstar/lib/mol-script/language/expression';
 
@@ -29,6 +28,61 @@ import { Expression } from 'molstar/lib/mol-script/language/expression';
     providedIn: 'root'
 })
 export class MolstarService {
+    /**
+ * Overpaints specified domain to highlight it
+ * @param plugin molstar plugin
+ * @param expr selection
+ * @param color 
+ * @param transparency 0 means full visiblity, 1 mean no visibility
+ * @param proteinIndex 
+ * @returns 
+ */
+    public async HighlightDomains(plugin: PluginUIContext, expr: Expression, color: Color, transparency: number, proteinIndex: number, showOriginalRepresentation: boolean) {
+
+        const data = plugin.managers.structure.hierarchy.current.structures[proteinIndex]?.cell.obj?.data;
+        if (!data) return;
+
+        const selection = Script.getStructureSelection(Q => Q.struct.filter.first([expr]), data);
+
+        const loci: StructureElement.Loci = StructureSelection.toLociWithSourceUnits(selection);
+
+        const s = plugin.managers.structure.hierarchy.current.structures[proteinIndex];
+        const components = s.components;
+
+        const lociGetter = async (s: Structure) => { return loci; };
+
+        await setStructureOverpaint(plugin, components, color, lociGetter);
+        await setStructureTransparency(plugin, components, transparency, lociGetter);
+
+        if(showOriginalRepresentation)
+            this.TweakStructureSelectionTransparency(plugin, selection, 0);
+        else
+            this.TweakStructureSelectionTransparency(plugin, selection, 1);
+
+    }
+
+    /**
+     * Changes transparency of structure selection
+     * @param plugin 
+     * @param selection 
+     * @param transparency 0 means full visibility, 1 means no visibility
+     */
+    private async TweakStructureSelectionTransparency(plugin: PluginUIContext, selection: StructureSelection, transparency: number) {
+
+        const struct = plugin.managers.structure.hierarchy.current.structures[0];
+        const repr = struct.components[0].representations[0].cell;
+
+        const bundle = StructureElement.Bundle.fromSelection(selection);
+
+        const update = plugin.build();
+
+        // if you have more than one repr to apply this to, do this for each of them
+        update.to(repr).apply(StateTransforms.Representation.TransparencyStructureRepresentation3DFromBundle, {
+            layers: [{ bundle, value: transparency }]
+        });
+        await update.commit();
+    }
+
     /**
      * Renders new selection with specified parameters
      * @param plugin molstar plugin
@@ -59,7 +113,7 @@ export class MolstarService {
         a.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(plugin, structure.data, {
             type: representation,
             color: 'uniform',
-            colorParams: { value: ColorNames.yellow },
+            colorParams: { value: color },
             typeParams: { alpha: opacity },
 
         }));
@@ -227,34 +281,6 @@ export class MolstarService {
     public ClearResidueHighlighting(plugin: PluginUIContext) {
         plugin.managers.interactivity.lociHighlights.clearHighlights();
     }
-
-    /**
-     * Overpaints specified domain to highlight it
-     * @param plugin molstar plugin
-     * @param expr selection
-     * @param color 
-     * @param transparency 0 means full visiblity, 1 mean no visibility
-     * @param proteinIndex 
-     * @returns 
-     */
-    public async HighlightDomains(plugin: PluginUIContext, expr: Expression, color: Color, transparency: number, proteinIndex: number) {
-
-        const data = plugin.managers.structure.hierarchy.current.structures[proteinIndex]?.cell.obj?.data;
-        if (!data) return;
-
-        const selection = Script.getStructureSelection(Q => Q.struct.filter.first([expr]), data);
-
-        const loci: StructureElement.Loci = StructureSelection.toLociWithSourceUnits(selection);
-
-        const s = plugin.managers.structure.hierarchy.current.structures[proteinIndex];
-        const components = s.components;
-
-        const lociGetter = async (s: Structure) => { return loci; };
-
-        await setStructureOverpaint(plugin, components, color, lociGetter);
-        await setStructureTransparency(plugin, components, transparency, lociGetter);
-    }
-
 
     private getStructure(ref: string, plugin: PluginUIContext) {
         const state = plugin.state.data;

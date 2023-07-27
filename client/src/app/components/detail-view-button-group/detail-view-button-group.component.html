@@ -1,13 +1,13 @@
 <button type="button" class="btn btn-outline-success custom-btn-color text-center" [disabled]="disabled"
     style="width: 30%; max-width: 30%; padding-left: 0;padding-right: 0;" (click)="ToggleVisibility()"
-    [ngStyle]='getCssColor()'>
+    [ngStyle]='buttonColorStyles'>
     <ng-container *ngIf="visible; else ShowText">Hide</ng-container>
     <ng-template #ShowText>Show</ng-template> {{description}}</button>
 
 <button type="button" class="btn btn-outline-success custom-btn-color" data-bs-toggle="collapse"
     data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample" data-bs-toggle="dropdown"
     aria-expanded="false" style="width: 18%; max-width: 18%;" [disabled]="disabled"
-    [ngStyle]='getCssColor()'>
+    [ngStyle]='buttonColorStyles'>
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-sun-fill"
         viewBox="0 0 16 16">
         <path
@@ -21,7 +21,7 @@
 
 <button type="button" id="colorPickerButton" class="btn btn-outline-success custom-btn-color"
     style="width: 18%; max-width: 18%;" (click)="OnClickPalleteButton()" [disabled]="disabled"
-    [ngStyle]='getCssColor()'>
+    [ngStyle]='buttonColorStyles'>
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-palette-fill"
         viewBox="0 0 16 16">
         <path
@@ -33,7 +33,7 @@ style="width: 80%; padding: 0; margin: 0;" title="Choose your color" (change)="C
 <div class="btn-group" role="group" style="width: 34%; max-width: 34%;">
     <button id="ChangeTypeGroupDrop" type="button" class="btn btn-outline-success dropdown-toggle custom-btn-color"
         data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" [disabled]="disabled"
-        [ngStyle]='getCssColor()'>
+        [ngStyle]='buttonColorStyles'>
         {{representation}}
     </button>
     <div class="dropdown-menu" aria-labelledby="ChangeTypeGroupDrop">

@@ -60,6 +60,9 @@ export class DetailViewButtonGroupComponent implements OnInit {
      * molstar selector for handling re-structuring 
      */
     private selector!: any;
+
+    public buttonColorStyles!: Record<string, string>;
+
     constructor(
         private molstarService: MolstarService,
         private superpositionService: SuperpositionService,
@@ -101,7 +104,9 @@ export class DetailViewButtonGroupComponent implements OnInit {
      * Color in color picker changed
      */
     ColorChanged(event: any) {
-        this.color = Color.fromHexStyle(event.target.value);
+        let colorHex: string = event.target.value;
+        this.color = Color.fromHexStyle(colorHex);
+        this.buttonColorStyles = Utils.getCssColor(colorHex);
 
         this.visible = true;
         this.rebuildStructure();
@@ -132,24 +137,20 @@ export class DetailViewButtonGroupComponent implements OnInit {
             this.representation);
 
         // if the highlighting should be visible, then use the specified color and transparency
-        if (this.visible)
-            await this.molstarService.HighlightDomains(this.plugin, this.molstarSelection, this.color, 1 - this.opacity, this.proteinIndex);
+        if (this.visible) {
+            await this.molstarService.HighlightDomains(this.plugin, this.molstarSelection, this.color, 1 - this.opacity, this.proteinIndex, false);
+        }
+
         // if not, then "overpaint" the domain with the color of the protein and no transparency, resulting in unified surface with the rest of the protein
-        else
-            await this.molstarService.HighlightDomains(this.plugin, this.molstarSelection, Color.fromHexStyle(this.proteinColorHex), 0, this.proteinIndex);
+        else {
+            await this.molstarService.HighlightDomains(this.plugin, this.molstarSelection, Color.fromHexStyle(this.proteinColorHex), 0, this.proteinIndex, true);
+        }
     }
 
-    /**
-     * get CSS styles to get suitable colors 
-     * @param index protein index
-     * @returns CSS styles
-     */
-    getCssColor(): Record<string, string> {
-        return Utils.getCssColor(this.proteinColorHex);
-    }
-
-    ngOnInit() {
+    ngOnInit(): void {
         // get initial color of the substructure
         this.color = getLighterColorFromHex(this.proteinColorHex, 2);
+        this.buttonColorStyles = Utils.getCssColor(this.proteinColorHex);
     }
+
 }
