@@ -4,7 +4,7 @@ import { StructureRepresentationRegistry } from 'molstar/lib/mol-repr/structure/
 import { Expression } from 'molstar/lib/mol-script/language/expression';
 import { Color } from 'molstar/lib/mol-util/color';
 import { AppSettings } from 'src/app/app-settings';
-import { getLighterColorFromHex } from 'src/app/providers/protein-theme-provider';
+import { colors, getLighterColorFromHex } from 'src/app/providers/protein-theme-provider';
 import { MolstarService } from 'src/app/services/molstar.service';
 import { SuperpositionService } from 'src/app/services/superposition.service';
 import { Utils } from 'src/app/utils';
@@ -48,11 +48,12 @@ export class DetailViewButtonGroupComponent implements OnInit {
      * selected visibility of the substructure
      */
     @Input() visible = false;
-
+    
     /**
      * true if button handles a whole protein
      */
     @Input() isWholeProtein: boolean = false;
+
     /**
      * selected color of the substructure
      */
@@ -113,6 +114,11 @@ export class DetailViewButtonGroupComponent implements OnInit {
         this.color = Color.fromHexStyle(colorHex);
         this.buttonColorStyles = Utils.getCssColor(colorHex);
 
+        if(this.isWholeProtein)
+        {
+            colors[this.proteinIndex] = this.color;
+        }
+        
         this.visible = true;
         this.rebuildStructure();
     }
@@ -149,10 +155,14 @@ export class DetailViewButtonGroupComponent implements OnInit {
         // if not, then "overpaint" the domain with the color of the protein and no transparency, resulting in unified surface with the rest of the protein
         else {
             if (this.isWholeProtein)
-                await this.molstarService.HighlightDomains(this.plugin, this.molstarSelection, Color.fromHexStyle(this.proteinColorHex), 0, this.proteinIndex, false);
+                await this.molstarService.HighlightDomains(this.plugin, this.molstarSelection, this.GetProteinHexColor(), 0, this.proteinIndex, false);
             else
-                await this.molstarService.HighlightDomains(this.plugin, this.molstarSelection, Color.fromHexStyle(this.proteinColorHex), 0, this.proteinIndex, true);
+                await this.molstarService.HighlightDomains(this.plugin, this.molstarSelection, this.GetProteinHexColor(), 0, this.proteinIndex, true);
         }
+    }
+
+    GetProteinHexColor() : Color {
+        return colors[this.proteinIndex];
     }
 
     ngOnInit(): void {

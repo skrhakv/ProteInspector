@@ -10,7 +10,7 @@ const ProteinThemeParams = {
     value: PD.Numeric(0),
 };
 
-const colors = [
+export let colors = [
     ColorNames.green,
     ColorNames.blue,
     ColorNames.orange,
