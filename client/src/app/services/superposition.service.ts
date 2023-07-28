@@ -83,12 +83,6 @@ export class SuperpositionService {
             const ligand = await plugin.builders.structure.tryCreateComponentStatic(this.structure[this.i], 'ligand');
             this.i++;
 
-            if (polymer) {
-                await plugin.builders.structure.representation.addRepresentation(polymer, {
-                    type: 'cartoon'
-                });
-            }
-
             if (ligand) {
                 await plugin.builders.structure.representation.addRepresentation(ligand, {
                     type: 'ball-and-stick'

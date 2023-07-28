@@ -6,28 +6,13 @@
                     <button type="button" class="btn btn-outline-dark" [disabled]="!VisualizationReady"
                         (click)="ToggleChainVisibility()">{{OnlyChains[1]}}</button>
                 </div>
-                <div class="row mt-3">
+                <div class="row mt-3" *ngIf="proteins.length > 0 && VisualizationReady">
                     <div class="btn-group-vertical" role="group">
-                        <div class="btn-group" *ngFor="let item of proteins; index as i">
-                            <button type="button" class="btn btn-outline-success custom-btn-color"
-                                [ngStyle]='getButtonStyles(i)' (click)="ToggleStructureVisibility(i)"
-                                [disabled]="!VisualizationReady">
-                                <ng-container *ngIf="IsProteinVisible[i]; else HideText">Hide</ng-container>
-                                <ng-template #HideText>Show</ng-template> {{item.PdbCode}}</button>
-                            <div class="btn-group" role="group" style="width: 50%; max-width: 50%;">
-                                <button id="ChangeTypeGroupDrop" type="button"
-                                    class="btn btn-outline-success dropdown-toggle custom-btn-color"
-                                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
-                                    [disabled]="!VisualizationReady" [ngStyle]='getButtonStyles(i)'>
-                                    {{GetRepresentationTypes[ProteinRepresentation[i]]}}
-                                </button>
-                                <div class="dropdown-menu" aria-labelledby="ChangeTypeGroupDrop">
-                                    <a class="dropdown-item"
-                                        *ngFor="let RepresentationType of GetRepresentationTypes |  keyvalue"
-                                        (click)="ChangeRepresentation(i, RepresentationType.key)">{{RepresentationType.value}}</a>
-                                </div>
-                            </div>
-                        </div>
+                        <app-detail-view-button-group *ngFor="let protein of proteins; let i = index" class="btn-group"
+                            [disabled]="!VisualizationReady" [plugin]="plugin"
+                            [molstarSelection]="generateMolstarExpressionForWholeProtein()" [proteinIndex]="i"
+                            [description]="protein.PdbCode" [proteinColorHex]="getHexColor(i)" [visible]="true"
+                            [isWholeProtein]="true"></app-detail-view-button-group>
                     </div>
                 </div>
                 <div class="row mt-3" *ngIf="ShowHighlightButtons && onlyDomains.length > 0 && VisualizationReady">

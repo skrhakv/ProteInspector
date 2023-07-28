@@ -47,7 +47,12 @@ export class DetailViewButtonGroupComponent implements OnInit {
     /**
      * selected visibility of the substructure
      */
-    public visible = false;
+    @Input() visible = false;
+
+    /**
+     * true if button handles a whole protein
+     */
+    @Input() isWholeProtein: boolean = false;
     /**
      * selected color of the substructure
      */
@@ -143,14 +148,23 @@ export class DetailViewButtonGroupComponent implements OnInit {
 
         // if not, then "overpaint" the domain with the color of the protein and no transparency, resulting in unified surface with the rest of the protein
         else {
-            await this.molstarService.HighlightDomains(this.plugin, this.molstarSelection, Color.fromHexStyle(this.proteinColorHex), 0, this.proteinIndex, true);
+            if (this.isWholeProtein)
+                await this.molstarService.HighlightDomains(this.plugin, this.molstarSelection, Color.fromHexStyle(this.proteinColorHex), 0, this.proteinIndex, false);
+            else
+                await this.molstarService.HighlightDomains(this.plugin, this.molstarSelection, Color.fromHexStyle(this.proteinColorHex), 0, this.proteinIndex, true);
         }
     }
 
     ngOnInit(): void {
         // get initial color of the substructure
-        this.color = getLighterColorFromHex(this.proteinColorHex, 2);
+        if (this.isWholeProtein)
+            this.color = getLighterColorFromHex(this.proteinColorHex, 0);
+        else
+            this.color = getLighterColorFromHex(this.proteinColorHex, 2);
+
         this.buttonColorStyles = Utils.getCssColor(this.proteinColorHex);
+        if (this.isWholeProtein)
+            this.rebuildStructure();
     }
 
 }

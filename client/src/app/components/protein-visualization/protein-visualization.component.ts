@@ -126,7 +126,7 @@ export class ProteinVisualizationComponent implements OnInit {
             this.LoadMsaViewer();
             for (let i = 0; i < proteins.length; i++) {
                 if (this.existLigand(i))
-                    this.proteinsWithLigands.push({index: i, protein: proteins[i]});
+                    this.proteinsWithLigands.push({ index: i, protein: proteins[i] });
             }
         };
 
@@ -147,6 +147,16 @@ export class ProteinVisualizationComponent implements OnInit {
             'group-by': MS.struct.atomProperty.core.operatorName(),
             'chain-test': MS.core.rel.eq([domain.ChainId, MS.struct.atomProperty.macromolecular.auth_asym_id()]),
             'residue-test': MS.core.rel.inRange([MS.struct.atomProperty.macromolecular.label_seq_id(), domain.Start, domain.End]),
+            'entity-test': MS.core.rel.eq([MS.ammp('entityType'), 'polymer'])
+        });
+    }
+
+    /**
+     * generates molstar selection expression for a whole protein to be used in a highlighting button
+     */
+    generateMolstarExpressionForWholeProtein(): Expression {
+        return MS.struct.generator.atomGroups({
+            'group-by': MS.struct.atomProperty.core.operatorName(),
             'entity-test': MS.core.rel.eq([MS.ammp('entityType'), 'polymer'])
         });
     }
@@ -184,11 +194,11 @@ export class ProteinVisualizationComponent implements OnInit {
     /**
      * generates description text for a highlighting button
      */
-    getDescriptionText(domain: HighlightedDomain) {
-        let result = domain.DomainName;
-        if (domain.IsResidueSpan)
-            result += ' ' + domain.Start + '-' + domain.End;
-        return result + ' (' + domain.PdbId + domain.ChainId + ')';
+    getDescriptionText(structure: HighlightedDomain) {
+        let result = structure.DomainName;
+        if (structure.IsResidueSpan)
+            result += ' ' + structure.Start + '-' + structure.End;
+        return result + ' (' + structure.PdbId + structure.ChainId + ')';
     }
 
     /**
