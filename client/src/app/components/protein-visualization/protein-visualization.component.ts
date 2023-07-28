@@ -408,10 +408,6 @@ export class ProteinVisualizationComponent implements OnInit {
 
                 const begin = length;
 
-                //define data for callback
-                const proteinSequence: ProteinSequence = this.ProteinSequences[i];
-                const chainId = ChainSequence.ChainId;
-
                 // append the chain data 
                 chains.push({
                     displayType: RcsbFvDisplayTypes.SEQUENCE,
@@ -421,12 +417,7 @@ export class ProteinVisualizationComponent implements OnInit {
                         begin: begin,
                         value: ChainSequence.Sequence,
                         description: [`Chain ID: ${ChainSequence.ChainId}`]
-                    }],
-                    elementEnterCallBack: ((d?: RcsbFvTrackDataElementInterface) => {
-                        if (!d) return;
-                        const position = d?.begin - begin;
-                        this.highlightResidue(proteinSequence, chainId, position);
-                    }),
+                    }]
                 });
 
                 // move the index for the next chain
@@ -483,9 +474,80 @@ export class ProteinVisualizationComponent implements OnInit {
             includeAxis: true,
             includeTooltip: true,
             highlightHoverElement: true,
-            hideInnerBorder: true,
             hideRowGlow: false,
-            elementLeaveCallBack: (() => { this.clearResidueHighlighting(); })
+            elementLeaveCallBack: (() => { this.clearResidueHighlighting(); }),
+            highlightHoverCallback: ((n: RcsbFvTrackDataElementInterface[]) => {
+                this.clearResidueHighlighting();
+                if (n.length > 0) {
+                    // position in the MSA viewer (zero-based)
+                    let position = n[0].begin;
+
+                    // if single residue was highlighted
+                    if (n[0].end === undefined) {
+                        // check that we are in the span of the sequence
+                        if (position > 0 && position < maxLength) {
+
+                            for (let i = 0; i < this.leftAlignmentShifts.length; i++) {
+                                // where is the start of the sequence in the MSA viewer (as the sequence might be shifted)
+                                let begin: number = longestLeftBranch - this.leftAlignmentShifts[i];
+                                // position of the residue inside of the whole sequence
+                                let residuePosition: number = position - begin;
+
+                                if (residuePosition < 0)
+                                    continue;
+
+                                // loop over the chains to determine in which chain the residue lies
+                                for (let chain of this.ProteinSequences[i].ChainSequences) {
+
+                                    if (residuePosition - chain.Sequence.length < 0) {
+                                        this.highlightResidue(this.ProteinSequences[i], chain.ChainId, residuePosition);
+                                        break;
+                                    }
+                                    else
+                                        residuePosition -= chain.Sequence.length;
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        // end position of the region in the MSA viewer
+                        let end = n[0].end;
+                        for (let i = 0; i < this.leftAlignmentShifts.length; i++) {
+                            // where is the start of the sequence in the MSA viewer (as the sequence might be shifted)
+                            let begin: number = longestLeftBranch - this.leftAlignmentShifts[i];
+                            // position of the residue inside of the whole sequence
+                            let residuePositionStart: number = position - begin;
+                            let residuePositionEnd: number = end - begin;
+                            if (residuePositionStart < 0)
+                                continue;
+
+                            // loop over the chains to determine in which chain the residue lies
+                            for (let chain of this.ProteinSequences[i].ChainSequences) {
+
+                                if (residuePositionStart - chain.Sequence.length < 0) {
+                                    if (residuePositionEnd <= chain.Sequence.length) {
+                                        this.highlightResidue(this.ProteinSequences[i], chain.ChainId, residuePositionStart, residuePositionEnd);
+                                        console.log( residuePositionStart,residuePositionEnd)
+                                        break;
+                                    }
+                                    else {
+                                        this.highlightResidue(this.ProteinSequences[i], chain.ChainId, residuePositionStart, residuePositionEnd);
+                                        console.log( residuePositionStart,residuePositionEnd);
+
+                                        residuePositionStart = 0;
+                                        residuePositionEnd -= chain.Sequence.length;
+                                    }
+                                }
+                                else {
+                                    residuePositionStart -= chain.Sequence.length;
+                                    residuePositionEnd -= chain.Sequence.length;
+                                }
+                            }
+                        }
+                    }
+                }
+            }),
+            highlightHoverPosition: true
         };
 
         const elementId = 'pfv';
@@ -496,8 +558,8 @@ export class ProteinVisualizationComponent implements OnInit {
         });
     }
 
-    highlightResidue(proteinSequence: ProteinSequence, chainID: string, position: number): void {
-        this.molstarService.HighlightResidue(this.plugin, proteinSequence, chainID, position);
+    highlightResidue(proteinSequence: ProteinSequence, chainID: string, position: number, end?: number): void {
+        this.molstarService.HighlightResidue(this.plugin, proteinSequence, chainID, position, end);
     }
 
     clearResidueHighlighting(): void {

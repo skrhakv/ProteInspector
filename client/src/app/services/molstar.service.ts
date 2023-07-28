@@ -257,7 +257,7 @@ export class MolstarService {
      * @param chainID auth_asym_id
      * @param position label_seq_id
      */
-    public HighlightResidue(plugin: PluginUIContext, proteinSequence: ProteinSequence, chainID: string, position: number) {
+    public HighlightResidue(plugin: PluginUIContext, proteinSequence: ProteinSequence, chainID: string, position: number, end?: number) {
         const data = plugin.managers.structure.hierarchy.current.structures[proteinSequence.ProteinIndex]?.cell.obj?.data;
         if (!data) return;
 
@@ -265,13 +265,13 @@ export class MolstarService {
             Q.struct.generator.atomGroups({
                 'group-by': MS.struct.atomProperty.core.operatorName(),
                 'chain-test': Q.core.rel.eq([chainID, Q.struct.atomProperty.macromolecular.auth_asym_id()]),
-                'residue-test': Q.core.rel.eq([Q.struct.atomProperty.macromolecular.label_seq_id(), position + 1, position + 1]),
+                'residue-test': Q.core.rel.inRange([Q.struct.atomProperty.macromolecular.label_seq_id(), position + 1, end ? end : position + 1]),
                 'entity-test': MS.core.rel.eq([MS.ammp('entityType'), 'polymer'])
             })]), data);
 
         const loci: StructureElement.Loci = StructureSelection.toLociWithSourceUnits(selection);
 
-        plugin.managers.interactivity.lociHighlights.highlightOnly({ loci });
+        plugin.managers.interactivity.lociHighlights.highlight({ loci });
     }
 
     /**
