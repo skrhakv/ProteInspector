@@ -93,6 +93,7 @@ export class ProteinVisualizationComponent implements OnInit {
      * true if at least one of the protein structures has ligands defined 
      */
     public proteinsWithLigands: { index: number, protein: Protein }[] = [];
+
     constructor(
         public molstarService: MolstarService,
         public superpositionService: SuperpositionService
@@ -217,41 +218,11 @@ export class ProteinVisualizationComponent implements OnInit {
     /**
      * update highlighting according to the saved data (for example after changed representation, etc.)
      */
-    private async updateHighlighting() {
+    public async updateAllStructures() {
         // rebuild highlighting in each DetailViewButtonGroupComponent
         for (const b of this.allHighlightButtons)
-            b.rebuildStructure();
+            b.updateStructure();
 
-    }
-
-    /**
-     * change representation of the protein
-     * @param index the protein index, indexes match the 'proteins' array
-     * @param structureRepresentationType new representation
-     */
-    public async ChangeRepresentation(index: number, structureRepresentationType: string) {
-        await this.molstarService.BuildRepresentation(this.plugin, index, structureRepresentationType as StructureRepresentationRegistry.BuiltIn);
-
-        if (!this.IsProteinVisible[index])
-            setSubtreeVisibility(this.plugin.state.data, this.plugin.managers.structure.hierarchy.current.structures[index].cell.transform.ref, !this.IsProteinVisible[index]);
-
-
-        if (this.OnlyChains[0]) {
-            await this.molstarService.ShowChainsOnly(this.plugin, this.proteins);
-        }
-
-        this.ProteinRepresentation[index] = structureRepresentationType as StructureRepresentationRegistry.BuiltIn;
-
-        await this.updateHighlighting();
-    }
-
-    /**
-     * get CSS styles to get suitable colors 
-     * @param index protein index
-     * @returns CSS styles
-     */
-    getButtonStyles(index: number): Record<string, string> {
-        return Utils.getButtonStyles(index);
     }
 
     /**
@@ -260,21 +231,6 @@ export class ProteinVisualizationComponent implements OnInit {
      */
     getHexColor(index: number): string {
         return getColorHexFromIndex(index);
-    }
-
-    /**
-     * Show/Hide protein
-     * @param index protein index, indexes match the 'proteins' array
-     */
-    public async ToggleStructureVisibility(index: number) {
-        if (this.IsProteinVisible[index])
-            this.IsProteinVisible[index] = false;
-
-        else
-            this.IsProteinVisible[index] = true;
-
-        setSubtreeVisibility(this.plugin.state.data, this.plugin.managers.structure.hierarchy.current.structures[index].cell.transform.ref, !this.IsProteinVisible[index]);
-        this.molstarService.CameraReset(this.plugin);
     }
 
     /**
@@ -301,8 +257,6 @@ export class ProteinVisualizationComponent implements OnInit {
             this.OnlyChains[0] = true;
             this.OnlyChains[1] = 'Show Full Structures';
         }
-
-        await this.updateHighlighting();
     }
 
     private UpdateChainVisibilityButtonText(): void {
@@ -340,14 +294,6 @@ export class ProteinVisualizationComponent implements OnInit {
 
         // add custom color theme 
         this.plugin.representation.structure.themes.colorThemeRegistry.add(ProteinThemeProvider);
-    }
-
-    get GetRepresentationTypes(): Record<StructureRepresentationRegistry.BuiltIn, string> {
-        return AppSettings.REPRESENTATION_TYPES;
-    }
-
-    getStringSpan(domain: HighlightedDomain): string {
-        return domain.Start.toString() + '-' + domain.End.toString();
     }
 
     private LoadMsaViewer() {

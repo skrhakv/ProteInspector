@@ -26,7 +26,7 @@ import { MolstarService } from './molstar.service';
     providedIn: 'root'
 })
 export class SuperpositionService {
-    public structure: any = [];
+
     constructor(private molstarService: MolstarService) { }
 
     /**
@@ -70,27 +70,28 @@ export class SuperpositionService {
             callback();
         });
     }
+
     private i = 0;
-    public model!:any;
+    public model!: any;
+    public structure: any = [];
+
     private async loadStructure(plugin: PluginContext, url: string, format: BuiltInTrajectoryFormat, isBinary?: boolean) {
+
         try {
             const data = await plugin.builders.data.download({ url: Asset.Url(url), isBinary: isBinary });
 
             const trajectory = await plugin.builders.structure.parseTrajectory(data, format);
-            this.model = await plugin.builders.structure.createModel(trajectory);
-            this.structure[this.i] = await plugin.builders.structure.createStructure(this.model, { name: 'model', params: {} });
-            const polymer = await plugin.builders.structure.tryCreateComponentStatic(this.structure[this.i], 'polymer');
-            const ligand = await plugin.builders.structure.tryCreateComponentStatic(this.structure[this.i], 'ligand');
+            const model = await plugin.builders.structure.createModel(trajectory);
+            const structure = await plugin.builders.structure.createStructure(model, { name: 'model', params: {} });
+            const polymer = await plugin.builders.structure.tryCreateComponentStatic(structure, 'polymer');
+            const ligand = await plugin.builders.structure.tryCreateComponentStatic(structure, 'ligand');
+            
+            this.model = model;
+            this.structure[this.i] = structure;
             this.i++;
 
-            if (ligand) {
-                await plugin.builders.structure.representation.addRepresentation(ligand, {
-                    type: 'ball-and-stick'
-                });
-            }
-
-            await plugin.builders.structure.insertStructureProperties(this.structure[this.i]);
-            return;
+            await plugin.builders.structure.insertStructureProperties(structure);
+            return {data, trajectory, model, structure};
         } catch (e) {
             return { structure: void 0 };
         }

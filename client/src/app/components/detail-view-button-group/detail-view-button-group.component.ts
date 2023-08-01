@@ -1,5 +1,6 @@
-import { Component, ElementRef, Input, OnInit } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
+import { setSubtreeVisibility } from 'molstar/lib/mol-plugin/behavior/static/state';
 import { StructureRepresentationRegistry } from 'molstar/lib/mol-repr/structure/registry';
 import { Expression } from 'molstar/lib/mol-script/language/expression';
 import { Color } from 'molstar/lib/mol-util/color';
@@ -48,11 +49,20 @@ export class DetailViewButtonGroupComponent implements OnInit {
      * selected visibility of the substructure
      */
     @Input() visible = false;
-    
+
     /**
      * true if button handles a whole protein
      */
     @Input() isWholeProtein: boolean = false;
+
+    /**
+     * event for triggering updating other structures outside of the scope of this button component
+     */
+    @Output() updateOtherStructures = new EventEmitter<void>();
+
+    triggerOtherStructuresUpdate(): void {
+        this.updateOtherStructures.emit();
+    }
 
     /**
      * selected color of the substructure
@@ -83,44 +93,50 @@ export class DetailViewButtonGroupComponent implements OnInit {
      * Change structure representation
      * @param representation 
      */
-    ChangeRepresentation(representation: string) {
+    async ChangeRepresentation(representation: string) {
         this.representation = representation as StructureRepresentationRegistry.BuiltIn;
         this.visible = true;
-        this.rebuildStructure();
+        this.rebuildAndUpdateOtherStructures();
     }
     /**
      * toggles visibility of the whole structure
      */
-    ToggleVisibility() {
+    async ToggleVisibility() {
         this.visible = !this.visible;
 
-        this.rebuildStructure();
+        this.rebuildAndUpdateOtherStructures();
     }
+
+    private async rebuildAndUpdateOtherStructures() {
+        await this.rebuildStructure();
+        this.triggerOtherStructuresUpdate();
+    }
+
     /**
      * toggles opacity of the structure
      */
-    ToggleOpacity(event: any) {
+    async ToggleOpacity(event: any) {
         this.opacity = event.target.value / 100;
 
         this.visible = true;
-        this.rebuildStructure();
+
+        this.triggerOtherStructuresUpdate();
     }
 
     /**
      * Color in color picker changed
      */
-    ColorChanged(event: any) {
+    async ColorChanged(event: any) {
         let colorHex: string = event.target.value;
         this.color = Color.fromHexStyle(colorHex);
         this.buttonColorStyles = Utils.getCssColor(colorHex);
 
-        if(this.isWholeProtein)
-        {
+        if (this.isWholeProtein) {
             colors[this.proteinIndex] = this.color;
         }
-        
+
         this.visible = true;
-        this.rebuildStructure();
+        this.rebuildAndUpdateOtherStructures();
     }
     /**
      * Pallete button clicked
@@ -137,6 +153,11 @@ export class DetailViewButtonGroupComponent implements OnInit {
         });
 
         elem.dispatchEvent(evt);
+    }
+
+    updateStructure() {
+        if (!this.isWholeProtein)
+            this.rebuildStructure();
     }
 
     /**
@@ -161,7 +182,7 @@ export class DetailViewButtonGroupComponent implements OnInit {
         }
     }
 
-    GetProteinHexColor() : Color {
+    GetProteinHexColor(): Color {
         return colors[this.proteinIndex];
     }
 

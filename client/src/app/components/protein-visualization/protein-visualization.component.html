@@ -12,7 +12,8 @@
                             [disabled]="!VisualizationReady" [plugin]="plugin"
                             [molstarSelection]="generateMolstarExpressionForWholeProtein()" [proteinIndex]="i"
                             [description]="protein.PdbCode" [proteinColorHex]="getHexColor(i)" [visible]="true"
-                            [isWholeProtein]="true"></app-detail-view-button-group>
+                            [isWholeProtein]="true"
+                            (updateOtherStructures)="updateAllStructures()"></app-detail-view-button-group>
                     </div>
                 </div>
                 <div class="row mt-3" *ngIf="ShowHighlightButtons && onlyDomains.length > 0 && VisualizationReady">
@@ -22,7 +23,8 @@
                             class="btn-group" [disabled]="!VisualizationReady" [plugin]="plugin"
                             [molstarSelection]="generateMolstarExpression(domain)" [proteinIndex]="domain.ProteinIndex"
                             [description]="getDescriptionText(domain)"
-                            [proteinColorHex]="getHexColor(domain.ProteinIndex)"></app-detail-view-button-group>
+                            [proteinColorHex]="getHexColor(domain.ProteinIndex)"
+                            (updateOtherStructures)="updateAllStructures()"></app-detail-view-button-group>
                     </div>
                 </div>
                 <div class="row mt-3" *ngIf="ShowHighlightButtons && onlyResidues.length > 0 && VisualizationReady">
@@ -32,7 +34,8 @@
                             class="btn-group" [disabled]="!VisualizationReady" [plugin]="plugin"
                             [molstarSelection]="generateMolstarExpression(domain)" [proteinIndex]="domain.ProteinIndex"
                             [description]="getDescriptionText(domain)"
-                            [proteinColorHex]="getHexColor(domain.ProteinIndex)"></app-detail-view-button-group>
+                            [proteinColorHex]="getHexColor(domain.ProteinIndex)"
+                            (updateOtherStructures)="updateAllStructures()"></app-detail-view-button-group>
                     </div>
                 </div>
                 <div class="row mt-3"
@@ -43,8 +46,8 @@
                             [disabled]="!VisualizationReady" [plugin]="plugin"
                             [molstarSelection]="generateLigandMolstarExpression()" [proteinIndex]="protein.index"
                             [description]="getLigandDescriptionText(protein.protein)"
-                            [proteinColorHex]="getHexColor(protein.index)"
-                            [representation]="'ball-and-stick'"></app-detail-view-button-group>
+                            [proteinColorHex]="getHexColor(protein.index)" [representation]="'ball-and-stick'"
+                            (updateOtherStructures)="updateAllStructures()"></app-detail-view-button-group>
                     </div>
                 </div>
                 <div class="row my-3">
