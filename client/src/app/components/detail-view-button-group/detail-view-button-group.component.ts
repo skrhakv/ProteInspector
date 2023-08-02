@@ -1,10 +1,10 @@
 import { Component, ElementRef, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
-import { setSubtreeVisibility } from 'molstar/lib/mol-plugin/behavior/static/state';
 import { StructureRepresentationRegistry } from 'molstar/lib/mol-repr/structure/registry';
 import { Expression } from 'molstar/lib/mol-script/language/expression';
 import { Color } from 'molstar/lib/mol-util/color';
 import { AppSettings } from 'src/app/app-settings';
+import { Protein } from 'src/app/models/protein.model';
 import { colors, getLighterColorFromHex } from 'src/app/providers/protein-theme-provider';
 import { MolstarService } from 'src/app/services/molstar.service';
 import { SuperpositionService } from 'src/app/services/superposition.service';
@@ -53,7 +53,7 @@ export class DetailViewButtonGroupComponent implements OnInit {
     /**
      * true if button handles a whole protein
      */
-    @Input() isWholeProtein: boolean = false;
+    @Input() isWholeProtein = false;
 
     /**
      * event for triggering updating other structures outside of the scope of this button component
@@ -120,14 +120,14 @@ export class DetailViewButtonGroupComponent implements OnInit {
 
         this.visible = true;
 
-        this.triggerOtherStructuresUpdate();
+        this.rebuildAndUpdateOtherStructures();
     }
 
     /**
      * Color in color picker changed
      */
     async ColorChanged(event: any) {
-        let colorHex: string = event.target.value;
+        const colorHex: string = event.target.value;
         this.color = Color.fromHexStyle(colorHex);
         this.buttonColorStyles = Utils.getCssColor(colorHex);
 
@@ -158,6 +158,18 @@ export class DetailViewButtonGroupComponent implements OnInit {
     updateStructure() {
         if (!this.isWholeProtein)
             this.rebuildStructure();
+    }
+
+    async removeStructure() {
+        if (this.selector)
+            await this.molstarService.RemoveObject(this.plugin, this.superpositionService.model.state, this.selector);
+
+        if (this.visible)
+            this.ToggleVisibility();
+    }
+
+    async ShowChainsOnly(protein: Protein) {
+        return this.molstarService.ShowChainsOnly(this.plugin, protein, this.superpositionService.structure[this.proteinIndex], this.color, this.representation);
     }
 
     /**

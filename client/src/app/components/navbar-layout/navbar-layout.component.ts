@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { Dataset } from 'src/app/models/dataset';
 import { BackendCommunicationService } from 'src/app/services/backend-communication.service';
 
 @Component({

@@ -10,7 +10,7 @@ const ProteinThemeParams = {
     value: PD.Numeric(0),
 };
 
-export let colors = [
+export const colors = [
     ColorNames.green,
     ColorNames.blue,
     ColorNames.orange,
@@ -58,6 +58,10 @@ export function getLighterColor(index: number, lightenLevel: number): Color {
 
 export function getColorHexFromIndex(index: number): string {
     return Color.toHexStyle(colors[index]);
+}
+
+export function getColor(index: number): Color {
+    return colors[index];
 }
 
 export function getColorHex(color: Color): string {

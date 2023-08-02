@@ -2,19 +2,16 @@ import { Component, EventEmitter, OnInit, Output, QueryList, ViewChildren } from
 import { HighlightedDomain } from 'src/app/models/highlighted-domain.model';
 import { Protein } from 'src/app/models/protein.model';
 import { MolstarService } from 'src/app/services/molstar.service';
-import { setSubtreeVisibility } from 'molstar/lib/mol-plugin/behavior/static/state';
 import { StructureRepresentationRegistry } from 'molstar/lib/mol-repr/structure/registry';
 import { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
 import { DefaultPluginUISpec } from 'molstar/lib/mol-plugin-ui/spec';
 import { createPluginUI } from 'molstar/lib/mol-plugin-ui/react18';
 import { ProteinThemeProvider, getColorHexFromIndex } from 'src/app/providers/protein-theme-provider';
-import { AppSettings } from 'src/app/app-settings';
 import { ProteinSequence } from 'src/app/models/protein-sequence.model';
 import { SuperpositionService } from 'src/app/services/superposition.service';
 import { RcsbFv, RcsbFvDisplayConfigInterface, RcsbFvDisplayTypes, RcsbFvTrackDataElementInterface } from '@rcsb/rcsb-saguaro';
 import { Expression } from 'molstar/lib/mol-script/language/expression';
 import { MolScriptBuilder as MS } from 'molstar/lib/mol-script/language/builder';
-import { Utils } from 'src/app/utils';
 import { DetailViewButtonGroupComponent } from '../detail-view-button-group/detail-view-button-group.component';
 import { SetUtils } from 'molstar/lib/mol-util/set';
 import { AminoAcidNamesL, RnaBaseNames, DnaBaseNames, WaterNames } from 'molstar/lib/mol-model/structure/model/types';
@@ -222,7 +219,24 @@ export class ProteinVisualizationComponent implements OnInit {
         // rebuild highlighting in each DetailViewButtonGroupComponent
         for (const b of this.allHighlightButtons)
             b.updateStructure();
+    }
 
+    public async removeAllStructures() {
+        for (const b of this.allHighlightButtons)
+            b.removeStructure();
+    }
+
+    public async showWholeProteins() {
+        for (const b of this.allHighlightButtons) {
+            if (b.isWholeProtein) {
+                b.visible = true;
+                b.rebuildStructure();
+            }
+            else {
+                if (b.visible)
+                    b.ToggleVisibility();
+            }
+        }
     }
 
     /**
@@ -233,30 +247,41 @@ export class ProteinVisualizationComponent implements OnInit {
         return getColorHexFromIndex(index);
     }
 
+    private selectors: any[] = [];
     /**
      * toggle between showing only chains or the whole structures
      */
     public async ToggleChainVisibility() {
         // check whether show the whole structure or only the chains
         if (this.OnlyChains[0]) {
-            for (let i = 0; i < this.ProteinRepresentation.length; i++) {
-                await this.molstarService.BuildRepresentation(this.plugin, i, this.ProteinRepresentation[i]);
-                setSubtreeVisibility(this.plugin.state.data, this.plugin.managers.structure.hierarchy.current.structures[i].cell.transform.ref, !this.IsProteinVisible[i]);
+
+            for (const selector of this.selectors) {
+                if (selector)
+                    await this.molstarService.RemoveObject(this.plugin, this.superpositionService.model.state, selector);
             }
+
+            await this.showWholeProteins();
 
             // reset camera and update buttons
             this.OnlyChains[0] = false;
             this.UpdateChainVisibilityButtonText();
-            this.molstarService.CameraReset(this.plugin);
-
         }
         else {
-            await this.molstarService.ShowChainsOnly(this.plugin, this.proteins);
+            this.selectors = [];
+            
+            this.removeAllStructures();
 
+            for (const b of this.allHighlightButtons) {
+                if (b.isWholeProtein) {
+                    let s = await b.ShowChainsOnly(this.proteins[b.proteinIndex]);
+                    this.selectors.push(s);
+                }
+            }
             //  update buttons
             this.OnlyChains[0] = true;
             this.OnlyChains[1] = 'Show Full Structures';
         }
+        await this.molstarService.CameraReset(this.plugin);
     }
 
     private UpdateChainVisibilityButtonText(): void {
@@ -426,7 +451,7 @@ export class ProteinVisualizationComponent implements OnInit {
                 this.clearResidueHighlighting();
                 if (n.length > 0) {
                     // position in the MSA viewer (zero-based)
-                    let position = n[0].begin;
+                    const position = n[0].begin;
 
                     // if single residue was highlighted
                     if (n[0].end === undefined) {
@@ -435,7 +460,7 @@ export class ProteinVisualizationComponent implements OnInit {
 
                             for (let i = 0; i < this.leftAlignmentShifts.length; i++) {
                                 // where is the start of the sequence in the MSA viewer (as the sequence might be shifted)
-                                let begin: number = longestLeftBranch - this.leftAlignmentShifts[i];
+                                const begin: number = longestLeftBranch - this.leftAlignmentShifts[i];
                                 // position of the residue inside of the whole sequence
                                 let residuePosition: number = position - begin;
 
@@ -443,7 +468,7 @@ export class ProteinVisualizationComponent implements OnInit {
                                     continue;
 
                                 // loop over the chains to determine in which chain the residue lies
-                                for (let chain of this.ProteinSequences[i].ChainSequences) {
+                                for (const chain of this.ProteinSequences[i].ChainSequences) {
 
                                     if (residuePosition - chain.Sequence.length < 0) {
                                         this.highlightResidue(this.ProteinSequences[i], chain.ChainId, residuePosition);
@@ -457,10 +482,10 @@ export class ProteinVisualizationComponent implements OnInit {
                     }
                     else {
                         // end position of the region in the MSA viewer
-                        let end = n[0].end;
+                        const end = n[0].end;
                         for (let i = 0; i < this.leftAlignmentShifts.length; i++) {
                             // where is the start of the sequence in the MSA viewer (as the sequence might be shifted)
-                            let begin: number = longestLeftBranch - this.leftAlignmentShifts[i];
+                            const begin: number = longestLeftBranch - this.leftAlignmentShifts[i];
                             // position of the residue inside of the whole sequence
                             let residuePositionStart: number = position - begin;
                             let residuePositionEnd: number = end - begin;
@@ -468,17 +493,17 @@ export class ProteinVisualizationComponent implements OnInit {
                                 continue;
 
                             // loop over the chains to determine in which chain the residue lies
-                            for (let chain of this.ProteinSequences[i].ChainSequences) {
+                            for (const chain of this.ProteinSequences[i].ChainSequences) {
 
                                 if (residuePositionStart - chain.Sequence.length < 0) {
                                     if (residuePositionEnd <= chain.Sequence.length) {
                                         this.highlightResidue(this.ProteinSequences[i], chain.ChainId, residuePositionStart, residuePositionEnd);
-                                        console.log( residuePositionStart,residuePositionEnd)
+                                        console.log(residuePositionStart, residuePositionEnd);
                                         break;
                                     }
                                     else {
                                         this.highlightResidue(this.ProteinSequences[i], chain.ChainId, residuePositionStart, residuePositionEnd);
-                                        console.log( residuePositionStart,residuePositionEnd);
+                                        console.log(residuePositionStart, residuePositionEnd);
 
                                         residuePositionStart = 0;
                                         residuePositionEnd -= chain.Sequence.length;

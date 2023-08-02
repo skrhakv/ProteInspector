@@ -1,14 +1,13 @@
 import { Injectable } from '@angular/core';
 import { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
 import { PluginCommands } from 'molstar/lib/mol-plugin/commands';
-import { ProteinThemeProvider } from '../providers/protein-theme-provider';
+import { ProteinThemeProvider, getColor } from '../providers/protein-theme-provider';
 import { Protein } from '../models/protein.model';
 import { StructureElement, StructureSelection } from 'molstar/lib/mol-model/structure';
-import { StructureComponentRef } from 'molstar/lib/mol-plugin-state/manager/structure/hierarchy-state';
 import { Script } from 'molstar/lib/mol-script/script';
 import { StructureRepresentationPresetProvider, presetStaticComponent } from 'molstar/lib/mol-plugin-state/builder/structure/representation-preset';
 import { StructureRepresentationRegistry } from 'molstar/lib/mol-repr/structure/registry';
-import { StateObjectRef } from 'molstar/lib/mol-state';
+import { State, StateObjectRef } from 'molstar/lib/mol-state';
 import { MolScriptBuilder as MS } from 'molstar/lib/mol-script/language/builder';
 import { getModelEntityOptions, getChainOptions, getOperatorOptions, getStructureOptions, getSequenceWrapper } from 'molstar/lib/mol-plugin-ui/sequence';
 import { ProteinSequence } from '../models/protein-sequence.model';
@@ -54,10 +53,16 @@ export class MolstarService {
         await setStructureOverpaint(plugin, components, color, lociGetter);
         await setStructureTransparency(plugin, components, transparency, lociGetter);
 
-        if(showOriginalRepresentation)
+        if (showOriginalRepresentation)
             this.TweakStructureSelectionTransparency(plugin, selection, 0);
         else
             this.TweakStructureSelectionTransparency(plugin, selection, 1);
+
+        await this.CameraReset(plugin);
+    }
+
+    public async RemoveObject(plugin: PluginUIContext, state: State, selector: string) {
+        await PluginCommands.State.RemoveObject(plugin, { state: state, ref: selector });
 
     }
 
@@ -101,7 +106,7 @@ export class MolstarService {
 
         // remove previous selection
         if (selector)
-            await PluginCommands.State.RemoveObject(plugin, { state: state.state, ref: selector });
+            await this.RemoveObject(plugin, state.state, selector);
 
         if (!visible)
             return;
@@ -225,29 +230,26 @@ export class MolstarService {
      * @param plugin molstar plugin
      * @param VisualizedProteins visualized proteins in the molstar plugin
      */
-    public async ShowChainsOnly(plugin: PluginUIContext, VisualizedProteins: Protein[]) {
-        for (const [index, protein] of VisualizedProteins.entries()) {
-            const data = plugin.managers.structure.hierarchy.current.structures[index]?.cell.obj?.data;
-            if (!data) return;
+    public async ShowChainsOnly(plugin: PluginUIContext, protein: Protein, structure: any,
+        color: Color, representation: StructureRepresentationRegistry.BuiltIn) {
 
-            // select the chains
-            const selection = Script.getStructureSelection(Q =>
-                Q.struct.generator.atomGroups({
-                    'chain-test': Q.core.rel.neq([protein.ChainId, Q.struct.atomProperty.macromolecular.auth_asym_id()]),
-                }), data);
-            const loci = StructureSelection.toLociWithSourceUnits(selection);
+            const update = plugin.build();
+            const selection = MS.struct.generator.atomGroups({
+                'chain-test': MS.core.rel.eq([protein.ChainId, MS.struct.atomProperty.macromolecular.auth_asym_id()]),
+            });
+            const a = update.to(structure)
+                .apply(StateTransforms.Model.StructureSelectionFromExpression, { label: 'chainOnly', expression: selection });
+            a.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(plugin, structure.data, {
+                type: representation,
+                color: 'uniform',
+                colorParams: { value: color }
+            }));
 
-            plugin.managers.interactivity.lociSelects.selectOnly({ loci });
-            const sel = plugin.managers.structure.hierarchy.getStructuresWithSelection();
-
-            const componentsToDelete: StructureComponentRef[] = [];
-            for (const s of sel) componentsToDelete.push(...s.components);
-
-            // delete everything except for the selected chains
-            await plugin.managers.structure.component.modifyByCurrentSelection(componentsToDelete, 'subtract');
-            plugin.managers.interactivity.lociSelects.deselectAll();
-        }
+            await update.commit();
+        
         this.CameraReset(plugin);
+
+        return a.selector;
     }
 
     /**

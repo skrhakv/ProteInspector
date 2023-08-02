@@ -83,8 +83,8 @@ export class SuperpositionService {
             const trajectory = await plugin.builders.structure.parseTrajectory(data, format);
             const model = await plugin.builders.structure.createModel(trajectory);
             const structure = await plugin.builders.structure.createStructure(model, { name: 'model', params: {} });
-            const polymer = await plugin.builders.structure.tryCreateComponentStatic(structure, 'polymer');
-            const ligand = await plugin.builders.structure.tryCreateComponentStatic(structure, 'ligand');
+            await plugin.builders.structure.tryCreateComponentStatic(structure, 'polymer');
+            await plugin.builders.structure.tryCreateComponentStatic(structure, 'ligand');
             
             this.model = model;
             this.structure[this.i] = structure;
