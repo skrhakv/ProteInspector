@@ -323,7 +323,7 @@ export class DetailViewComponent {
 
         // add json with all the data to the zip and generate pymol script
         const jszip = new JSZip();
-        jszip.file('details.json', JSON.stringify(details));
+        jszip.file('details.json', JSON.stringify(details, undefined, 2));
         jszip.file('pymol-script.py', this.pymolService.GeneratePymolScript(this.VisualizedProteins, this.highlightedDomains));
 
         // generate zip

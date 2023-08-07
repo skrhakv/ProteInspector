@@ -160,7 +160,7 @@ app.get('/export', async (req, res) => {
     let result = executor.ParseAndExecute(query, datasetId);
 
     if (format === 'json') {
-        var json = JSON.stringify(result['results']);
+        var json = JSON.stringify(result['results'], undefined, 2);
         var filename = 'results.json';
         var mimetype = 'application/json';
         res.setHeader('Content-Type', mimetype);
