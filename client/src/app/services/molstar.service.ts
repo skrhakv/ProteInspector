@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
 import { PluginCommands } from 'molstar/lib/mol-plugin/commands';
-import { ProteinThemeProvider, getColor } from '../providers/protein-theme-provider';
+import { ProteinThemeProvider } from '../providers/protein-theme-provider';
 import { Protein } from '../models/protein.model';
 import { StructureElement, StructureSelection } from 'molstar/lib/mol-model/structure';
 import { Script } from 'molstar/lib/mol-script/script';
@@ -54,9 +54,9 @@ export class MolstarService {
         await setStructureTransparency(plugin, components, transparency, lociGetter);
 
         if (showOriginalRepresentation)
-            this.TweakStructureSelectionTransparency(plugin, selection, 0);
+            this.TweakStructureSelectionTransparency(plugin, selection, 0, proteinIndex);
         else
-            this.TweakStructureSelectionTransparency(plugin, selection, 1);
+            this.TweakStructureSelectionTransparency(plugin, selection, 1, proteinIndex);
 
         await this.CameraReset(plugin);
     }
@@ -72,10 +72,12 @@ export class MolstarService {
      * @param selection 
      * @param transparency 0 means full visibility, 1 means no visibility
      */
-    private async TweakStructureSelectionTransparency(plugin: PluginUIContext, selection: StructureSelection, transparency: number) {
+    private async TweakStructureSelectionTransparency(plugin: PluginUIContext, selection: StructureSelection, transparency: number,
+        proteinIndex: number) {
 
-        const struct = plugin.managers.structure.hierarchy.current.structures[0];
-        const repr = struct.components[0].representations[0].cell;
+        const struct = plugin.managers.structure.hierarchy.current.structures[proteinIndex];
+        
+        const repr = struct.components.filter(x => x.cell.obj?.label === ('Protein-' + proteinIndex))[0].representations[0].cell;
 
         const bundle = StructureElement.Bundle.fromSelection(selection);
 
@@ -86,6 +88,7 @@ export class MolstarService {
             layers: [{ bundle, value: transparency }]
         });
         await update.commit();
+
     }
 
     /**
@@ -102,7 +105,8 @@ export class MolstarService {
      * @returns selector for deleting this selection in the future call
      */
     async BuildSelection(plugin: PluginUIContext, structure: any, state: any, selector: any, selection: Expression,
-        visible: boolean, color: Color, opacity: number, representation: StructureRepresentationRegistry.BuiltIn) {
+        visible: boolean, color: Color, opacity: number, representation: StructureRepresentationRegistry.BuiltIn,
+        label: string) {
 
         // remove previous selection
         if (selector)
@@ -114,7 +118,7 @@ export class MolstarService {
         const update = plugin.build();
 
         const a = update.to(structure)
-            .apply(StateTransforms.Model.StructureSelectionFromExpression, { label: 'myLabel', expression: selection });
+            .apply(StateTransforms.Model.StructureSelectionFromExpression, { label: label, expression: selection });
         a.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(plugin, structure.data, {
             type: representation,
             color: 'uniform',
@@ -233,20 +237,20 @@ export class MolstarService {
     public async ShowChainsOnly(plugin: PluginUIContext, protein: Protein, structure: any,
         color: Color, representation: StructureRepresentationRegistry.BuiltIn) {
 
-            const update = plugin.build();
-            const selection = MS.struct.generator.atomGroups({
-                'chain-test': MS.core.rel.eq([protein.ChainId, MS.struct.atomProperty.macromolecular.auth_asym_id()]),
-            });
-            const a = update.to(structure)
-                .apply(StateTransforms.Model.StructureSelectionFromExpression, { label: 'chainOnly', expression: selection });
-            a.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(plugin, structure.data, {
-                type: representation,
-                color: 'uniform',
-                colorParams: { value: color }
-            }));
+        const update = plugin.build();
+        const selection = MS.struct.generator.atomGroups({
+            'chain-test': MS.core.rel.eq([protein.ChainId, MS.struct.atomProperty.macromolecular.auth_asym_id()]),
+        });
+        const a = update.to(structure)
+            .apply(StateTransforms.Model.StructureSelectionFromExpression, { label: 'chainOnly', expression: selection });
+        a.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(plugin, structure.data, {
+            type: representation,
+            color: 'uniform',
+            colorParams: { value: color }
+        }));
 
-            await update.commit();
-        
+        await update.commit();
+
         this.CameraReset(plugin);
 
         return a.selector;

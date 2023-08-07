@@ -60,7 +60,13 @@ export class DetailViewButtonGroupComponent implements OnInit {
      */
     @Output() updateOtherStructures = new EventEmitter<void>();
 
+    /**
+     * Making sure the change is not applied twice
+     */
+    private updateTriggeredHere: boolean  = false;
+
     triggerOtherStructuresUpdate(): void {
+        this.updateTriggeredHere = true;
         this.updateOtherStructures.emit();
     }
 
@@ -76,6 +82,10 @@ export class DetailViewButtonGroupComponent implements OnInit {
      * molstar selector for handling re-structuring 
      */
     private selector!: any;
+
+    private molstarLabel!: string;
+
+    private static globalDomainID: number = 0;
 
     public buttonColorStyles!: Record<string, string>;
 
@@ -107,9 +117,10 @@ export class DetailViewButtonGroupComponent implements OnInit {
         this.rebuildAndUpdateOtherStructures();
     }
 
-    private async rebuildAndUpdateOtherStructures() {
-        await this.rebuildStructure();
+    private rebuildAndUpdateOtherStructures() {
         this.triggerOtherStructuresUpdate();
+
+        this.rebuildStructure();
     }
 
     /**
@@ -156,8 +167,9 @@ export class DetailViewButtonGroupComponent implements OnInit {
     }
 
     updateStructure() {
-        if (!this.isWholeProtein)
+        if (!this.isWholeProtein && !this.updateTriggeredHere)
             this.rebuildStructure();
+        else this.updateTriggeredHere = false;
     }
 
     async removeStructure() {
@@ -178,11 +190,11 @@ export class DetailViewButtonGroupComponent implements OnInit {
     async rebuildStructure() {
         this.selector = await this.molstarService.BuildSelection(this.plugin, this.superpositionService.structure[this.proteinIndex],
             this.superpositionService.model, this.selector, this.molstarSelection, this.visible, this.color, this.opacity,
-            this.representation);
+            this.representation, this.molstarLabel);
 
         // if the highlighting should be visible, then use the specified color and transparency
         if (this.visible) {
-            await this.molstarService.HighlightDomains(this.plugin, this.molstarSelection, this.color, 1 - this.opacity, this.proteinIndex, false);
+            await this.molstarService.HighlightDomains(this.plugin, this.molstarSelection, this.color, 1 - this.opacity, this.proteinIndex, this.isWholeProtein ? true : false);
         }
 
         // if not, then "overpaint" the domain with the color of the protein and no transparency, resulting in unified surface with the rest of the protein
@@ -206,6 +218,12 @@ export class DetailViewButtonGroupComponent implements OnInit {
             this.color = getLighterColorFromHex(this.proteinColorHex, 2);
 
         this.buttonColorStyles = Utils.getCssColor(this.proteinColorHex);
+
+        if(this.isWholeProtein)
+            this.molstarLabel = 'Protein-' + this.proteinIndex;
+        else
+            this.molstarLabel = 'Domain-' + DetailViewButtonGroupComponent.globalDomainID++;
+
         if (this.isWholeProtein)
             this.rebuildStructure();
     }
