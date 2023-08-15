@@ -17,7 +17,8 @@ import { SetUtils } from 'molstar/lib/mol-util/set';
 import { AminoAcidNamesL, RnaBaseNames, DnaBaseNames, WaterNames } from 'molstar/lib/mol-model/structure/model/types';
 import { Script } from 'molstar/lib/mol-script/script';
 import { StructureSelection } from 'molstar/lib/mol-model/structure/query';
-import { StructureElement, StructureProperties } from 'molstar/lib/mol-model/structure';
+import { Structure, StructureElement, StructureProperties } from 'molstar/lib/mol-model/structure';
+import { Ligand } from 'src/app/models/ligand.model';
 
 @Component({
     selector: 'app-protein-visualization',
@@ -89,9 +90,9 @@ export class ProteinVisualizationComponent implements OnInit {
      */
     private leftAlignmentShifts: number[] = [];
     /**
-     * true if at least one of the protein structures has ligands defined 
+     * Container for every type of ligand (in each protein)
      */
-    public proteinsWithLigands: { index: number, protein: Protein }[] = [];
+    public Ligands: Ligand[] = [];
 
     constructor(
         public molstarService: MolstarService,
@@ -125,8 +126,7 @@ export class ProteinVisualizationComponent implements OnInit {
             this.VisualizationReady = true;
             this.LoadMsaViewer();
             for (let i = 0; i < proteins.length; i++) {
-                if (this.existLigand(i))
-                    this.proteinsWithLigands.push({ index: i, protein: proteins[i] });
+                this.findLigands(i);
             }
         };
 
@@ -169,18 +169,44 @@ export class ProteinVisualizationComponent implements OnInit {
     );
 
     /**
-     * decides whether ligands are defined for a particular protein
+     * finds every ligand for every protein
      * @param proteinIndex index of the protein
-     * @returns true if ligands are defined
      */
-    existLigand(proteinIndex: number): boolean {
+    findLigands(proteinIndex: number) {
         const data = this.plugin.managers.structure.hierarchy.current.structures[proteinIndex]?.cell.obj?.data;
-        if (!data) return false;
-        const selection = Script.getStructureSelection(Q => MS.struct.generator.atomGroups({
+        if (!data) return;
+
+        // first select all ligands
+        const selection = Script.getStructureSelection(MS.struct.generator.atomGroups({
             'group-by': MS.struct.atomProperty.core.operatorName(),
             'residue-test': MS.core.logic.not([MS.core.set.has([MS.set(...SetUtils.toArray(this.StandardResidues)), MS.ammp('label_comp_id')])]),
         }), data);
-        return !StructureSelection.isEmpty(selection);
+
+        // then handle each ligand individually 
+        StructureSelection.forEach(selection, (s, i) => {
+            Structure.eachAtomicHierarchyElement(s, {
+                residue: r => {
+                    const chainId = StructureProperties.chain.auth_asym_id(r);
+                    const label = StructureProperties.atom.auth_comp_id(r);
+
+                    // we would like to merge the same type of ligands into the same button, so that's what I am doing here
+                    if (this.Ligands.filter(x => x.Label === label && x.ProteinIndex === proteinIndex).length === 0) {
+                        const expression = MS.struct.generator.atomGroups({
+                            'residue-test': MS.core.logic.and([
+                                MS.core.logic.not([MS.core.set.has([MS.set(...SetUtils.toArray(this.StandardResidues)), MS.ammp('label_comp_id')])]),
+                                MS.core.rel.eq([label, MS.struct.atomProperty.macromolecular.auth_comp_id()]),
+                            ])
+                        });
+                        this.Ligands.push({
+                            ProteinIndex: proteinIndex,
+                            Label: label,
+                            MolstarExpression: expression,
+                            ChainId: chainId
+                        });
+                    }
+                }
+            });
+        });
     }
 
 
@@ -204,8 +230,8 @@ export class ProteinVisualizationComponent implements OnInit {
     /**
      * generates description text for a highlighting button
      */
-    getLigandDescriptionText(protein: Protein) {
-        return `${protein.PdbCode} Ligands`;
+    getLigandDescriptionText(ligand: Ligand) {
+        return ligand.Label + " " + this.proteins[ligand.ProteinIndex].PdbCode + ligand.ChainId;
     }
     /**
      * Trigger export event
@@ -331,10 +357,9 @@ export class ProteinVisualizationComponent implements OnInit {
 
                     // add left alignment from RCSB viewer
                     let rcsbPosition = this.leftAlignmentShifts[modelIndex] - 1;
-                    
+
                     // move to the corresponding chain
-                    for(const chain of this.ProteinSequences[modelIndex].ChainSequences)
-                    {
+                    for (const chain of this.ProteinSequences[modelIndex].ChainSequences) {
                         if (chain.ChainId === chainId)
                             break;
                         rcsbPosition += chain.Sequence.length;
@@ -344,7 +369,7 @@ export class ProteinVisualizationComponent implements OnInit {
                     rcsbPosition += residueIndex;
 
                     // highlight the residue position
-                    this.rcsbViewer.addSelection({elements: {begin: rcsbPosition}, mode: 'hover'})
+                    this.rcsbViewer.addSelection({ elements: { begin: rcsbPosition }, mode: 'hover' })
                 }
             }
         });

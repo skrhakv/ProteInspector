@@ -262,6 +262,7 @@ export class MolstarService {
      * @param proteinSequence
      * @param chainID auth_asym_id
      * @param position label_seq_id
+     * @param end if specified, highlights range of residues between the position parameter and end parameter
      */
     public HighlightResidue(plugin: PluginUIContext, proteinSequence: ProteinSequence, chainID: string, position: number, end?: number) {
         const data = plugin.managers.structure.hierarchy.current.structures[proteinSequence.ProteinIndex]?.cell.obj?.data;
