@@ -17,6 +17,8 @@ import { SetUtils } from 'molstar/lib/mol-util/set';
 import { AminoAcidNamesL, RnaBaseNames, DnaBaseNames, WaterNames } from 'molstar/lib/mol-model/structure/model/types';
 import { Script } from 'molstar/lib/mol-script/script';
 import { StructureSelection } from 'molstar/lib/mol-model/structure/query';
+import { StructureElement, StructureProperties } from 'molstar/lib/mol-model/structure';
+
 @Component({
     selector: 'app-protein-visualization',
     templateUrl: './protein-visualization.component.html',
@@ -268,7 +270,7 @@ export class ProteinVisualizationComponent implements OnInit {
         }
         else {
             this.selectors = [];
-            
+
             this.removeAllStructures();
 
             for (const b of this.allHighlightButtons) {
@@ -319,6 +321,33 @@ export class ProteinVisualizationComponent implements OnInit {
 
         // add custom color theme 
         this.plugin.representation.structure.themes.colorThemeRegistry.add(ProteinThemeProvider);
+        this.plugin.behaviors.interaction.hover.subscribe(ev => {
+            if (StructureElement.Loci.is(ev.current.loci)) {
+                const l = StructureElement.Loci.getFirstLocation(ev.current.loci);
+                if (l) {
+                    const residueIndex = StructureProperties.residue.label_seq_id(l);
+                    const chainId = StructureProperties.chain.auth_asym_id(l);
+                    const modelIndex = l.structure.model._staticPropertyData['modelIndex'];
+
+                    // add left alignment from RCSB viewer
+                    let rcsbPosition = this.leftAlignmentShifts[modelIndex] - 1;
+                    
+                    // move to the corresponding chain
+                    for(const chain of this.ProteinSequences[modelIndex].ChainSequences)
+                    {
+                        if (chain.ChainId === chainId)
+                            break;
+                        rcsbPosition += chain.Sequence.length;
+                    }
+
+                    // move to the corresponding residue inside the chain
+                    rcsbPosition += residueIndex;
+
+                    // highlight the residue position
+                    this.rcsbViewer.addSelection({elements: {begin: rcsbPosition}, mode: 'hover'})
+                }
+            }
+        });
     }
 
     private LoadMsaViewer() {
@@ -498,12 +527,10 @@ export class ProteinVisualizationComponent implements OnInit {
                                 if (residuePositionStart - chain.Sequence.length < 0) {
                                     if (residuePositionEnd <= chain.Sequence.length) {
                                         this.highlightResidue(this.ProteinSequences[i], chain.ChainId, residuePositionStart, residuePositionEnd);
-                                        console.log(residuePositionStart, residuePositionEnd);
                                         break;
                                     }
                                     else {
                                         this.highlightResidue(this.ProteinSequences[i], chain.ChainId, residuePositionStart, residuePositionEnd);
-                                        console.log(residuePositionStart, residuePositionEnd);
 
                                         residuePositionStart = 0;
                                         residuePositionEnd -= chain.Sequence.length;

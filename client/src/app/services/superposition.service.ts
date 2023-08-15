@@ -85,13 +85,16 @@ export class SuperpositionService {
             const structure = await plugin.builders.structure.createStructure(model, { name: 'model', params: {} });
             await plugin.builders.structure.tryCreateComponentStatic(structure, 'polymer');
             await plugin.builders.structure.tryCreateComponentStatic(structure, 'ligand');
-            
+
+            // if somebody knows how to define getter/setter to an existing class in Typescript and access it later on then please help
+            model!.data!._staticPropertyData['modelIndex'] = this.i;
+
             this.model = model;
             this.structure[this.i] = structure;
             this.i++;
 
             await plugin.builders.structure.insertStructureProperties(structure);
-            return {data, trajectory, model, structure};
+            return { data, trajectory, model, structure };
         } catch (e) {
             return { structure: void 0 };
         }
