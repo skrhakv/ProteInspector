@@ -1,5 +1,6 @@
 #include "regular-where-clause-parser.hpp"
 #include "../utils.hpp"
+#include <iostream>
 
 bool RegularWhereClauseParser::Parse(const hsql::SelectStatement *selectStatement, const string &biologicalStructure, string &result)
 {
@@ -50,6 +51,7 @@ bool RegularWhereClauseParser::Parse(const hsql::SelectStatement *selectStatemen
 
 bool RegularWhereClauseParser::Generate(const hsql::Expr *expression, const string &biologicalStructure, string &result)
 {
+    cout << expression->expr->type << endl;
     if (expression->expr->type == hsql::kExprColumnRef)
     {
         string validationResult;
@@ -89,7 +91,7 @@ bool RegularWhereClauseParser::Generate(const hsql::Expr *expression, const stri
         string operatorResult;
         bool isValid = operatorValidator.parseMathOperator(expression->opType, operatorResult);
         if (!isValid)
-            RETURN_PARSE_ERROR(jsonDataExtractor.errorMessage)
+            RETURN_PARSE_ERROR(operatorValidator.errorMessage)
 
         result += ' ' + operatorResult + ' ';
 
@@ -101,5 +103,25 @@ bool RegularWhereClauseParser::Generate(const hsql::Expr *expression, const stri
         return true;
     }
     else
-        RETURN_PARSE_ERROR("Unrecognized expression type: " + expression->type)
+    {
+        // try parse int/string/float value
+        result += "(";
+        bool isValid = jsonDataExtractor.ParseValue(expression->expr2, biologicalStructure, result);
+        if (!isValid)
+            RETURN_PARSE_ERROR(jsonDataExtractor.errorMessage)
+
+        string operatorResult;
+        isValid = operatorValidator.parseMathOperator(expression->opType, operatorResult);
+        if (!isValid)
+            RETURN_PARSE_ERROR(operatorValidator.errorMessage)
+
+        result += ' ' + operatorResult + ' ';
+
+        isValid = jsonDataExtractor.ParseValue(expression->expr2, biologicalStructure, result);
+        if (!isValid)
+            RETURN_PARSE_ERROR(jsonDataExtractor.errorMessage)
+        result += ")";
+
+        return true;
+    }
 }
