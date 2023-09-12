@@ -27,7 +27,16 @@ import { MolstarService } from './molstar.service';
 })
 export class SuperpositionService {
 
+    public model!: any;
+    public structures: any = [];
+
     constructor(private molstarService: MolstarService) { }
+
+    private async Reset(plugin?: PluginUIContext) {
+        if(plugin)
+            await plugin.clear();
+        this.structures = [];
+    }
 
     /**
      * Loads and superposes the protein structures
@@ -37,6 +46,9 @@ export class SuperpositionService {
      */
     public GenerateMolstarVisualisation(plugin: PluginUIContext, proteinsToVisualize: Protein[], callback: () => void) {
         plugin.dataTransaction(async () => {
+
+            await this.Reset(plugin);
+
             // load each structure
             for (const protein of proteinsToVisualize) {
                 await this.loadStructure(plugin, `${protein.FileLocation}${protein.PdbCode}.cif`, 'mmcif', false);
@@ -71,10 +83,6 @@ export class SuperpositionService {
         });
     }
 
-    private i = 0;
-    public model!: any;
-    public structure: any = [];
-
     private async loadStructure(plugin: PluginContext, url: string, format: BuiltInTrajectoryFormat, isBinary?: boolean) {
 
         try {
@@ -87,11 +95,10 @@ export class SuperpositionService {
             await plugin.builders.structure.tryCreateComponentStatic(structure, 'ligand');
 
             // if somebody knows how to define getter/setter to an existing class in Typescript and access it later on then please help
-            model!.data!._staticPropertyData['modelIndex'] = this.i;
+            model!.data!._staticPropertyData['modelIndex'] = this.structures.length;
 
             this.model = model;
-            this.structure[this.i] = structure;
-            this.i++;
+            this.structures[this.structures.length] = structure;
 
             await plugin.builders.structure.insertStructureProperties(structure);
             return { data, trajectory, model, structure };

@@ -181,14 +181,14 @@ export class DetailViewButtonGroupComponent implements OnInit {
     }
 
     async ShowChainsOnly(protein: Protein) {
-        return this.molstarService.ShowChainsOnly(this.plugin, protein, this.superpositionService.structure[this.proteinIndex], this.color, this.representation);
+        return this.molstarService.ShowChainsOnly(this.plugin, protein, this.superpositionService.structures[this.proteinIndex], this.color, this.representation);
     }
 
     /**
      * Updates the highlighting according to the saved data
      */
     async rebuildStructure() {
-        this.selector = await this.molstarService.BuildSelection(this.plugin, this.superpositionService.structure[this.proteinIndex],
+        this.selector = await this.molstarService.BuildSelection(this.plugin, this.superpositionService.structures[this.proteinIndex],
             this.superpositionService.model, this.selector, this.molstarSelection, this.visible, this.color, this.opacity,
             this.representation, this.molstarLabel);
 
