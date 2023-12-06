@@ -18,8 +18,7 @@
     <hr />
     <div class="row">
         <div class="col-3"></div>
-        <div class="col-6">
-
+        <div class="col-6" id="filters-spec-div">
             Or specify the query using filters:
             <div class="dropdown">
                 <select class="form-select" (change)="selectBiologicalStructureType($event)">
@@ -54,7 +53,7 @@
                     </div>
                     <div class="col-8">
                         <div class="input-group">
-                            <select class="form-select"
+                            <select class="form-select mobile-w-25"
                                 *ngIf="item.type === 'integer' || item.type === 'float' || item.type === 'integer-between'"
                                 [(ngModel)]="item.comparator" (change)="metricInputChanged()">
                                 <option value="=">=</option>
@@ -64,12 +63,12 @@
                                 <option value="&lt;=">&#8804;</option>
                                 <option value="!=">&#8800;</option>
                             </select>
-                            <select class="form-select" *ngIf="item.type === 'string'" [(ngModel)]="item.comparator"
+                            <select class="form-select mobile-w-25" *ngIf="item.type === 'string'" [(ngModel)]="item.comparator"
                                 (change)="metricInputChanged()">
                                 <option value="=">=</option>
                                 <option value="!=">&#8800;</option>
                             </select>
-                            <input type="text" class="form-control w-75" placeholder="{{item.name}}"
+                            <input type="text" class="form-control w-75 mobile-w-50" placeholder="{{item.name}}"
                                 [(ngModel)]="item.value" (change)="metricInputChanged()"
                                 (keydown.enter)="submitRegularQuery()">
                             <span class="input-group-text clickable-link" id="basic-addon1" (click)="removeMetric(i)">

@@ -23,7 +23,7 @@
 
 @media (max-width : 992px) {
     #button-panel {
-        width: 200px;
+        width: max-content;
         margin-bottom: 20px;
     }
 
@@ -45,4 +45,15 @@
     overflow-y: auto;
     position: relative;
     max-height: 800px;
+}
+#pfv-parent > * {
+    width: 100%;
+    max-width: 100%;        
+}
+#pfv {
+    position: relative;
+    overflow-x: auto;
+    overflow-y: auto;
+    height: auto;
+    padding-bottom: 10%;
 }
