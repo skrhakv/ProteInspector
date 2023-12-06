@@ -2,8 +2,15 @@
     top: 6em;
 }
 
+#main-header {
+    margin-top:150px
+}
+
 @media (max-width : 770px) {
     #main-row {
         flex-direction: row-reverse !important;
+    }
+    #main-header {
+        margin-top: 0
     }
 }

@@ -30,6 +30,7 @@ export class ResultTableComponent implements OnInit, OnChanges {
      * true if user was empty
      */
     public emptyResult = false;
+    public showLoader = false;
 
     public pageSize: number;
 
@@ -166,7 +167,7 @@ export class ResultTableComponent implements OnInit, OnChanges {
     getDataFromPage(page: number) {
         this.ngUnsubscribe.next();
         this.emptyResult = false;
-
+        this.showLoader = true;
         this.backendCommunicationService.getQueryData(page).pipe(takeUntil(this.ngUnsubscribe)).subscribe({
             next: (data: any) => {
                 this.TableColumnNames = data['columnNames'];
@@ -183,12 +184,14 @@ export class ResultTableComponent implements OnInit, OnChanges {
                 }
 
                 this.DataReady = true;
+                this.showLoader = false;
             },
             error: (e) => {
                 console.error(e);
                 this.TableColumnNames = [];
                 this.TableData = [];
                 this.ColumnOrder = [];
+                this.showLoader = false;
             }
         });
     }

@@ -3,18 +3,23 @@
         The server returned an empty list.
     </div>
 </div>
+<div *ngIf="showLoader" class="d-flex justify-content-center mt-4">
+    <div class="spinner-border" role="status">
+        <span class="sr-only">Loading...</span>
+      </div>      
+</div>
 <div>
     <div class="container" [style.display]="TableData.length > 0 && TableColumnNames.length > 0 ? 'block' : 'none'">
         <hr />
         <div class="row">
-            <div class="col-3">
-                <p class="mt-2 mx-5 fw-light">Number of Results: {{resultCount}}</p>
+            <div class="col-md-3 m-auto">
+                <p class="mt-2 mx-5 fw-light m-auto">Number of Results: {{resultCount}}</p>
             </div>
-            <div class="col-6">
+            <div class="col-md-6 m-auto">
                 <app-pagination [disabled]="!DataReady" [pageCount]="pageCount" (pagination)="onPaginationChanged($event)"></app-pagination>
             </div>
-            <div class="col-3">
-                <button id="ChangeTypeGroupDrop" type="button" class="btn btn-outline-success dropdown-toggle"
+            <div class="col-3" id="export-button-div">
+                <button id="ChangeTypeGroupDrop" type="button" class="d-none d-md-block btn btn-outline-success dropdown-toggle"
                     data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
                     [disabled]="!DataReady || exportDisabled">
                     Export Results
@@ -24,10 +29,6 @@
                         *ngFor="let fileFormat of ['JSON', 'CSV']"
                         (click)="ExportResults(fileFormat)">{{fileFormat}}</a>
                 </div>
-            </div>
-        </div>
-        <div class="row justify-content-center" [style.display]="!DataReady ? '' : 'none'">
-            <div class="spinner-border " role="status">
             </div>
         </div>
         <div class="container" [style.display]="DataReady ? 'block' : 'none'">
