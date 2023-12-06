@@ -13,12 +13,12 @@
         <hr />
         <div class="row">
             <div class="col-md-3 m-auto">
-                <p class="mt-2 mx-5 fw-light m-auto">Number of Results: {{resultCount}}</p>
+                <p class="mt-2 mx-5 fw-light m-auto" id="results-text">Number of Results: {{resultCount}}</p>
             </div>
             <div class="col-md-6 m-auto">
                 <app-pagination [disabled]="!DataReady" [pageCount]="pageCount" (pagination)="onPaginationChanged($event)"></app-pagination>
             </div>
-            <div class="col-3" id="export-button-div">
+            <div class="col-3">
                 <button id="ChangeTypeGroupDrop" type="button" class="d-none d-md-block btn btn-outline-success dropdown-toggle"
                     data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
                     [disabled]="!DataReady || exportDisabled">

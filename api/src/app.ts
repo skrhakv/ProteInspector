@@ -56,7 +56,7 @@ app.get('/data/transformation-context', async (req, res) => {
     res.status(200).json(result);
 });
 
-// curl -X GET -H "Content---verbose type: application/json"  "http://localhost:3000/data/?page=0&query=select%20*%20from%20proteins%20where%20afterpdbcode=%221btw%22&pageSize=100&datasetId=1" | json_pp -json_opt pretty,canonical
+// curl -X GET --verbose -H "Content-type: application/json"  "http://localhost:3000/data/?page=0&query=select%20*%20from%20proteins%20where%20afterpdbcode=%221btw%22&pageSize=100&datasetId=1" | json_pp -json_opt pretty,canonical
 app.get('/data', (req, res) => {
 
     if (req.query === undefined || req.query.page === undefined || req.query.query === undefined
